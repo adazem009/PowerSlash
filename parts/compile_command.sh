@@ -276,7 +276,7 @@ case "${command[0]}" in
 			abort_compiling "No arguments." 1 1
 		fi
 		i2=1
-		if ((${#command[@]} > 1)); then
+		if ((${#command[@]} > 2)); then
 			print_info "Using multiple read commands." 1
 		fi
 		while ((i2 < ${#command[@]})); do
