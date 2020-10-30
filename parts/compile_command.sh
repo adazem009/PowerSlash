@@ -61,7 +61,6 @@ process_if()
 				abort_compiling "Unexpected end of line." 1 3
 			fi
 		done
-		# We have [value] gate [value] now
 		argcount="$(($argcount+1))"
 		if ((argcount == 1)); then
 			temp4=()
@@ -104,7 +103,8 @@ process_if()
 			if [[ "${#temp4[@]}" != "3" ]]; then
 				abort_compiling "Number of condition inputs must be 3." 1 6
 			fi
-			final="${final}/${temp4[0]},${temp4[1]},${temp4[2]}"
+			temp0='"'
+			final="${final}/${temp4[0]},${temp0}${temp4[1]}${temp0},${temp4[2]}"
 			if ((negate == 1)); then
 				temp0='"!"'
 				final="${final},${temp0}"
@@ -185,7 +185,8 @@ process_if()
 			if [[ "${#temp4[@]}" != "3" ]]; then
 				abort_compiling "Number of condition inputs must be 3." 1 6
 			fi
-			final="${final}/${temp4[0]},${temp4[1]},${temp4[2]}"
+			temp0='"'
+			final="${final}/${temp4[0]},${temp0}${temp4[1]}${temp0},${temp4[2]}"
 			if ((negate2 == 1)); then
 					temp0='"!"'
 					final="${final},${temp0}"
