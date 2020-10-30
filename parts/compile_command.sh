@@ -102,7 +102,6 @@ process_if()
 				done
 			done
 			if [[ "${#temp4[@]}" != "3" ]]; then
-				echo "${temp4[@]}"
 				abort_compiling "Number of condition inputs must be 3." 1 6
 			fi
 			final="${final}/${temp4[0]},${temp4[1]},${temp4[2]}"
@@ -338,7 +337,6 @@ case "${command[0]}" in
 			fi
 		done
 		parts[${#parts[@]}]="$part"
-		echo "parts: ${parts[@]}"
 		temp1=""
 		i3=0
 		while ((i3 < ${#parts[@]})); do
@@ -357,7 +355,6 @@ case "${command[0]}" in
 				fi
 			done
 			parts2[${#parts2[@]}]="${temp1}"
-			echo "parts2: ${parts2[@]}"
 			final="F/"
 			i4=0
 			while ((i4 < ${#parts2[@]})); do
@@ -404,7 +401,6 @@ case "${command[0]}" in
 				parts[$(($i3-1))]="tmp_calc${tmpid}"
 			fi
 		done
-		echo "${parts[@]}"
 		final="F/"
 		i3=0
 		while ((i3 < ${#parts[@]})); do
@@ -448,7 +444,6 @@ case "${command[0]}" in
 		if ((${#parts[@]} > 2)); then
 			echo "$final" >> "./output/$FILE"
 		fi
-		echo "$final"
 		;;
 	"set")
 		# Set variable(s) to value(s).
