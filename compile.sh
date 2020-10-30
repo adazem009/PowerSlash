@@ -138,6 +138,21 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 SOURCE_FILE=$1
+EXT=""
+i1=0
+while ((i1 < ${#SOURCE_FILE})); do
+	i1="$(($i1+1))"
+	if [[ "${SOURCE_FILE:$(($i1-1)):1}" = "." ]]; then
+		NAME="$EXT"
+		EXT=""
+	else
+		EXT="${EXT}${SOURCE_FILE:$(($i1-1)):1}"
+	fi
+done
+if [[ "$EXT" = "$SOURCE_FILE" ]]; then
+	NAME="$EXT"
+	EXT=""
+fi
 if test -f "$SOURCE_FILE"; then
 	# Nothing here
 	:
@@ -145,7 +160,11 @@ else
 	echo "Error: Couldn't open ${FILE}."
 	exit -1
 fi
-FILE="${SOURCE_FILE}.smc"
+if [[ "$EXT" = "pwsl" ]] || [[ "$EXT" = "PWSL" ]]; then
+	FILE="${NAME}.smc"
+else
+	FILE="${SOURCE_FILE}.smc"
+fi
 echo > "./output/$FILE" && rm "./output/$FILE" && touch "./output/$FILE"
 IFS=$'\r\n' GLOBIGNORE='*' command eval  'PRG=($(cat $SOURCE_FILE))'
 # Compile
