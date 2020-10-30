@@ -256,11 +256,9 @@ case "${command[0]}" in
 		;;
 	"print")
 		# Print.
-		# Else.
 		if ((${#command[@]} != 2)); then
 			abort_compiling "Number of arguments must be 1." 1 1
 		fi
-		echo 6 >> "./output/$FILE"
 		i4=0
 		process_argument "${command[1]}"
 		while ((i4 < ${#argument[@]})); do
