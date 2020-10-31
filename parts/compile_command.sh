@@ -72,39 +72,66 @@ process_if()
 						temp4[0]="${temp4[0]}${args[0]:$(($i4-1)):1}"
 					fi
 					if ((i4 > ${#args[0]})); then
-						abort_compiling "Unexpected end of argument." 1 4
+						print_info "Using 1 input in a condition." 1 4
+						break
 					fi
 				done
-				i4="$(($i4+1))"
-				until [[ "${args[0]:$(($i4-1)):1}" = ' ' ]]; do
-					if [[ "${args[0]:$(($i4-1)):1}" != ' ' ]]; then
-						temp4[1]="${temp4[1]}${args[0]:$(($i4-1)):1}"
-					fi
-					if ((i4 > ${#args[0]})); then
-						abort_compiling "Unexpected end of argument." 1 4
-					fi
+				if ((i4 <= ${#args[0]})); then
 					i4="$(($i4+1))"
-				done
-				i4="$(($i4+1))"
-				lentemp="${#args[0]}"
-				lentemp="$(($lentemp+1))"
-				until ((i4 == lentemp)); do
-					if [[ "${args[0]:$(($i4-1)):1}" = ' ' ]]; then
-						abort_compiling "Unexpected space after second value." 1 5
-					else
-						temp4[2]="${temp4[2]}${args[0]:$(($i4-1)):1}"
-					fi
-					if ((i4 > ${#args[0]})); then
-						abort_compiling "Unexpected end of argument." 1 4
-					fi
+					until [[ "${args[0]:$(($i4-1)):1}" = ' ' ]]; do
+						if [[ "${args[0]:$(($i4-1)):1}" != ' ' ]]; then
+							temp4[1]="${temp4[1]}${args[0]:$(($i4-1)):1}"
+						fi
+						if ((i4 > ${#args[0]})); then
+							abort_compiling "Unexpected end of argument." 1 4
+						fi
+						i4="$(($i4+1))"
+					done
 					i4="$(($i4+1))"
-				done
+					lentemp="${#args[0]}"
+					lentemp="$(($lentemp+1))"
+					until ((i4 == lentemp)); do
+						if [[ "${args[0]:$(($i4-1)):1}" = ' ' ]]; then
+							abort_compiling "Unexpected space after second value." 1 5
+						else
+							temp4[2]="${temp4[2]}${args[0]:$(($i4-1)):1}"
+						fi
+						if ((i4 > ${#args[0]})); then
+							abort_compiling "Unexpected end of argument." 1 4
+						fi
+						i4="$(($i4+1))"
+					done
+				fi
 			done
-			if [[ "${#temp4[@]}" != "3" ]]; then
-				abort_compiling "Number of condition inputs must be 3." 1 6
+			if [[ "${#temp4[@]}" = "1" ]]; then
+				case "${temp4[0]}" in
+					1)
+						temp0='"'
+						final="${final}/0,${temp0}==${temp0},0"
+						;;
+					"true")
+						temp0='"'
+						final="${final}/0,${temp0}==${temp0},0"
+						;;
+					0)
+						temp0='"'
+						final="${final}/0,${temp0}!=${temp0},0"
+						;;
+					"false")
+						temp0='"'
+						final="${final}/0,${temp0}!=${temp0},0"
+						;;
+					*)
+						abort_compiling "Invalid input: ${temp4[0]}." 1 11
+						;;
+				esac
+			else
+				if [[ "${#temp4[@]}" != "3" ]]; then
+					abort_compiling "Number of condition inputs must be 3 or 1 (1 or 0 input)." 1 6
+				fi
+				temp0='"'
+				final="${final}/${temp4[0]},${temp0}${temp4[1]}${temp0},${temp4[2]}"
 			fi
-			temp0='"'
-			final="${final}/${temp4[0]},${temp0}${temp4[1]}${temp0},${temp4[2]}"
 			if ((negate == 1)); then
 				temp0='"!"'
 				final="${final},${temp0}"
