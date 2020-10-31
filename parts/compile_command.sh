@@ -520,6 +520,10 @@ case "${command[0]}" in
 		fi
 		process_if 7
 		;;
+	"")
+		# Comment.
+		print_info "Skipping comment." 1
+		;;
 	*)
 		abort_compiling "Command '${command[0]}' not found." 1 8
 		;;
