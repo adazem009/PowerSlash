@@ -28,7 +28,7 @@ process_command ()
 			command[${#command[@]}]="$addcmd"
 			temp=""
 		else
-			if [[ "$chartemp" != ' ' ]] || ((${#command[@]} > 0)); then
+			if [[ "$chartemp" != ' ' ]] && [[ "$chartemp" != '	' ]] || ((${#command[@]} > 0)); then
 				temp="${temp}${chartemp}"
 			fi
 		fi
