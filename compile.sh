@@ -170,6 +170,8 @@ if [ -d "./.functions" ]; then
 	rm -rf ./.functions
 fi
 mkdir ./.functions
+def=0
+func=0
 IFS=$'\r\n' GLOBIGNORE='*' command eval  'PRG=($(cat $SOURCE_FILE))'
 # Compile
 tmpid=0
