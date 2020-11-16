@@ -506,10 +506,29 @@ case "${command[0]}" in
 		# Set variable(s) to value(s).
 		# set/[var name],[value]/[var name],[value]/ ...
 		final="10"
-		i2=1
-		while ((i2 < ${#command[@]})); do
-			i2="$(($i2+1))"
-			final="${final}/${command[$(($i2-1))]}"
+		i4=1
+		while ((i4 < ${#command[@]})); do
+			i4="$(($i4+1))"
+			final="${final}/${command[$(($i4-1))]}"
+			process_argument "${command[$(($i4-1))]}"
+			num=$(($i4-1))
+			if ((${#argument[@]} < 2)); then
+				case ${num:$((${#num}-1)):1} in
+					1)
+						tmp0=st
+						;;
+					2)
+						tmp0=nd
+						;;
+					3)
+						tmp0=rd
+						;;
+					*)
+						tmp0=th
+						;;
+				esac
+				abort_compiling "Number of inputs in the ${num}${tmp0} argument must be at least 2." 1 10
+			fi
 		done
 		echo "$final" >> "./output/$FILE"
 		;;
@@ -530,6 +549,122 @@ case "${command[0]}" in
 			abort_compiling "No arguments." 1 1
 		fi
 		process_if 7
+		;;
+	"getletter")
+		# Get letter of a string and save it in variable(s).
+		if ((${#command[@]} != 3)); then
+			abort_compiling "Number of arguments must be 2." 1 1
+		fi
+		process_argument ${command[1]}
+		if ((${#argument[@]} != 2)); then
+			abort_compiling "Number of inputs in the first argument must be 2." 1 10
+		fi
+		process_argument ${command[2]}
+		if ((${#argument[@]} == 0)); then
+			abort_compiling "Number of inputs in the second argument must be at least 1." 1 10
+		fi
+		echo "12/${command[1]}/${command[2]}" >> "./output/$FILE"
+		;;
+	"getlength")
+		# Get length of a string and save it in variable(s).
+		if ((${#command[@]} != 3)); then
+			abort_compiling "Number of arguments must be 2." 1 1
+		fi
+		process_argument ${command[1]}
+		if ((${#argument[@]} != 1)); then
+			abort_compiling "Number of inputs in the first argument must be 1." 1 10
+		fi
+		process_argument ${command[2]}
+		if ((${#argument[@]} == 0)); then
+			abort_compiling "Number of inputs in the second argument must be at least 1." 1 10
+		fi
+		echo "13/${command[1]}/${command[2]}" >> "./output/$FILE"
+		;;
+	"setlist")
+		# Setup list(s).
+		if ((${#command[@]} != 2)) && ((${#command[@]} != 3)); then
+			abort_compiling "Number of arguments must be 1 or 2." 1 1
+		fi
+		process_argument ${command[1]}
+		if ((${#argument[@]} != 1)); then
+			abort_compiling "Number of inputs in the first argument must be 1." 1 10
+		fi
+		echo "14/${command[1]}/${command[2]}" >> "./output/$FILE"
+		;;
+	"append")
+		# Append to list.
+		if ((${#command[@]} != 3)); then
+			abort_compiling "Number of arguments must be 2." 1 1
+		fi
+		process_argument ${command[1]}
+		if ((${#argument[@]} != 1)); then
+			abort_compiling "Number of inputs in the first argument must be 1." 1 10
+		fi
+		process_argument ${command[2]}
+		if ((${#argument[@]} != 1)); then
+			abort_compiling "Number of inputs in the second argument must be 1." 1 10
+		fi
+		echo "15/${command[1]}/${command[2]}" >> "./output/$FILE"
+		;;
+	"replace")
+		# Replace item in list.
+		if ((${#command[@]} != 3)); then
+			abort_compiling "Number of arguments must be 2." 1 1
+		fi
+		process_argument ${command[1]}
+		if ((${#argument[@]} != 2)); then
+			abort_compiling "Number of inputs in the first argument must be 2." 1 10
+		fi
+		process_argument ${command[2]}
+		if ((${#argument[@]} != 1)); then
+			abort_compiling "Number of inputs in the second argument must be 1." 1 10
+		fi
+		echo "16/${command[1]}/${command[2]}" >> "./output/$FILE"
+		;;
+	"insert")
+		# Insert item to list.
+		if ((${#command[@]} != 3)); then
+			abort_compiling "Number of arguments must be 2." 1 1
+		fi
+		process_argument ${command[1]}
+		if ((${#argument[@]} != 2)); then
+			abort_compiling "Number of inputs in the first argument must be 2." 1 10
+		fi
+		process_argument ${command[2]}
+		if ((${#argument[@]} != 1)); then
+			abort_compiling "Number of inputs in the second argument must be 1." 1 10
+		fi
+		echo "17/${command[1]}/${command[2]}" >> "./output/$FILE"
+		;;
+	"getitem")
+		# Get item from list.
+		if ((${#command[@]} != 3)); then
+			abort_compiling "Number of arguments must be 2." 1 1
+		fi
+		process_argument ${command[1]}
+		if ((${#argument[@]} != 2)); then
+			abort_compiling "Number of inputs in the first argument must be 2." 1 10
+		fi
+		process_argument ${command[2]}
+		if ((${#argument[@]} == 0)); then
+			abort_compiling "Number of inputs in the second argument must be at least 1." 1 10
+		fi
+		echo "18/${command[1]}/${command[2]}" >> "./output/$FILE"
+		;;
+	"getlistlength")
+		# Get length of list.
+		if ((${#command[@]} != 3)); then
+			abort_compiling "Number of arguments must be 2." 1 1
+		fi
+		process_argument ${command[1]}
+		if ((${#argument[@]} != 1)); then
+			abort_compiling "Number of inputs in the first argument must be 1." 1 10
+		fi
+		process_argument ${command[2]}
+		if ((${#argument[@]} == 0)); then
+			abort_compiling "Number of inputs in the second argument must be at least 1." 1 10
+		fi
+		echo "19/${command[1]}/${command[2]}" >> "./output/$FILE"
 		;;
 	"")
 		# Comment.
