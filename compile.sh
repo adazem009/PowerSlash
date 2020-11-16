@@ -7,6 +7,35 @@
 #!/bin/bash
 
 # --- Functions ---
+cmd_db ()
+{
+	touch .functions/exit
+	touch .functions/repeat
+	touch .functions/endloop
+	touch .functions/if
+	touch .functions/endif
+	touch .functions/else
+	touch .functions/elseif
+	touch .functions/print
+	touch .functions/read
+	touch .functions/keywait
+	touch .functions/clear
+	touch .functions/calc
+	touch .functions/set
+	touch .functions/round
+	touch .functions/while
+	touch .functions/getletter
+	touch .functions/getlength
+	touch .functions/setlist
+	touch .functions/append
+	touch .functions/replace
+	touch .functions/insert
+	touch .functions/getitem
+	touch .functions/getlistlength
+	touch .functions/define
+	touch ".functions/{"
+	touch ".functions/}"
+}
 process_command ()
 {
 	local cmd="$1"
@@ -170,6 +199,7 @@ if [ -d "./.functions" ]; then
 	rm -rf ./.functions
 fi
 mkdir ./.functions
+cmd_db
 def=0
 func=0
 IFS=$'\r\n' GLOBIGNORE='*' command eval  'PRG=($(cat $SOURCE_FILE))'
