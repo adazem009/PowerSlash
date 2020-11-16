@@ -166,6 +166,10 @@ else
 	FILE="${SOURCE_FILE}.smc"
 fi
 echo > "./output/$FILE" && rm "./output/$FILE" && touch "./output/$FILE"
+if [ -d "./.functions" ]; then
+	rm -rf ./.functions
+fi
+mkdir ./.functions
 IFS=$'\r\n' GLOBIGNORE='*' command eval  'PRG=($(cat $SOURCE_FILE))'
 # Compile
 tmpid=0
@@ -177,3 +181,4 @@ while (( i1 < prg_len )); do
 	source ./parts/compile_command.sh
 	echo -e "[ ${GREEN}OK${NC} ] Compiled line $i1"
 done
+rm -rf ./.functions
