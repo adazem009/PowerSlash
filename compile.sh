@@ -7,6 +7,35 @@
 #!/bin/bash
 
 # --- Functions ---
+cmd_db ()
+{
+	touch .functions/exit
+	touch .functions/repeat
+	touch .functions/endloop
+	touch .functions/if
+	touch .functions/endif
+	touch .functions/else
+	touch .functions/elseif
+	touch .functions/print
+	touch .functions/read
+	touch .functions/keywait
+	touch .functions/clear
+	touch .functions/calc
+	touch .functions/set
+	touch .functions/round
+	touch .functions/while
+	touch .functions/getletter
+	touch .functions/getlength
+	touch .functions/setlist
+	touch .functions/append
+	touch .functions/replace
+	touch .functions/insert
+	touch .functions/getitem
+	touch .functions/getlistlength
+	touch .functions/define
+	touch ".functions/{"
+	touch ".functions/}"
+}
 process_command ()
 {
 	local cmd="$1"
@@ -166,10 +195,31 @@ else
 	FILE="${SOURCE_FILE}.smc"
 fi
 echo > "./output/$FILE" && rm "./output/$FILE" && touch "./output/$FILE"
+if [ -d "./.functions" ]; then
+	rm -rf ./.functions
+fi
+mkdir ./.functions
+echo > "./output/${FILE}.old" && rm "./output/${FILE}.old" && touch "./output/${FILE}.old"
+cmd_db
+def=0
+func=0
 IFS=$'\r\n' GLOBIGNORE='*' command eval  'PRG=($(cat $SOURCE_FILE))'
 # Compile
 tmpid=0
 prg_len="${#PRG[@]}"
+print_info "Searching for functions..."
+functions=()
+i1=0
+while (( i1 < prg_len )); do
+	i1="$(($i1+1))"
+	process_command "${PRG[$(($i1-1))]}"
+	if [[ "${command[0]}" = "define" ]]; then
+		process_argument2 "${command[1]}"
+		print_info "Found function '${argument[0]}'" 1
+		functions[${#functions[@]}]="${argument[0]}"
+	fi
+done
+print_info "Compiling lines..."
 i1=0
 while (( i1 < prg_len )); do
 	i1="$(($i1+1))"
@@ -177,3 +227,56 @@ while (( i1 < prg_len )); do
 	source ./parts/compile_command.sh
 	echo -e "[ ${GREEN}OK${NC} ] Compiled line $i1"
 done
+chain=0
+contains=1
+until ((contains == 0)) || ((chain >= 50)); do
+	print_info "Compiling additional functions..."
+	chain=$((chain+1))
+	IFS=$'\r\n' GLOBIGNORE='*' command eval  'PRG=($(cat ./output/$FILE))'
+	rm "./output/$FILE"
+	prg_len="${#PRG[@]}"
+	i1=0
+	while (( i1 < prg_len )); do
+		i1="$(($i1+1))"
+		process_command "${PRG[$(($i1-1))]}"
+		contains=0
+		i4=0
+		while ((i4 < ${#functions})); do
+			i4=$((i4+1))
+			if [[ "${functions[$((i4-1))]}" = "${command[0]}" ]]; then
+				contains=1
+			fi
+		done
+		if ((contains == 1)); then
+			print_info "Found function '${command[0]}'"
+			tmp0='"'
+			i4=1
+			while ((i4 < ${#command[@]})); do
+				i4=$((i4+1))
+				echo "14/${tmp0}arg_$((i4-1))${tmp0}" >> "./output/$FILE"
+				process_argument "${command[$((i4-1))]}"
+				i5=0
+				while ((i5 < ${#argument[@]})); do
+					i5=$((i5+1))
+					echo "15/${argument[$((i5-1))]}/${tmp0}arg_$((i4-1))${tmp0}" >> "./output/$FILE"
+				done
+			done
+			echo "15/${tmp0}arg_count${tmp0},$((${#command[@]}-1))" >> "./output/$FILE"
+			i4=0
+			len="$(wc -l < "./.functions/${command[0]}")"
+			while ((i4 < len)); do
+				i4=$((i4+1))
+				tmp0='!'
+				echo "$(sed "${i4}${tmp0}d" "./.functions/${command[0]}")" >> "./output/$FILE"
+			done
+		else
+			echo "${PRG[$(($i1-1))]}" >> "./output/$FILE"
+		fi
+	done
+done
+if ((chain >= 50)); then
+	abort_compiling "Woah! I got stuck in a loop... please check your functions!" 0 -2
+fi
+echo -e "[ ${GREEN}OK${NC} ] Compiled $SOURCE_FILE"
+rm -rf ./.functions
+rm "./output/${FILE}.old"

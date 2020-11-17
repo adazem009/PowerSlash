@@ -506,10 +506,29 @@ case "${command[0]}" in
 		# Set variable(s) to value(s).
 		# set/[var name],[value]/[var name],[value]/ ...
 		final="10"
-		i2=1
-		while ((i2 < ${#command[@]})); do
-			i2="$(($i2+1))"
-			final="${final}/${command[$(($i2-1))]}"
+		i4=1
+		while ((i4 < ${#command[@]})); do
+			i4="$(($i4+1))"
+			final="${final}/${command[$(($i4-1))]}"
+			process_argument "${command[$(($i4-1))]}"
+			num=$(($i4-1))
+			if ((${#argument[@]} < 2)); then
+				case ${num:$((${#num}-1)):1} in
+					1)
+						tmp0=st
+						;;
+					2)
+						tmp0=nd
+						;;
+					3)
+						tmp0=rd
+						;;
+					*)
+						tmp0=th
+						;;
+				esac
+				abort_compiling "Number of inputs in the ${num}${tmp0} argument must be at least 2." 1 10
+			fi
 		done
 		echo "$final" >> "./output/$FILE"
 		;;
@@ -531,11 +550,221 @@ case "${command[0]}" in
 		fi
 		process_if 7
 		;;
+	"getletter")
+		# Get letter of a string and save it in variable(s).
+		if ((${#command[@]} != 3)); then
+			abort_compiling "Number of arguments must be 2." 1 1
+		fi
+		process_argument ${command[1]}
+		if ((${#argument[@]} != 2)); then
+			abort_compiling "Number of inputs in the first argument must be 2." 1 10
+		fi
+		process_argument ${command[2]}
+		if ((${#argument[@]} == 0)); then
+			abort_compiling "Number of inputs in the second argument must be at least 1." 1 10
+		fi
+		echo "12/${command[1]}/${command[2]}" >> "./output/$FILE"
+		;;
+	"getlength")
+		# Get length of a string and save it in variable(s).
+		if ((${#command[@]} != 3)); then
+			abort_compiling "Number of arguments must be 2." 1 1
+		fi
+		process_argument ${command[1]}
+		if ((${#argument[@]} != 1)); then
+			abort_compiling "Number of inputs in the first argument must be 1." 1 10
+		fi
+		process_argument ${command[2]}
+		if ((${#argument[@]} == 0)); then
+			abort_compiling "Number of inputs in the second argument must be at least 1." 1 10
+		fi
+		echo "13/${command[1]}/${command[2]}" >> "./output/$FILE"
+		;;
+	"setlist")
+		# Setup list(s).
+		if ((${#command[@]} != 2)) && ((${#command[@]} != 3)); then
+			abort_compiling "Number of arguments must be 1 or 2." 1 1
+		fi
+		process_argument ${command[1]}
+		if ((${#argument[@]} != 1)); then
+			abort_compiling "Number of inputs in the first argument must be 1." 1 10
+		fi
+		echo "14/${command[1]}/${command[2]}" >> "./output/$FILE"
+		;;
+	"append")
+		# Append to list.
+		if ((${#command[@]} != 3)); then
+			abort_compiling "Number of arguments must be 2." 1 1
+		fi
+		process_argument ${command[1]}
+		if ((${#argument[@]} != 1)); then
+			abort_compiling "Number of inputs in the first argument must be 1." 1 10
+		fi
+		process_argument ${command[2]}
+		if ((${#argument[@]} != 1)); then
+			abort_compiling "Number of inputs in the second argument must be 1." 1 10
+		fi
+		echo "15/${command[1]}/${command[2]}" >> "./output/$FILE"
+		;;
+	"replace")
+		# Replace item in list.
+		if ((${#command[@]} != 3)); then
+			abort_compiling "Number of arguments must be 2." 1 1
+		fi
+		process_argument ${command[1]}
+		if ((${#argument[@]} != 2)); then
+			abort_compiling "Number of inputs in the first argument must be 2." 1 10
+		fi
+		process_argument ${command[2]}
+		if ((${#argument[@]} != 1)); then
+			abort_compiling "Number of inputs in the second argument must be 1." 1 10
+		fi
+		echo "16/${command[1]}/${command[2]}" >> "./output/$FILE"
+		;;
+	"insert")
+		# Insert item to list.
+		if ((${#command[@]} != 3)); then
+			abort_compiling "Number of arguments must be 2." 1 1
+		fi
+		process_argument ${command[1]}
+		if ((${#argument[@]} != 2)); then
+			abort_compiling "Number of inputs in the first argument must be 2." 1 10
+		fi
+		process_argument ${command[2]}
+		if ((${#argument[@]} != 1)); then
+			abort_compiling "Number of inputs in the second argument must be 1." 1 10
+		fi
+		echo "17/${command[1]}/${command[2]}" >> "./output/$FILE"
+		;;
+	"getitem")
+		# Get item from list.
+		if ((${#command[@]} != 3)); then
+			abort_compiling "Number of arguments must be 2." 1 1
+		fi
+		process_argument ${command[1]}
+		if ((${#argument[@]} != 2)); then
+			abort_compiling "Number of inputs in the first argument must be 2." 1 10
+		fi
+		process_argument ${command[2]}
+		if ((${#argument[@]} == 0)); then
+			abort_compiling "Number of inputs in the second argument must be at least 1." 1 10
+		fi
+		echo "18/${command[1]}/${command[2]}" >> "./output/$FILE"
+		;;
+	"getlistlength")
+		# Get length of list.
+		if ((${#command[@]} != 3)); then
+			abort_compiling "Number of arguments must be 2." 1 1
+		fi
+		process_argument ${command[1]}
+		if ((${#argument[@]} != 1)); then
+			abort_compiling "Number of inputs in the first argument must be 1." 1 10
+		fi
+		process_argument ${command[2]}
+		if ((${#argument[@]} == 0)); then
+			abort_compiling "Number of inputs in the second argument must be at least 1." 1 10
+		fi
+		echo "19/${command[1]}/${command[2]}" >> "./output/$FILE"
+		;;
+	"define")
+		# Function definition.
+		if ((${#command[@]} != 2)); then
+			abort_compiling "Number of arguments must be 1." 1 1
+		fi
+		process_argument "${command[1]}"
+		if ((${#argument[@]} != 1)); then
+			abort_compiling "Number of inputs in the first argument must be 1." 1 10
+		fi
+		if ((def != 0)); then
+			abort_compiling "Can't define a function inside another function." 1 12
+		fi
+		def=$i1
+		if [[ "${argument[0]:0:1}" != '"' ]]; then
+			abort_compiling "Can't get function name from a variable." 1 15
+		fi
+		process_argument2 "${command[1]}"
+		defname="${argument[0]}"
+		if [ -f "./.functions/$defname" ]; then
+			abort_compiling "Command or function '${defname}' already exists." 1 14
+		fi
+		rm "./output/${FILE}.old" && cp "./output/$FILE" "./output/${FILE}.old"
+		;;
+	"{")
+		# Function definition start.
+		if ((${#command[@]} > 1)); then
+			abort_compiling "Number of arguments must be 0." 1 1
+		fi
+		if ((func == 1)); then
+			abort_compiling "Can't start a function definition inside another function." 1 12
+		fi
+		if (($((def+1)) != i1)); then
+			abort_compiling "Unexpected token '}'." 1 13
+		fi
+		func=1
+		defstart="$(wc -l < "./output/$FILE")"
+		;;
+	"}")
+		# Function definition end.
+		if ((${#command[@]} > 1)); then
+			abort_compiling "Number of arguments must be 0." 1 1
+		fi
+		if ((func == 0)) || ((def == 0)); then
+			abort_compiling "Unexpected token '}'." 1 13
+		fi
+		def=0
+		func=0
+		i4=$defstart
+		len="$(wc -l < "./output/$FILE")"
+		while ((i4 < len)); do
+			i4=$((i4+1))
+			tmp0='!'
+			echo "$(sed "${i4}${tmp0}d" "./output/$FILE")" >> "./.functions/$defname"
+		done
+		rm "./output/$FILE" && mv "./output/${FILE}.old" "./output/$FILE" && touch "./output/${FILE}.old"
+		print_info "Compiled function '${defname}'." 1
+		cat "./.functions/$defname"
+		;;
 	"")
 		# Comment.
 		print_info "Skipping comment." 1
 		;;
 	*)
-		abort_compiling "Command '${command[0]}' not found." 1 8
+		if [ -f "./.functions/${command[0]}" ]; then
+			print_info "Found function '${command[0]}'." 1
+			tmp0='"'
+			i4=1
+			while ((i4 < ${#command[@]})); do
+				i4=$((i4+1))
+				echo "14/${tmp0}arg_$((i4-1))${tmp0}" >> "./output/$FILE"
+				process_argument "${command[$((i4-1))]}"
+				i5=0
+				while ((i5 < ${#argument[@]})); do
+					i5=$((i5+1))
+					echo "15/${argument[$((i5-1))]}/${tmp0}arg_$((i4-1))${tmp0}" >> "./output/$FILE"
+				done
+			done
+			echo "15/${tmp0}arg_count${tmp0},$((${#command[@]}-1))" >> "./output/$FILE"
+			i4=0
+			len="$(wc -l < "./.functions/${command[0]}")"
+			while ((i4 < len)); do
+				i4=$((i4+1))
+				tmp0='!'
+				echo "$(sed "${i4}${tmp0}d" "./.functions/${command[0]}")" >> "./output/$FILE"
+			done
+		else
+			contains=0
+			i4=0
+			while ((i4 < ${#functions})); do
+				i4=$((i4+1))
+				if [[ "${functions[$((i4-1))]}" = "${command[0]}" ]]; then
+					contains=1
+				fi
+			done
+			if ((contains == 1)); then
+				echo "${command[0]}" >> "./output/$FILE"
+			else
+				abort_compiling "Command or function '${command[0]}' not found." 1 8
+			fi
+		fi
 		;;
 esac
