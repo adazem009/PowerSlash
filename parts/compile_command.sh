@@ -666,11 +666,105 @@ case "${command[0]}" in
 		fi
 		echo "19/${command[1]}/${command[2]}" >> "./output/$FILE"
 		;;
+	"define")
+		# Function definition.
+		if ((${#command[@]} != 2)); then
+			abort_compiling "Number of arguments must be 1." 1 1
+		fi
+		process_argument "${command[1]}"
+		if ((${#argument[@]} != 1)); then
+			abort_compiling "Number of inputs in the first argument must be 1." 1 10
+		fi
+		if ((def != 0)); then
+			abort_compiling "Can't define a function inside another function." 1 12
+		fi
+		def=$i1
+		if [[ "${argument[0]:0:1}" != '"' ]]; then
+			abort_compiling "Can't get function name from a variable." 1 15
+		fi
+		process_argument2 "${command[1]}"
+		defname="${argument[0]}"
+		if [ -f "./.functions/$defname" ]; then
+			abort_compiling "Command or function '${defname}' already exists." 1 14
+		fi
+		rm "./output/${FILE}.old" && cp "./output/$FILE" "./output/${FILE}.old"
+		;;
+	"{")
+		# Function definition start.
+		if ((${#command[@]} > 1)); then
+			abort_compiling "Number of arguments must be 0." 1 1
+		fi
+		if ((func == 1)); then
+			abort_compiling "Can't start a function definition inside another function." 1 12
+		fi
+		if (($((def+1)) != i1)); then
+			abort_compiling "Unexpected token '}'." 1 13
+		fi
+		func=1
+		defstart="$(wc -l < "./output/$FILE")"
+		;;
+	"}")
+		# Function definition end.
+		if ((${#command[@]} > 1)); then
+			abort_compiling "Number of arguments must be 0." 1 1
+		fi
+		if ((func == 0)) || ((def == 0)); then
+			abort_compiling "Unexpected token '}'." 1 13
+		fi
+		def=0
+		func=0
+		i4=$defstart
+		len="$(wc -l < "./output/$FILE")"
+		while ((i4 < len)); do
+			i4=$((i4+1))
+			tmp0='!'
+			echo "$(sed "${i4}${tmp0}d" "./output/$FILE")" >> "./.functions/$defname"
+		done
+		rm "./output/$FILE" && mv "./output/${FILE}.old" "./output/$FILE" && touch "./output/${FILE}.old"
+		print_info "Compiled function '${defname}'." 1
+		cat "./.functions/$defname"
+		;;
 	"")
 		# Comment.
 		print_info "Skipping comment." 1
 		;;
 	*)
-		abort_compiling "Command '${command[0]}' not found." 1 8
+		if [ -f "./.functions/${command[0]}" ]; then
+			print_info "Found function '${command[0]}'." 1
+			tmp0='"'
+			i4=1
+			while ((i4 < ${#command[@]})); do
+				i4=$((i4+1))
+				echo "14/${tmp0}arg_$((i4-1))${tmp0}" >> "./output/$FILE"
+				process_argument "${command[$((i4-1))]}"
+				i5=0
+				while ((i5 < ${#argument[@]})); do
+					i5=$((i5+1))
+					echo "15/${argument[$((i5-1))]}/${tmp0}arg_$((i4-1))${tmp0}" >> "./output/$FILE"
+				done
+			done
+			echo "15/${tmp0}arg_count${tmp0},$((${#command[@]}-1))" >> "./output/$FILE"
+			i4=0
+			len="$(wc -l < "./.functions/${command[0]}")"
+			while ((i4 < len)); do
+				i4=$((i4+1))
+				tmp0='!'
+				echo "$(sed "${i4}${tmp0}d" "./.functions/${command[0]}")" >> "./output/$FILE"
+			done
+		else
+			contains=0
+			i4=0
+			while ((i4 < ${#functions})); do
+				i4=$((i4+1))
+				if [[ "${functions[$((i4-1))]}" = "${command[0]}" ]]; then
+					contains=1
+				fi
+			done
+			if ((contains == 1)); then
+				echo "${command[0]}" >> "./output/$FILE"
+			else
+				abort_compiling "Command or function '${command[0]}' not found." 1 8
+			fi
+		fi
 		;;
 esac
