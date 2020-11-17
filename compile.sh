@@ -227,67 +227,56 @@ while (( i1 < prg_len )); do
 	source ./parts/compile_command.sh
 	echo -e "[ ${GREEN}OK${NC} ] Compiled line $i1"
 done
-print_info "Compiling additional functions..."
-IFS=$'\r\n' GLOBIGNORE='*' command eval  'PRG=($(cat ./output/$FILE))'
-rm "./output/$FILE"
-prg_len="${#PRG[@]}"
-i1=0
-while (( i1 < prg_len )); do
-	i1="$(($i1+1))"
-	process_command "${PRG[$(($i1-1))]}"
-	contains=0
-	i4=0
-	while ((i4 < ${#functions})); do
-		i4=$((i4+1))
-		if [[ "${functions[$((i4-1))]}" = "${command[0]}" ]]; then
-			contains=1
-		fi
-	done
-	if ((contains == 1)); then
-		print_info "Found function '${command[0]}'"
-		tmp0='"'
-		i4=1
-		while ((i4 < ${#command[@]})); do
-			i4=$((i4+1))
-			echo "14/${tmp0}arg_$((i4-1))${tmp0}" >> "./output/$FILE"
-			process_argument "${command[$((i4-1))]}"
-			i5=0
-			while ((i5 < ${#argument[@]})); do
-				i5=$((i5+1))
-				echo "15/${argument[$((i5-1))]}/${tmp0}arg_$((i4-1))${tmp0}" >> "./output/$FILE"
-			done
-		done
-		echo "15/${tmp0}arg_count${tmp0},$((${#command[@]}-1))" >> "./output/$FILE"
+chain=0
+contains=1
+until ((contains == 0)) || ((chain >= 50)); do
+	print_info "Compiling additional functions..."
+	chain=$((chain+1))
+	IFS=$'\r\n' GLOBIGNORE='*' command eval  'PRG=($(cat ./output/$FILE))'
+	rm "./output/$FILE"
+	prg_len="${#PRG[@]}"
+	i1=0
+	while (( i1 < prg_len )); do
+		i1="$(($i1+1))"
+		process_command "${PRG[$(($i1-1))]}"
+		contains=0
 		i4=0
-		len="$(wc -l < "./.functions/${command[0]}")"
-		while ((i4 < len)); do
+		while ((i4 < ${#functions})); do
 			i4=$((i4+1))
-			tmp0='!'
-			echo "$(sed "${i4}${tmp0}d" "./.functions/${command[0]}")" >> "./output/$FILE"
+			if [[ "${functions[$((i4-1))]}" = "${command[0]}" ]]; then
+				contains=1
+			fi
 		done
-	else
-		echo "${PRG[$(($i1-1))]}" >> "./output/$FILE"
-	fi
-done
-print_info "Checking compiled file..."
-IFS=$'\r\n' GLOBIGNORE='*' command eval  'PRG=($(cat ./output/$FILE))'
-prg_len="${#PRG[@]}"
-i1=0
-while (( i1 < prg_len )); do
-	i1="$(($i1+1))"
-	process_command "${PRG[$(($i1-1))]}"
-	contains=0
-	i4=0
-	while ((i4 < ${#functions})); do
-		i4=$((i4+1))
-		if [[ "${functions[$((i4-1))]}" = "${command[0]}" ]]; then
-			contains=1
+		if ((contains == 1)); then
+			print_info "Found function '${command[0]}'"
+			tmp0='"'
+			i4=1
+			while ((i4 < ${#command[@]})); do
+				i4=$((i4+1))
+				echo "14/${tmp0}arg_$((i4-1))${tmp0}" >> "./output/$FILE"
+				process_argument "${command[$((i4-1))]}"
+				i5=0
+				while ((i5 < ${#argument[@]})); do
+					i5=$((i5+1))
+					echo "15/${argument[$((i5-1))]}/${tmp0}arg_$((i4-1))${tmp0}" >> "./output/$FILE"
+				done
+			done
+			echo "15/${tmp0}arg_count${tmp0},$((${#command[@]}-1))" >> "./output/$FILE"
+			i4=0
+			len="$(wc -l < "./.functions/${command[0]}")"
+			while ((i4 < len)); do
+				i4=$((i4+1))
+				tmp0='!'
+				echo "$(sed "${i4}${tmp0}d" "./.functions/${command[0]}")" >> "./output/$FILE"
+			done
+		else
+			echo "${PRG[$(($i1-1))]}" >> "./output/$FILE"
 		fi
 	done
-	if ((contains == 1)); then
-		abort_compiling "Unknown error. Please check your functions. 1) Function name shouldn't be a number. 2) You can't use the use the function you're currently defining in a function definition." 0 16
-	fi
 done
+if ((chain >= 50)); then
+	abort_compiling "Woah! I got stuck in a loop... please check your functions!" 0 -2
+fi
 echo -e "[ ${GREEN}OK${NC} ] Compiled $SOURCE_FILE"
 rm -rf ./.functions
 rm "./output/${FILE}.old"
