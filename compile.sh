@@ -199,6 +199,7 @@ if [ -d "./.functions" ]; then
 	rm -rf ./.functions
 fi
 mkdir ./.functions
+echo > "./output/${FILE}.old" && rm "./output/${FILE}.old" && touch "./output/${FILE}.old"
 cmd_db
 def=0
 func=0
@@ -214,3 +215,4 @@ while (( i1 < prg_len )); do
 	echo -e "[ ${GREEN}OK${NC} ] Compiled line $i1"
 done
 rm -rf ./.functions
+rm "./output/${FILE}.old"
