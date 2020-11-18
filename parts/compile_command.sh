@@ -724,6 +724,27 @@ case "${command[0]}" in
 		print_info "Compiled function '${defname}'." 1
 		cat "./.functions/$defname"
 		;;
+	"run")
+		# Run script.
+		if ((${#command[@]} < 2)); then
+			abort_compiling "Number of arguments must be at least 1." 1 1
+		fi
+		process_argument "${command[1]}"
+		if ((${#argument[@]} != 1)); then
+			abort_compiling "Number of inputs in the first argument must be 1." 1 10
+		fi
+		process_argument "${command[2]}"
+		if ((${#argument[@]} > 1)); then
+			abort_compiling "Number of inputs in the second argument must be 1 or 0." 1 10
+		fi
+		final="1A/${command[1]}/${command[2]}"
+		i2=3
+		while ((i2 < ${#command[@]})); do
+			i2="$(($i2+1))"
+			final="${final}/${command[$(($i2-1))]}"
+		done
+		echo "$final" >> "./output/$FILE"
+		;;
 	"")
 		# Comment.
 		print_info "Skipping comment." 1
