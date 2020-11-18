@@ -724,6 +724,70 @@ case "${command[0]}" in
 		print_info "Compiled function '${defname}'." 1
 		cat "./.functions/$defname"
 		;;
+	"run")
+		# Run script.
+		if ((${#command[@]} < 2)); then
+			abort_compiling "Number of arguments must be at least 1." 1 1
+		fi
+		process_argument "${command[1]}"
+		if ((${#argument[@]} != 1)); then
+			abort_compiling "Number of inputs in the first argument must be 1." 1 10
+		fi
+		process_argument "${command[2]}"
+		if ((${#argument[@]} > 1)); then
+			abort_compiling "Number of inputs in the second argument must be 1 or 0." 1 10
+		fi
+		final="1A/${command[1]}/${command[2]}"
+		i2=3
+		while ((i2 < ${#command[@]})); do
+			i2="$(($i2+1))"
+			final="${final}/${command[$(($i2-1))]}"
+		done
+		echo "$final" >> "./output/$FILE"
+		;;
+	"source")
+		# Source - share variables and lists with other scripts.
+		if ((${#command[@]} < 2)); then
+			abort_compiling "Number of arguments must be at least 1." 1 1
+		fi
+		process_argument "${command[1]}"
+		if ((${#argument[@]} != 1)); then
+			abort_compiling "Number of inputs in the first argument must be 1." 1 10
+		fi
+		final="1B/${command[1]}"
+		i2=2
+		while ((i2 < ${#command[@]})); do
+			i2="$(($i2+1))"
+			final="${final}/${command[$(($i2-1))]}"
+		done
+		echo "$final" >> "./output/$FILE"
+		;;
+	"getfile")
+		# Get file - save a file's content in a list.
+		if ((${#command[@]} != 3)); then
+			abort_compiling "Number of arguments must be 2." 1 1
+		fi
+		process_argument ${command[1]}
+		if ((${#argument[@]} != 1)); then
+			abort_compiling "Number of inputs in the first argument must be 1." 1 10
+		fi
+		process_argument ${command[2]}
+		if ((${#argument[@]} != 1)); then
+			abort_compiling "Number of inputs in the second argument must be 1." 1 10
+		fi
+		echo "1C/${command[1]}/${command[2]}" >> "./output/$FILE"
+		;;
+	"getkey")
+		# Get currently pressed keys and save them in a list.
+		if ((${#command[@]} != 2)); then
+			abort_compiling "Number of arguments must be 1." 1 1
+		fi
+		process_argument ${command[1]}
+		if ((${#argument[@]} != 1)); then
+			abort_compiling "Number of inputs must be 1." 1 10
+		fi
+		echo "1D/${command[1]}" >> "./output/$FILE"
+		;;
 	"")
 		# Comment.
 		print_info "Skipping comment." 1
