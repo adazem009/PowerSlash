@@ -203,6 +203,7 @@ echo > "./output/${FILE}.old" && rm "./output/${FILE}.old" && touch "./output/${
 cmd_db
 def=0
 func=0
+ifs=0
 IFS=$'\r\n' GLOBIGNORE='*' command eval  'PRG=($(cat $SOURCE_FILE))'
 # Compile
 tmpid=0

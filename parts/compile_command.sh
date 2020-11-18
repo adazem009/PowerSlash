@@ -312,6 +312,12 @@ case "${command[0]}" in
 			abort_compiling "Number of arguments must be 0." 1 1
 		fi
 		echo 5 >> "./output/$FILE"
+		i4=0
+		while ((i4 < ifs)); do
+			i4=$((i4+1))
+			echo 5 >> "./output/$FILE"
+		done
+		ifs=0
 		;;
 	"else")
 		# Else.
@@ -319,6 +325,7 @@ case "${command[0]}" in
 			abort_compiling "Number of arguments must be 0." 1 1
 		fi
 		echo 6 >> "./output/$FILE"
+		ifs=$((ifs+1))
 		;;
 	"elseif")
 		# Else if.
