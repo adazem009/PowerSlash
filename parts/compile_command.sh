@@ -40,9 +40,18 @@ process_if()
 			fi
 		done
 		argid=2
+		q=0
 		until [[ "${arg:$(($i3-1)):1}" = "[" ]] || ((i3 == ${#arg})); do
 			i3="$(($i3+1))"
-			if [[ "${arg:$(($i3-1)):1}" != "[" ]] && [[ "${arg:$(($i3-1)):1}" != ' ' ]] && [[ "${arg:$(($i3-1)):1}" != "!" ]]; then
+			if [[ "${arg:$(($i3-1)):1}" = '"' ]]; then
+				q=$((1-q))
+			fi
+			if [[ "${arg:$(($i3-1)):1}" != ' ' ]] && ((q == 1)); then
+				c=1
+			else
+				c=0
+			fi
+			if [[ "${arg:$(($i3-1)):1}" != "[" ]] && ((c == 1)) && [[ "${arg:$(($i3-1)):1}" != "!" ]]; then
 				args[$(($argid-1))]="${args[$(($argid-1))]}${arg:$(($i3-1)):1}"
 			elif [[ "${arg:$(($i3-1)):1}" = "!" ]]; then
 				negate2="$(($negate2+1))"
@@ -95,7 +104,10 @@ process_if()
 					lentemp="${#args[0]}"
 					lentemp="$(($lentemp+1))"
 					until ((i4 == lentemp)); do
-						if [[ "${args[0]:$(($i4-1)):1}" = ' ' ]]; then
+						if [[ "${arg:$(($i4-1)):1}" = '"' ]]; then
+							q=$((1-q))
+						fi
+						if [[ "${args[0]:$(($i4-1)):1}" = ' ' ]] && ((q == 0)); then
 							abort_compiling "Unexpected space after second value." 1 5
 						else
 							temp4[2]="${temp4[2]}${args[0]:$(($i4-1)):1}"
@@ -204,7 +216,10 @@ process_if()
 					lentemp="${#args[2]}"
 					lentemp="$(($lentemp+1))"
 					until ((i4 == lentemp)); do
-						if [[ "${args[2]:$(($i4-1)):1}" = ' ' ]]; then
+						if [[ "${arg:$(($i4-1)):1}" = '"' ]]; then
+							q=$((1-q))
+						fi
+						if [[ "${args[0]:$(($i4-1)):1}" = ' ' ]] && ((q == 0)); then
 							abort_compiling "Unexpected space after second value." 1 5
 						else
 							temp4[2]="${temp4[2]}${args[2]:$(($i4-1)):1}"
