@@ -762,6 +762,21 @@ case "${command[0]}" in
 		done
 		echo "$final" >> "./output/$FILE"
 		;;
+	"getfile")
+		# Get file - save a file's content in a list.
+		if ((${#command[@]} != 3)); then
+			abort_compiling "Number of arguments must be 2." 1 1
+		fi
+		process_argument ${command[1]}
+		if ((${#argument[@]} != 1)); then
+			abort_compiling "Number of inputs in the first argument must be 1." 1 10
+		fi
+		process_argument ${command[2]}
+		if ((${#argument[@]} != 1)); then
+			abort_compiling "Number of inputs in the second argument must be 1." 1 10
+		fi
+		echo "1C/${command[1]}/${command[2]}" >> "./output/$FILE"
+		;;
 	"")
 		# Comment.
 		print_info "Skipping comment." 1
