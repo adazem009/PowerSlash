@@ -325,7 +325,6 @@ case "${command[0]}" in
 			abort_compiling "Number of arguments must be 0." 1 1
 		fi
 		echo 6 >> "./output/$FILE"
-		ifs=$((ifs+1))
 		;;
 	"elseif")
 		# Else if.
@@ -334,6 +333,7 @@ case "${command[0]}" in
 		fi
 		echo 6 >> "./output/$FILE"
 		process_if
+		ifs=$((ifs+1))
 		;;
 	"print")
 		# Print.
