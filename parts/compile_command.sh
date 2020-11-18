@@ -777,6 +777,17 @@ case "${command[0]}" in
 		fi
 		echo "1C/${command[1]}/${command[2]}" >> "./output/$FILE"
 		;;
+	"getkey")
+		# Get currently pressed keys and save them in a list.
+		if ((${#command[@]} != 2)); then
+			abort_compiling "Number of arguments must be 1." 1 1
+		fi
+		process_argument ${command[1]}
+		if ((${#argument[@]} != 1)); then
+			abort_compiling "Number of inputs must be 1." 1 10
+		fi
+		echo "1D/${command[1]}" >> "./output/$FILE"
+		;;
 	"")
 		# Comment.
 		print_info "Skipping comment." 1
