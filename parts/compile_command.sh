@@ -316,7 +316,6 @@ case "${command[0]}" in
 		while ((i4 < ifs)); do
 			i4=$((i4+1))
 			echo 5 >> "./output/$FILE"
-			sleep 1
 		done
 		ifs=0
 		;;
