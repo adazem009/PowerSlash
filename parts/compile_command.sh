@@ -287,7 +287,7 @@ case "${command[0]}" in
 		fi
 		process_argument ${command[1]}
 		if ((${#argument[@]} != 1)); then
-			abort_compiling "Number of inputs must be 1." 1 10
+			abort_compiling "Number of inputs in the first argument must be 1." 1 10
 		fi
 		echo "2/${command[1]}" >> "./output/$FILE"
 		;;
@@ -806,9 +806,43 @@ case "${command[0]}" in
 		fi
 		process_argument ${command[1]}
 		if ((${#argument[@]} != 1)); then
-			abort_compiling "Number of inputs must be 1." 1 10
+			abort_compiling "Number of inputs in the first argument must be 1." 1 10
 		fi
 		echo "1D/${command[1]}" >> "./output/$FILE"
+		;;
+	"cd")
+		# Go to directory.
+		if ((${#command[@]} != 2)); then
+			abort_compiling "Number of arguments must be 1." 1 1
+		fi
+		process_argument ${command[1]}
+		if ((${#argument[@]} != 1)); then
+			abort_compiling "Number of inputs in the first argument must be 1." 1 10
+		fi
+		echo "1E/${command[1]}" >> "./output/$FILE"
+		;;
+	"pwd")
+		# Get current directory and save it in variable(s).
+		if ((${#command[@]} != 2)); then
+			abort_compiling "Number of arguments must be 1." 1 1
+		fi
+		process_argument ${command[1]}
+		if ((${#argument[@]} == 0)); then
+			abort_compiling "Number of inputs in the first argument must be at least 1." 1 10
+		fi
+		echo "1F/${command[1]}" >> "./output/$FILE"
+		;;
+	"getlocation")
+		# Get current script location and save it in variable(s).
+		
+		if ((${#command[@]} != 2)); then
+			abort_compiling "Number of arguments must be 1." 1 1
+		fi
+		process_argument ${command[1]}
+		if ((${#argument[@]} == 0)); then
+			abort_compiling "Number of inputs in the first argument must be at least 1." 1 10
+		fi
+		echo "20/${command[1]}" >> "./output/$FILE"
 		;;
 	"")
 		# Comment.
