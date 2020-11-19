@@ -333,7 +333,7 @@ case "${command[0]}" in
 		fi
 		echo 6 >> "./output/$FILE"
 		process_if
-		#ifs=$((ifs+1))
+		ifs=$((ifs+1))
 		;;
 	"print")
 		# Print.
