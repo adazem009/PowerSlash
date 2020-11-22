@@ -870,6 +870,16 @@ case "${command[0]}" in
 		fi
 		echo "23" >> "./output/$FILE"
 		;;
+	"wait")
+		# Wait.
+		if ((${#command[@]} != 2)); then
+			abort_compiling "Number of arguments must be 1." 1 1
+		fi
+		process_argument ${command[1]}
+		if ((${#argument[@]} != 1)); then
+			abort_compiling "Number of inputs in the first argument must be 1." 1 10
+		fi
+		echo "24/${command[1]}" >> "./output/$FILE"
 	"")
 		# Comment.
 		print_info "Skipping comment." 1
