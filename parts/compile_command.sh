@@ -856,6 +856,18 @@ case "${command[0]}" in
 		fi
 		echo "21/${command[1]}" >> "./output/$FILE"
 		;;
+	"warp")
+		# Run a group of commands without screen refresh.
+		if ((${#command[@]} != 1)); then
+			abort_compiling "Number of arguments must be 0." 1 1
+		fi
+		echo "22" >> "./output/$FILE"
+	"endwarp")
+		# End warp.
+		if ((${#command[@]} != 1)); then
+			abort_compiling "Number of arguments must be 0." 1 1
+		fi
+		echo "23" >> "./output/$FILE"
 	"")
 		# Comment.
 		print_info "Skipping comment." 1
