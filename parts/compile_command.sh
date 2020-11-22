@@ -880,6 +880,7 @@ case "${command[0]}" in
 			abort_compiling "Number of inputs in the first argument must be 1." 1 10
 		fi
 		echo "24/${command[1]}" >> "./output/$FILE"
+		;;
 	"")
 		# Comment.
 		print_info "Skipping comment." 1
