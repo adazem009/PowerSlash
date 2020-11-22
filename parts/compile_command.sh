@@ -862,12 +862,14 @@ case "${command[0]}" in
 			abort_compiling "Number of arguments must be 0." 1 1
 		fi
 		echo "22" >> "./output/$FILE"
+		;;
 	"endwarp")
 		# End warp.
 		if ((${#command[@]} != 1)); then
 			abort_compiling "Number of arguments must be 0." 1 1
 		fi
 		echo "23" >> "./output/$FILE"
+		;;
 	"")
 		# Comment.
 		print_info "Skipping comment." 1
