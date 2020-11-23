@@ -346,6 +346,15 @@ case "${command[0]}" in
 			i4="$(($i4+1))"
 			if [[ "${argument[$(($i4-1))]}" = "\n" ]]; then
 				echo "E" >> "./output/$FILE"
+			elif [[ "${${argument[$(($i4-1))]}:0:1}${argument[$(($i4-1))]}:0:1}" = "\c" ]]; then
+				color=""
+				i5=2
+				while ((i5 < ${#argument[$(($i4-1))]})); do
+					i5=$((i5+1))
+					color="${color}${argument[$(($i4-1))]}:$((i5-1)):1}"
+				done
+				quote='"'
+				echo "25/${quote}${color}${quote}" >> "./output/$FILE"
 			else
 				echo "A/${argument[$(($i4-1))]}" >> "./output/$FILE"
 			fi
