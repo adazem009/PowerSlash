@@ -354,7 +354,7 @@ case "${command[0]}" in
 					color="${color}${argument[$(($i4-1))]}:$((i5-1)):1}"
 				done
 				quote='"'
-				echo "25/${quote}${color}${quote}" >> "./output/$FILE"
+				echo "25/${color}" >> "./output/$FILE"
 			else
 				echo "A/${argument[$(($i4-1))]}" >> "./output/$FILE"
 			fi
