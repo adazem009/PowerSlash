@@ -342,23 +342,32 @@ case "${command[0]}" in
 		fi
 		i4=0
 		process_argument "${command[1]}"
+		col=0
 		while ((i4 < ${#argument[@]})); do
 			i4="$(($i4+1))"
-			if [[ "${argument[$(($i4-1))]}" = "\n" ]]; then
+			backslash="${argument[$(($i4-1))]}"
+			backslash="${backslash:0:1}${backslash:1:1}"
+			if [[ "$backslash" = "\n" ]]; then
 				echo "E" >> "./output/$FILE"
-			elif [[ "${${argument[$(($i4-1))]}:0:1}${argument[$(($i4-1))]}:0:1}" = "\c" ]]; then
+			elif [[ "$backslash" = "\c" ]]; then
 				color=""
 				i5=2
 				while ((i5 < ${#argument[$(($i4-1))]})); do
 					i5=$((i5+1))
-					color="${color}${argument[$(($i4-1))]}:$((i5-1)):1}"
+					arg="${argument[$(($i4-1))]}"
+					color="${color}${arg:$((i5-1)):1}"
 				done
 				quote='"'
+				col=1
 				echo "25/${color}" >> "./output/$FILE"
 			else
 				echo "A/${argument[$(($i4-1))]}" >> "./output/$FILE"
 			fi
 		done
+		if ((col == 1)); then
+			quote='"'
+			echo "25/${quote}255255255${quote}" >> "./output/$FILE"
+		fi
 		;;
 	"read")
 		# Read.
