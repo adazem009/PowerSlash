@@ -42,8 +42,10 @@ process_if()
 		argid=2
 		q=0
 		space=0
-		i3="$(($i3+1))"
-		until [[ "${arg:$(($i3-1)):1}" = "[" ]]; do
+		if ((i3 < ${#arg})); then
+			i3="$(($i3+1))"
+		fi
+		until [[ "${arg:$(($i3-1)):1}" = "[" ]] || ((i3 == ${#arg})); do
 			i3="$(($i3+1))"
 			if [[ "${arg:$(($i3-1)):1}" = ' ' ]]; then
 				space=1
@@ -52,9 +54,6 @@ process_if()
 				args[$(($argid-1))]="${args[$(($argid-1))]}${arg:$(($i3-1)):1}"
 			elif [[ "${arg:$(($i3-1)):1}" = "!" ]]; then
 				negate2="$(($negate2+1))"
-			fi
-			if ((i3 > ${#arg})); then
-				abort_compiling "Unexpected end of line. '${args[0]}'" 1 3
 			fi
 		done
 		if ((negate2 > 1)); then
@@ -216,7 +215,7 @@ process_if()
 						if [[ "${arg:$(($i4-1)):1}" = '"' ]]; then
 							q=$((1-q))
 						fi
-						if [[ "${args[0]:$(($i4-1)):1}" = ' ' ]] && ((q == 0)); then
+						if [[ "${args[2]:$(($i4-1)):1}" = ' ' ]] && ((q == 0)); then
 							abort_compiling "Unexpected space after second value." 1 5
 						else
 							temp4[2]="${temp4[2]}${args[2]:$(($i4-1)):1}"
