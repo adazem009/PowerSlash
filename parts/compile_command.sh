@@ -342,6 +342,9 @@ case "${command[0]}" in
 		fi
 		i4=0
 		process_argument "${command[1]}"
+		bold=0
+		italic=0
+		underlined=0
 		col=0
 		while ((i4 < ${#argument[@]})); do
 			i4="$(($i4+1))"
@@ -360,8 +363,23 @@ case "${command[0]}" in
 				quote='"'
 				col=1
 				echo "25/${color}" >> "./output/$FILE"
+			elif [[ "$backslash" = "\b" ]]; then
+				bold="${argument[$(($i4-1))]}"
+				bold="${bold:2:1}"
+			elif [[ "$backslash" = "\i" ]]; then
+				italic="${argument[$(($i4-1))]}"
+				italic="${italic:2:1}"
+			elif [[ "$backslash" = "\u" ]]; then
+				underlined="${argument[$(($i4-1))]}"
+				underlined="${underlined:2:1}"
+			elif [[ "${backslash:0:1}" = '\' ]]; then
+				abort_compiling "Invalid backslash escape." 1 16
 			else
-				echo "A/${argument[$(($i4-1))]}" >> "./output/$FILE"
+				if (( $((bold+italic+underlined)) == 0 )); then
+					echo "A/${argument[$(($i4-1))]}" >> "./output/$FILE"
+				else
+					echo "A/${argument[$(($i4-1))]}/${bold},${italic},${underlined}" >> "./output/$FILE"
+				fi
 			fi
 		done
 		if ((col == 1)); then
