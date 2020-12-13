@@ -35,6 +35,32 @@ cmd_db ()
 	touch .functions/define
 	touch ".functions/{"
 	touch ".functions/}"
+	touch .functions/run
+	touch .functions/source
+	touch .functions/getfile
+	touch .functions/getkey
+	touch .functions/cd
+	touch .functions/pwd
+	touch .functions/getlocation
+	touch .functions/bgcolor
+	touch .functions/warp
+	touch .functions/endwarp
+	touch .functions/wait
+	touch .functions/ls
+	touch .functions/listdisk
+	touch .functions/createdisk
+	touch .functions/fpt
+	touch .functions/rmdisk
+	touch .functions/renamedisk
+	touch .functions/createpart
+	touch .functions/rmpart
+	touch .functions/format
+	touch .functions/renamepart
+	touch .functions/write
+	touch .functions/rm
+	touch .functions/mkdir
+	touch .functions/move
+	touch .functions/copy
 }
 process_command ()
 {
