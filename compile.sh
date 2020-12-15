@@ -3,9 +3,6 @@
 # PowerSlash to SMC compiler
 # 2020 - adazem09
 #
-### FUNCTIONS ###
-#!/bin/bash
-
 # --- Functions ---
 cmd_db ()
 {
@@ -194,6 +191,7 @@ YELLOW='\033[1;33m'
 NC='\033[0m'
 SOURCE_FILE=$1
 EXT=""
+disout="$1"
 i1=0
 while ((i1 < ${#SOURCE_FILE})); do
 	i1="$(($i1+1))"
@@ -234,7 +232,9 @@ IFS=$'\r\n' GLOBIGNORE='*' command eval  'PRG=($(cat $SOURCE_FILE))'
 # Compile
 tmpid=0
 prg_len="${#PRG[@]}"
-print_info "Searching for functions..."
+if [[ "$2" != "1" ]]; then
+	print_info "Searching for functions..."
+fi
 functions=()
 i1=0
 while (( i1 < prg_len )); do
@@ -242,22 +242,32 @@ while (( i1 < prg_len )); do
 	process_command "${PRG[$(($i1-1))]}"
 	if [[ "${command[0]}" = "define" ]]; then
 		process_argument2 "${command[1]}"
-		print_info "Found function '${argument[0]}'" 1
+		if [[ "$2" != "1" ]]; then
+			print_info "Found function '${argument[0]}'" 1
+		fi
 		functions[${#functions[@]}]="${argument[0]}"
 	fi
 done
-print_info "Compiling lines..."
+if [[ "$2" != "1" ]]; then
+	print_info "Compiling lines..."
+fi
 i1=0
 while (( i1 < prg_len )); do
 	i1="$(($i1+1))"
 	process_command "${PRG[$(($i1-1))]}"
-	source ./parts/compile_command.sh
-	echo -e "[ ${GREEN}OK${NC} ] Compiled line $i1"
+	if [[ "$2" != "1" ]]; then
+		source ./parts/compile_command.sh
+		echo -e "[ ${GREEN}OK${NC} ] Compiled line $i1"
+	else
+		source ./parts/compile_command.sh 1
+	fi
 done
 chain=0
 contains=1
 until ((contains == 0)) || ((chain >= 50)); do
-	print_info "Compiling additional functions..."
+	if [[ "$2" != "1" ]]; then
+		print_info "Compiling additional functions..."
+	fi
 	chain=$((chain+1))
 	IFS=$'\r\n' GLOBIGNORE='*' command eval  'PRG=($(cat ./output/$FILE))'
 	rm "./output/$FILE"
@@ -275,7 +285,9 @@ until ((contains == 0)) || ((chain >= 50)); do
 			fi
 		done
 		if ((contains == 1)); then
-			print_info "Found function '${command[0]}'"
+			if [[ "$2" != "1" ]]; then
+				print_info "Found function '${command[0]}'"
+			fi
 			tmp0='"'
 			i4=1
 			while ((i4 < ${#command[@]})); do
