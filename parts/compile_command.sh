@@ -1,5 +1,6 @@
 #!/bin/bash
 
+disout="$1"
 process_if()
 {
 	if [[ "$1" = '' ]]; then
@@ -81,7 +82,9 @@ process_if()
 						temp4[0]="${temp4[0]}${args[0]:$(($i4-1)):1}"
 					fi
 					if ((i4 > ${#args[0]})); then
-						print_info "Using 1 input in a condition." 1 4
+						if [[ "$disout" != "1" ]]; then
+							print_info "Using 1 input in a condition." 1 4
+						fi
 						break
 					fi
 				done
@@ -176,7 +179,9 @@ process_if()
 				final="${final}/${temp0}"
 				;;
 			"")
-				print_info "No gate used." 1
+				if [[ "$disout" != "1" ]]; then
+					print_info "No gate used." 1
+				fi
 				skipgate=1
 				;;
 			*)
@@ -193,7 +198,9 @@ process_if()
 						temp4[0]="${temp4[0]}${args[2]:$(($i4-1)):1}"
 					fi
 					if ((i4 > ${#args[2]})); then
-						print_info "Using 1 input in a condition." 1 4
+						if [[ "$disout" != "1" ]]; then
+							print_info "Using 1 input in a condition." 1 4
+						fi
 						break
 					fi
 				done
@@ -390,7 +397,9 @@ case "${command[0]}" in
 		fi
 		i2=1
 		if ((${#command[@]} > 2)); then
-			print_info "Using multiple read commands." 1
+			if [[ "$disout" != "1" ]]; then
+				print_info "Using multiple read commands." 1
+			fi
 		fi
 		while ((i2 < ${#command[@]})); do
 			i2="$(($i2+1))"
@@ -775,8 +784,12 @@ case "${command[0]}" in
 			echo "$(sed "${i4}${tmp0}d" "./output/$FILE")" >> "./.functions/$defname"
 		done
 		rm "./output/$FILE" && mv "./output/${FILE}.old" "./output/$FILE" && touch "./output/${FILE}.old"
-		print_info "Compiled function '${defname}'." 1
-		cat "./.functions/$defname"
+		if [[ "$disout" != "1" ]]; then
+			print_info "Compiled function '${defname}'." 1
+		fi
+		if [[ "$disout" != "1" ]]; then
+			cat "./.functions/$defname"
+		fi
 		;;
 	"run")
 		# Run script.
@@ -1088,11 +1101,15 @@ case "${command[0]}" in
 		;;
 	"")
 		# Comment.
-		print_info "Skipping comment." 1
+		if [[ "$disout" != "1" ]]; then
+			print_info "Skipping comment." 1
+		fi
 		;;
 	*)
 		if [ -f "./.functions/${command[0]}" ]; then
-			print_info "Found function '${command[0]}'." 1
+			if [[ "$disout" != "1" ]]; then
+				print_info "Found function '${command[0]}'." 1
+			fi
 			tmp0='"'
 			i4=1
 			while ((i4 < ${#command[@]})); do
