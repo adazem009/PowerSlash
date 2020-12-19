@@ -58,6 +58,17 @@ cmd_db ()
 	touch .functions/mkdir
 	touch .functions/move
 	touch .functions/copy
+	touch .functions/beep
+	touch .functions/groupset
+	touch .functions/groupadd
+	touch .functions/grouprm
+	touch .functions/deleteitem
+	touch .functions/perms
+	touch .functions/continue
+	touch .functions/seldisk
+	touch .functions/selpart
+	touch .functions/listpart
+	touch .functions/getdisksize
 }
 process_command ()
 {
