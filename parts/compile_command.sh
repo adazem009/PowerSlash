@@ -1099,6 +1099,157 @@ case "${command[0]}" in
 		fi
 		echo "34/${command[1]}" >> "./output/$FILE"
 		;;
+	"beep")
+		# Beep.
+		if ((${#command[@]} != 2)); then
+			abort_compiling "Number of arguments must be 1." 1 1
+		fi
+		process_argument ${command[1]}
+		if ((${#argument[@]} != 2)); then
+			abort_compiling "Number of inputs in the first argument must be 2." 1 10
+		fi
+		echo "35/${command[1]}" >> "./output/$FILE"
+		;;
+	"groupset")
+		# Setup group.
+		if ((${#command[@]} != 3)); then
+			abort_compiling "Number of arguments must be 2." 1 1
+		fi
+		process_argument ${command[1]}
+		if ((${#argument[@]} != 1)); then
+			abort_compiling "Number of inputs in the first argument must be 1." 1 10
+		fi
+		process_argument ${command[2]}
+		if ((${#argument[@]} != 2)); then
+			abort_compiling "Number of inputs in the second argument must be 2." 1 10
+		fi
+		echo "36/${command[1]}/${command[2]}" >> "./output/$FILE"
+		;;
+	"groupadd")
+		# Add user to group.
+		if ((${#command[@]} != 3)); then
+			abort_compiling "Number of arguments must be 2." 1 1
+		fi
+		process_argument ${command[1]}
+		if ((${#argument[@]} != 1)); then
+			abort_compiling "Number of inputs in the first argument must be 1." 1 10
+		fi
+		process_argument ${command[2]}
+		if ((${#argument[@]} != 1)); then
+			abort_compiling "Number of inputs in the second argument must be 1." 1 10
+		fi
+		echo "37/${command[1]}/${command[2]}" >> "./output/$FILE"
+		;;
+	"grouprm")
+		# Remove user from group.
+		if ((${#command[@]} != 3)); then
+			abort_compiling "Number of arguments must be 2." 1 1
+		fi
+		process_argument ${command[1]}
+		if ((${#argument[@]} != 1)); then
+			abort_compiling "Number of inputs in the first argument must be 1." 1 10
+		fi
+		process_argument ${command[2]}
+		if ((${#argument[@]} != 1)); then
+			abort_compiling "Number of inputs in the second argument must be 1." 1 10
+		fi
+		echo "38/${command[1]}/${command[2]}" >> "./output/$FILE"
+		;;
+	"deleteitem")
+		# Remove item from list.
+		if ((${#command[@]} != 3)); then
+			abort_compiling "Number of arguments must be 2." 1 1
+		fi
+		process_argument ${command[1]}
+		if ((${#argument[@]} != 1)); then
+			abort_compiling "Number of inputs in the first argument must be 1." 1 10
+		fi
+		process_argument ${command[2]}
+		if ((${#argument[@]} != 1)); then
+			abort_compiling "Number of inputs in the second argument must be 1." 1 10
+		fi
+		echo "39/${command[1]}/${command[2]}" >> "./output/$FILE"
+		;;
+	"perms")
+		# Set permissions of a file.
+		if ((${#command[@]} != 2)) && ((${#command[@]} != 3)); then
+			abort_compiling "Number of arguments must be 1 or 2." 1 1
+		fi
+		process_argument ${command[1]}
+		if ((${#argument[@]} != 1)) && ((${#argument[@]} != 2)); then
+			abort_compiling "Number of inputs in the first argument must be 1 or 2." 1 10
+		fi
+		process_argument ${command[2]}
+		if ((${#argument[@]} < 0)) || ((${#argument[@]} > 2)); then
+			abort_compiling "Number of inputs in the second argument must be lower or equal to 2." 1 10
+		fi
+		echo "3A/${command[1]}/${command[2]}" >> "./output/$FILE"
+		;;
+	"continue")
+		# Continue - share variables and lists with another script and execute it.
+		if ((${#command[@]} < 2)); then
+			abort_compiling "Number of arguments must be at least 1." 1 1
+		fi
+		process_argument "${command[1]}"
+		if ((${#argument[@]} != 1)); then
+			abort_compiling "Number of inputs in the first argument must be 1." 1 10
+		fi
+		final="3B/${command[1]}"
+		i2=2
+		while ((i2 < ${#command[@]})); do
+			i2="$(($i2+1))"
+			final="${final}/${command[$(($i2-1))]}"
+		done
+		echo "$final" >> "./output/$FILE"
+		;;
+	"seldisk")
+		# Select disk.
+		if ((${#command[@]} != 2)); then
+			abort_compiling "Number of arguments must be 1." 1 1
+		fi
+		process_argument ${command[1]}
+		if ((${#argument[@]} != 1)); then
+			abort_compiling "Number of inputs in the first argument must be 1." 1 10
+		fi
+		echo "3C/${command[1]}" >> "./output/$FILE"
+		;;
+	"selpart")
+		# Select partition (mount it at /).
+		if ((${#command[@]} != 2)); then
+			abort_compiling "Number of arguments must be 1." 1 1
+		fi
+		process_argument ${command[1]}
+		if ((${#argument[@]} != 1)); then
+			abort_compiling "Number of inputs in the first argument must be 1." 1 10
+		fi
+		echo "3D/${command[1]}" >> "./output/$FILE"
+		;;
+	"listpart")
+		# List partitions and save in a list.
+		if ((${#command[@]} != 2)); then
+			abort_compiling "Number of arguments must be 1." 1 1
+		fi
+		process_argument ${command[1]}
+		if ((${#argument[@]} != 1)); then
+			abort_compiling "Number of inputs in the first argument must be 1." 1 10
+		fi
+		echo "3E/${command[1]}" >> "./output/$FILE"
+		;;
+	"getdisksize")
+		# Get disk size.
+		if ((${#command[@]} != 3)); then
+			abort_compiling "Number of arguments must be 2." 1 1
+		fi
+		process_argument ${command[1]}
+		if ((${#argument[@]} != 1)); then
+			abort_compiling "Number of inputs in the first argument must be 1." 1 10
+		fi
+		process_argument ${command[2]}
+		if ((${#argument[@]} != 1)); then
+			abort_compiling "Number of inputs in the second argument must be 1." 1 10
+		fi
+		echo "3F/${command[1]}/${command[2]}" >> "./output/$FILE"
+		;;
 	"")
 		# Comment.
 		if [[ "$disout" != "1" ]]; then
