@@ -1,0 +1,87 @@
+// EarthOS automatic installation
+//
+//    Copyright (C) 2020  adazem009
+//
+// This scripts prepares a virtual disk for EarthOS installation.
+// It creates the required partitions and continues to install.pwsl (.smc if compiled).
+//
+// This is the main script of the EarthOS command line installer.
+// It collects the required information for an installation, then continues to autoinstall.pwsl
+// or install.pwsl (.smc if compiled) and finishes the installation.
+//
+//    This program is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation, either version 3 of the License, or
+//    (at your option) any later version.
+//
+//    This program is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details.
+//
+//    You should have received a copy of the GNU General Public License
+//    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+//
+//
+// Functions
+define/"_getdiskname"
+{
+	// _getdiskname/[diskID]/[var]
+	listdisk/"DISKS"
+	getitem/"arg_1",1/"arg_1_1"
+	getitem/"arg_2",1/"arg_2_1"
+	getitem/"DISKS",arg_1_1/arg_2_1
+}
+define/"abortinstall"
+{
+	// abortinstall/[message],[message], ...
+	warp
+		clear
+		bgcolor/"113000000"
+		print/"Installation failed!",\n
+		print/"Please check the error below. If you don't understand what it means,",\n
+		print/"please contact ",\b1,"adazem009",\b0," on Scratch.",\n,\n
+		print/"Process returned: "
+		getlistlength/"arg_1"/"arglen"
+		set/"i",0
+		repeat/arglen
+			calc/"i=i+1"
+			getitem/"arg_1",i/"arg_1_current"
+			print/arg_1_current
+		endloop
+		print/\n
+	endwarp
+	while/[true]
+		// stuck
+	endloop
+}
+// Start messages
+warp
+	clear
+	bgcolor/"000000000"
+	print/"Preparing installation...",\n
+endwarp
+// Check disk size
+set/"min",512000
+//         ^^^ Minimal disk size
+_getdiskname/install_disk/"diskname"
+print/"Using disk ",install_disk," (",diskname,").",\n
+getdisksize/diskname/"disksize"
+if/[disksize < min]
+	abortinstall/"Selected disk is too small. (minimal size is ",min,"B)"
+endif
+// Format the disk with FPT
+print/"Formatting disk with FPT...",\n
+fpt/diskname,1
+// Create root partition
+print/"Creating root partition...",\n
+seldisk/diskname
+listpart/"PARTS"
+calc/"partsize=disksize-7"
+createpart/"root",partsize
+// Setup mount points
+listpart/"PARTS"
+setlist/"mountpoints"/"/"
+print/"Installation prepared!",\n
+// Continue to install script
+continue/"install.smc"
