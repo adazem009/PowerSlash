@@ -1,0 +1,82 @@
+// EarthOS install script
+//
+//    Copyright (C) 2020  adazem009
+//
+// This scripts installs EarthOS on the selected disk.
+//
+// This is the main script of the EarthOS command line installer.
+// It collects the required information for an installation, then continues to autoinstall.pwsl
+// or install.pwsl (.smc if compiled) and finishes the installation.
+//
+//    This program is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation, either version 3 of the License, or
+//    (at your option) any later version.
+//
+//    This program is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details.
+//
+//    You should have received a copy of the GNU General Public License
+//    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+//
+//
+// Functions
+define/"_getdiskname"
+{
+	// _getdiskname/[diskID]/[var]
+	listdisk/"DISKS"
+	getitem/"arg_1",1/"arg_1_1"
+	getitem/"arg_2",1/"arg_2_1"
+	getitem/"DISKS",arg_1_1/arg_2_1
+}
+define/"abortinstall"
+{
+	// abortinstall/[message],[message], ...
+	warp
+		clear
+		bgcolor/"113000000"
+		print/"Installation failed!",\n
+		print/"Please check the error below. If you don't understand what it means,",\n
+		print/"please contact ",\b1,"adazem009",\b0," on Scratch.",\n,\n
+		print/"Process returned: "
+		getlistlength/"arg_1"/"arglen"
+		set/"i",0
+		repeat/arglen
+			calc/"i=i+1"
+			getitem/"arg_1",i/"arg_1_current"
+			print/arg_1_current
+		endloop
+		print/\n
+	endwarp
+	while/[true]
+		// stuck
+	endloop
+}
+// Start messages
+warp
+	clear
+	print/\b1,\i1,"Thanks for choosing EarthOS!",\b0,\i0,\n,\n
+endwarp
+// Mount partitions
+print/"Mounting partitions...",\n
+_getdiskname/install_disk/"diskname"
+seldisk/diskname
+listpart/"PARTS"
+getlistlength/"PARTS"/"partcount"
+getlistlength/"mountpoints"/"mountcount"
+if/[partcount != mountcount]
+	abortinstall/"Number of partitions doesn't equal number of mount points."
+endif
+set/"i",0
+repeat/partcount
+	calc/"i=i+1"
+	getitem/"mountpoints",i/"mountpoint"
+	if/[mountpoint == "/"]
+		selpart/i
+	elseif/[mountpoint != ""]
+		//mount/i,mountpoint
+		// Coming soon
+	endif
+endloop
