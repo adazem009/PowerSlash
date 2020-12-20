@@ -327,6 +327,24 @@ done
 if ((chain >= 50)); then
 	abort_compiling "Woah! I got stuck in a loop... please check your functions!" 0 -2
 fi
+if [[ "$2" != "1" ]]; then
+	print_info "Searching for additional syntax errors..."
+fi
+IFS=$'\r\n' GLOBIGNORE='*' command eval  'PRG=($(cat ./output/$FILE))'
+ifs=0
+i1=0
+while (( i1 < prg_len )); do
+	i1="$(($i1+1))"
+	process_command "${PRG[$(($i1-1))]}"
+	if [[ "${command[0]}" = "4" ]]; then
+		ifs=$((ifs+1))
+	elif [[ "${command[0]}" = "5" ]]; then
+		ifs=$((ifs-1))
+	fi
+done
+if ((ifs != 0)); then
+	abort_compiling "Number of if statements doesn't equal number of endif statements." 0 -3
+fi
 echo -e "[ ${GREEN}OK${NC} ] Compiled $SOURCE_FILE"
 rm -rf ./.functions
 rm "./output/${FILE}.old"
