@@ -226,6 +226,8 @@ else
 fi
 if [[ "$EXT" = "pwsl" ]] || [[ "$EXT" = "PWSL" ]]; then
 	FILE="${NAME}.smc"
+elif [[ "$EXT" = "pwsle" ]] || [[ "$EXT" = "PWSLE" ]]; then
+	FILE="$NAME"
 else
 	FILE="${SOURCE_FILE}.smc"
 fi
