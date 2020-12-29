@@ -69,6 +69,13 @@ cmd_db ()
 	touch .functions/selpart
 	touch .functions/listpart
 	touch .functions/getdisksize
+	touch .functions/showlogo
+	touch .functions/hidelogo
+	touch .functions/enabletext
+	touch .functions/disabletext
+	touch .functions/shutdown
+	touch .functions/reboot
+	touch .functions/adduser
 }
 process_command ()
 {
