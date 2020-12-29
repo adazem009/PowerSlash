@@ -1120,8 +1120,8 @@ case "${command[0]}" in
 			abort_compiling "Number of inputs in the first argument must be 1." 1 10
 		fi
 		process_argument ${command[2]}
-		if ((${#argument[@]} != 2)); then
-			abort_compiling "Number of inputs in the second argument must be 2." 1 10
+		if ((${#argument[@]} < 1)); then
+			abort_compiling "Number of inputs in the second argument must be at least 1." 1 10
 		fi
 		echo "36/${command[1]}/${command[2]}" >> "./output/$FILE"
 		;;
@@ -1249,6 +1249,59 @@ case "${command[0]}" in
 			abort_compiling "Number of inputs in the second argument must be 1." 1 10
 		fi
 		echo "3F/${command[1]}/${command[2]}" >> "./output/$FILE"
+		;;
+	"showlogo")
+		# Show SMC Computer splash screen.
+		if ((${#command[@]} != 1)); then
+			abort_compiling "Number of arguments must be 0." 1 1
+		fi
+		echo "40/1" >> "./output/$FILE"
+		;;
+	"hidelogo")
+		# Hide SMC Computer splash screen.
+		if ((${#command[@]} != 1)); then
+			abort_compiling "Number of arguments must be 0." 1 1
+		fi
+		echo "40/0" >> "./output/$FILE"
+		;;
+	"enabletext")
+		# Enable text on screen.
+		if ((${#command[@]} != 1)); then
+			abort_compiling "Number of arguments must be 0." 1 1
+		fi
+		echo "41/1" >> "./output/$FILE"
+		;;
+	"disabletext")
+		# Disable text on screen.
+		if ((${#command[@]} != 1)); then
+			abort_compiling "Number of arguments must be 0." 1 1
+		fi
+		echo "41/0" >> "./output/$FILE"
+		;;
+	"shutdown")
+		# Shut down.
+		if ((${#command[@]} != 1)); then
+			abort_compiling "Number of arguments must be 0." 1 1
+		fi
+		echo "42/1" >> "./output/$FILE"
+		;;
+	"reboot")
+		# Reboot.
+		if ((${#command[@]} != 1)); then
+			abort_compiling "Number of arguments must be 0." 1 1
+		fi
+		echo "42/2" >> "./output/$FILE"
+		;;
+	"adduser")
+		# Add user.
+		if ((${#command[@]} != 2)); then
+			abort_compiling "Number of arguments must be 1." 1 1
+		fi
+		process_argument ${command[1]}
+		if ((${#argument[@]} != 1)); then
+			abort_compiling "Number of inputs in the first argument must be 1." 1 10
+		fi
+		echo "43/${command[1]}" >> "./output/$FILE"
 		;;
 	"")
 		# Comment.
