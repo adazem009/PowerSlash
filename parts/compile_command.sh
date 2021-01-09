@@ -1303,6 +1303,39 @@ case "${command[0]}" in
 		fi
 		echo "43/${command[1]}" >> "./output/$FILE"
 		;;
+	"writedisk")
+		# Direct disk write.
+		if ((${#command[@]} != 3)); then
+			abort_compiling "Number of arguments must be 2." 1 1
+		fi
+		process_argument ${command[1]}
+		if ((${#argument[@]} != 1)); then
+			abort_compiling "Number of inputs in the first argument must be 1." 1 10
+		fi
+		process_argument ${command[2]}
+		if ((${#argument[@]} != 2)); then
+			abort_compiling "Number of inputs in the second argument must be 2." 1 10
+		fi
+		echo "44/${command[1]}/${command[2]}" >> "./output/$FILE"
+		;;
+	"loadcode")
+		# Load PC code.
+		if ((${#command[@]} != 2)); then
+			abort_compiling "Number of arguments must be 1." 1 1
+		fi
+		process_argument ${command[1]}
+		if ((${#argument[@]} != 1)); then
+			abort_compiling "Number of inputs in the first argument must be 1." 1 10
+		fi
+		echo "45/${command[1]}" >> "./output/$FILE"
+		;;
+	"leavebios")
+		# Disable BIOS setup mode.
+		if ((${#command[@]} != 1)); then
+			abort_compiling "Number of arguments must be 0." 1 1
+		fi
+		echo "46" >> "./output/$FILE"
+		;;
 	"")
 		# Comment.
 		if [[ "$disout" != "1" ]]; then
