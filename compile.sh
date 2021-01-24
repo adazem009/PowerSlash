@@ -34,40 +34,17 @@ cmd_db ()
 	touch ".functions/}"
 	touch .functions/run
 	touch .functions/source
-	touch .functions/getfile
 	touch .functions/getkey
-	touch .functions/cd
-	touch .functions/pwd
-	touch .functions/getlocation
 	touch .functions/bgcolor
 	touch .functions/warp
 	touch .functions/endwarp
 	touch .functions/wait
-	touch .functions/ls
 	touch .functions/listdisk
 	touch .functions/createdisk
-	touch .functions/fpt
 	touch .functions/rmdisk
 	touch .functions/renamedisk
-	touch .functions/createpart
-	touch .functions/rmpart
-	touch .functions/format
-	touch .functions/renamepart
-	touch .functions/write
-	touch .functions/rm
-	touch .functions/mkdir
-	touch .functions/move
-	touch .functions/copy
 	touch .functions/beep
-	touch .functions/groupset
-	touch .functions/groupadd
-	touch .functions/grouprm
 	touch .functions/deleteitem
-	touch .functions/perms
-	touch .functions/continue
-	touch .functions/seldisk
-	touch .functions/selpart
-	touch .functions/listpart
 	touch .functions/getdisksize
 	touch .functions/showlogo
 	touch .functions/hidelogo
@@ -75,7 +52,10 @@ cmd_db ()
 	touch .functions/disabletext
 	touch .functions/shutdown
 	touch .functions/reboot
-	touch .functions/adduser
+	touch .functions/writedisk
+	touch .functions/loadcode
+	touch .functions/leavebios
+	touch .functions/readdisk
 }
 process_command ()
 {
@@ -354,6 +334,7 @@ done
 if ((ifs != 0)); then
 	abort_compiling "Number of if statements doesn't equal number of endif statements." 0 -3
 fi
-echo -e "[ ${GREEN}OK${NC} ] Compiled $SOURCE_FILE"
 rm -rf ./.functions
 rm "./output/${FILE}.old"
+source ./parts/upgrade.sh "$2"
+echo -e "[ ${GREEN}OK${NC} ] Compiled $SOURCE_FILE"
