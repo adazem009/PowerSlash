@@ -792,17 +792,13 @@ case "${command[0]}" in
 		fi
 		;;
 	"run")
-		# Run script.
+		# Run binary.
 		if ((${#command[@]} < 2)); then
 			abort_compiling "Number of arguments must be at least 1." 1 1
 		fi
 		process_argument "${command[1]}"
-		if ((${#argument[@]} != 1)); then
-			abort_compiling "Number of inputs in the first argument must be 1." 1 10
-		fi
-		process_argument "${command[2]}"
-		if ((${#argument[@]} > 1)); then
-			abort_compiling "Number of inputs in the second argument must be 1 or 0." 1 10
+		if ((${#argument[@]} != 1)) && ((${#argument[@]} != 2)); then
+			abort_compiling "Number of inputs in the first argument must be 1 or 2." 1 10
 		fi
 		final="1A/${command[1]}/${command[2]}"
 		i2=3
@@ -813,36 +809,21 @@ case "${command[0]}" in
 		echo "$final" >> "./output/$FILE"
 		;;
 	"source")
-		# Source - share variables and lists with other scripts.
+		# Source - share variables and lists with another binary.
 		if ((${#command[@]} < 2)); then
 			abort_compiling "Number of arguments must be at least 1." 1 1
 		fi
 		process_argument "${command[1]}"
-		if ((${#argument[@]} != 1)); then
-			abort_compiling "Number of inputs in the first argument must be 1." 1 10
+		if ((${#argument[@]} != 1)) && ((${#argument[@]} != 2)); then
+			abort_compiling "Number of inputs in the first argument must be 1 or 2." 1 10
 		fi
-		final="1B/${command[1]}"
-		i2=2
+		final="1B/${command[1]}/${command[2]}"
+		i2=3
 		while ((i2 < ${#command[@]})); do
 			i2="$(($i2+1))"
 			final="${final}/${command[$(($i2-1))]}"
 		done
 		echo "$final" >> "./output/$FILE"
-		;;
-	"getfile")
-		# Get file - save a file's content in a list.
-		if ((${#command[@]} != 3)); then
-			abort_compiling "Number of arguments must be 2." 1 1
-		fi
-		process_argument ${command[1]}
-		if ((${#argument[@]} != 1)); then
-			abort_compiling "Number of inputs in the first argument must be 1." 1 10
-		fi
-		process_argument ${command[2]}
-		if ((${#argument[@]} != 1)); then
-			abort_compiling "Number of inputs in the second argument must be 1." 1 10
-		fi
-		echo "1C/${command[1]}/${command[2]}" >> "./output/$FILE"
 		;;
 	"getkey")
 		# Get currently pressed keys and save them in a list.
@@ -853,45 +834,10 @@ case "${command[0]}" in
 		if ((${#argument[@]} != 1)); then
 			abort_compiling "Number of inputs in the first argument must be 1." 1 10
 		fi
-		echo "1D/${command[1]}" >> "./output/$FILE"
-		;;
-	"cd")
-		# Go to directory.
-		if ((${#command[@]} != 2)); then
-			abort_compiling "Number of arguments must be 1." 1 1
-		fi
-		process_argument ${command[1]}
-		if ((${#argument[@]} != 1)); then
-			abort_compiling "Number of inputs in the first argument must be 1." 1 10
-		fi
-		echo "1E/${command[1]}" >> "./output/$FILE"
-		;;
-	"pwd")
-		# Get current directory and save it in variable(s).
-		if ((${#command[@]} != 2)); then
-			abort_compiling "Number of arguments must be 1." 1 1
-		fi
-		process_argument ${command[1]}
-		if ((${#argument[@]} == 0)); then
-			abort_compiling "Number of inputs in the first argument must be at least 1." 1 10
-		fi
-		echo "1F/${command[1]}" >> "./output/$FILE"
-		;;
-	"getlocation")
-		# Get current script location and save it in variable(s).
-		
-		if ((${#command[@]} != 2)); then
-			abort_compiling "Number of arguments must be 1." 1 1
-		fi
-		process_argument ${command[1]}
-		if ((${#argument[@]} == 0)); then
-			abort_compiling "Number of inputs in the first argument must be at least 1." 1 10
-		fi
-		echo "20/${command[1]}" >> "./output/$FILE"
+		echo "1C/${command[1]}" >> "./output/$FILE"
 		;;
 	"bgcolor")
 		# Set background color.
-		
 		if ((${#command[@]} != 2)); then
 			abort_compiling "Number of arguments must be 1." 1 1
 		fi
@@ -899,21 +845,21 @@ case "${command[0]}" in
 		if ((${#argument[@]} != 1)); then
 			abort_compiling "Number of inputs in the first argument must be 1." 1 10
 		fi
-		echo "21/${command[1]}" >> "./output/$FILE"
+		echo "1D/${command[1]}" >> "./output/$FILE"
 		;;
 	"warp")
 		# Run a group of commands without screen refresh.
 		if ((${#command[@]} != 1)); then
 			abort_compiling "Number of arguments must be 0." 1 1
 		fi
-		echo "22" >> "./output/$FILE"
+		echo "1E" >> "./output/$FILE"
 		;;
 	"endwarp")
 		# End warp.
 		if ((${#command[@]} != 1)); then
 			abort_compiling "Number of arguments must be 0." 1 1
 		fi
-		echo "23" >> "./output/$FILE"
+		echo "1F" >> "./output/$FILE"
 		;;
 	"wait")
 		# Wait.
@@ -924,22 +870,7 @@ case "${command[0]}" in
 		if ((${#argument[@]} != 1)); then
 			abort_compiling "Number of inputs in the first argument must be 1." 1 10
 		fi
-		echo "24/${command[1]}" >> "./output/$FILE"
-		;;
-	"ls")
-		# List files and directories inside a directory and save them in a list.
-		if ((${#command[@]} != 3)); then
-			abort_compiling "Number of arguments must be 2." 1 1
-		fi
-		process_argument ${command[1]}
-		if ((${#argument[@]} != 1)); then
-			abort_compiling "Number of inputs in the first argument must be 1." 1 10
-		fi
-		process_argument ${command[2]}
-		if ((${#argument[@]} != 1)); then
-			abort_compiling "Number of inputs in the second argument must be 1." 1 10
-		fi
-		echo "26/${command[1]}/${command[2]}" >> "./output/$FILE"
+		echo "20/${command[1]}" >> "./output/$FILE"
 		;;
 	"listdisk")
 		# List disks and save to list.
@@ -950,7 +881,7 @@ case "${command[0]}" in
 		if ((${#argument[@]} != 1)); then
 			abort_compiling "Number of inputs in the first argument must be 1." 1 10
 		fi
-		echo "27/${command[1]}" >> "./output/$FILE"
+		echo "22/${command[1]}" >> "./output/$FILE"
 		;;
 	"createdisk")
 		# Create disk.
@@ -961,18 +892,7 @@ case "${command[0]}" in
 		if ((${#argument[@]} != 2)); then
 			abort_compiling "Number of inputs in the first argument must be 2." 1 10
 		fi
-		echo "28/${command[1]}" >> "./output/$FILE"
-		;;
-	"fpt")
-		# Format disk with FPT.
-		if ((${#command[@]} != 2)); then
-			abort_compiling "Number of arguments must be 1." 1 1
-		fi
-		process_argument ${command[1]}
-		if ((${#argument[@]} != 2)); then
-			abort_compiling "Number of inputs in the first argument must be 2." 1 10
-		fi
-		echo "29/${command[1]}" >> "./output/$FILE"
+		echo "23/${command[1]}" >> "./output/$FILE"
 		;;
 	"rmdisk")
 		# Remove disk.
@@ -983,7 +903,7 @@ case "${command[0]}" in
 		if ((${#argument[@]} != 1)); then
 			abort_compiling "Number of inputs in the first argument must be 1." 1 10
 		fi
-		echo "2A/${command[1]}" >> "./output/$FILE"
+		echo "24/${command[1]}" >> "./output/$FILE"
 		;;
 	"renamedisk")
 		# Rename disk.
@@ -994,110 +914,7 @@ case "${command[0]}" in
 		if ((${#argument[@]} != 2)); then
 			abort_compiling "Number of inputs in the first argument must be 2." 1 10
 		fi
-		echo "2B/${command[1]}" >> "./output/$FILE"
-		;;
-	"createpart")
-		# Create partition.
-		if ((${#command[@]} != 2)); then
-			abort_compiling "Number of arguments must be 1." 1 1
-		fi
-		process_argument ${command[1]}
-		if ((${#argument[@]} != 2)); then
-			abort_compiling "Number of inputs in the first argument must be 2." 1 10
-		fi
-		echo "2C/${command[1]}" >> "./output/$FILE"
-		;;
-	"rmpart")
-		# Delete partition.
-		if ((${#command[@]} != 2)); then
-			abort_compiling "Number of arguments must be 1." 1 1
-		fi
-		process_argument ${command[1]}
-		if ((${#argument[@]} != 1)); then
-			abort_compiling "Number of inputs in the first argument must be 1." 1 10
-		fi
-		echo "2D/${command[1]}" >> "./output/$FILE"
-		;;
-	"format")
-		# Format partition.
-		if ((${#command[@]} != 2)); then
-			abort_compiling "Number of arguments must be 1." 1 1
-		fi
-		process_argument ${command[1]}
-		if ((${#argument[@]} != 1)); then
-			abort_compiling "Number of inputs in the first argument must be 1." 1 10
-		fi
-		echo "2E/${command[1]}" >> "./output/$FILE"
-		;;
-	"renamepart")
-		# Rename partition.
-		if ((${#command[@]} != 2)); then
-			abort_compiling "Number of arguments must be 1." 1 1
-		fi
-		process_argument ${command[1]}
-		if ((${#argument[@]} != 2)); then
-			abort_compiling "Number of inputs in the first argument must be 2." 1 10
-		fi
-		echo "2F/${command[1]}" >> "./output/$FILE"
-		;;
-	"write")
-		# Write file.
-		if ((${#command[@]} != 3)); then
-			abort_compiling "Number of arguments must be 2." 1 1
-		fi
-		process_argument ${command[1]}
-		if ((${#argument[@]} != 1)); then
-			abort_compiling "Number of inputs in the first argument must be 1." 1 10
-		fi
-		process_argument ${command[2]}
-		if ((${#argument[@]} != 1)); then
-			abort_compiling "Number of inputs in the second argument must be 1." 1 10
-		fi
-		echo "30/${command[1]}/${command[2]}" >> "./output/$FILE"
-		;;
-	"rm")
-		# Delete file.
-		if ((${#command[@]} != 2)); then
-			abort_compiling "Number of arguments must be 1." 1 1
-		fi
-		process_argument ${command[1]}
-		if ((${#argument[@]} != 1)); then
-			abort_compiling "Number of inputs in the first argument must be 1." 1 10
-		fi
-		echo "31/${command[1]}" >> "./output/$FILE"
-		;;
-	"mkdir")
-		# Create directory.
-		if ((${#command[@]} != 2)); then
-			abort_compiling "Number of arguments must be 1." 1 1
-		fi
-		process_argument ${command[1]}
-		if ((${#argument[@]} != 1)); then
-			abort_compiling "Number of inputs in the first argument must be 1." 1 10
-		fi
-		echo "32/${command[1]}" >> "./output/$FILE"
-		;;
-	"move")
-		# Rename file (directory is also a file).
-		if ((${#command[@]} != 2)); then
-			abort_compiling "Number of arguments must be 1." 1 1
-		fi
-		process_argument ${command[1]}
-		if ((${#argument[@]} != 2)); then
-			abort_compiling "Number of inputs in the first argument must be 2." 1 10
-		fi
-		echo "33/${command[1]}" >> "./output/$FILE"
-		;;
-	"copy")
-		# Copy file (it doesn't copy directory content!).
-		if ((${#command[@]} != 2)); then
-			abort_compiling "Number of arguments must be 1." 1 1
-		fi
-		process_argument ${command[1]}
-		if ((${#argument[@]} != 2)); then
-			abort_compiling "Number of inputs in the first argument must be 2." 1 10
-		fi
-		echo "34/${command[1]}" >> "./output/$FILE"
+		echo "25/${command[1]}" >> "./output/$FILE"
 		;;
 	"beep")
 		# Beep.
@@ -1108,52 +925,7 @@ case "${command[0]}" in
 		if ((${#argument[@]} != 2)); then
 			abort_compiling "Number of inputs in the first argument must be 2." 1 10
 		fi
-		echo "35/${command[1]}" >> "./output/$FILE"
-		;;
-	"groupset")
-		# Setup group.
-		if ((${#command[@]} != 3)); then
-			abort_compiling "Number of arguments must be 2." 1 1
-		fi
-		process_argument ${command[1]}
-		if ((${#argument[@]} != 1)); then
-			abort_compiling "Number of inputs in the first argument must be 1." 1 10
-		fi
-		process_argument ${command[2]}
-		if ((${#argument[@]} < 1)); then
-			abort_compiling "Number of inputs in the second argument must be at least 1." 1 10
-		fi
-		echo "36/${command[1]}/${command[2]}" >> "./output/$FILE"
-		;;
-	"groupadd")
-		# Add user to group.
-		if ((${#command[@]} != 3)); then
-			abort_compiling "Number of arguments must be 2." 1 1
-		fi
-		process_argument ${command[1]}
-		if ((${#argument[@]} != 1)); then
-			abort_compiling "Number of inputs in the first argument must be 1." 1 10
-		fi
-		process_argument ${command[2]}
-		if ((${#argument[@]} != 1)); then
-			abort_compiling "Number of inputs in the second argument must be 1." 1 10
-		fi
-		echo "37/${command[1]}/${command[2]}" >> "./output/$FILE"
-		;;
-	"grouprm")
-		# Remove user from group.
-		if ((${#command[@]} != 3)); then
-			abort_compiling "Number of arguments must be 2." 1 1
-		fi
-		process_argument ${command[1]}
-		if ((${#argument[@]} != 1)); then
-			abort_compiling "Number of inputs in the first argument must be 1." 1 10
-		fi
-		process_argument ${command[2]}
-		if ((${#argument[@]} != 1)); then
-			abort_compiling "Number of inputs in the second argument must be 1." 1 10
-		fi
-		echo "38/${command[1]}/${command[2]}" >> "./output/$FILE"
+		echo "26/${command[1]}" >> "./output/$FILE"
 		;;
 	"deleteitem")
 		# Remove item from list.
@@ -1168,72 +940,7 @@ case "${command[0]}" in
 		if ((${#argument[@]} != 1)); then
 			abort_compiling "Number of inputs in the second argument must be 1." 1 10
 		fi
-		echo "39/${command[1]}/${command[2]}" >> "./output/$FILE"
-		;;
-	"perms")
-		# Set permissions of a file.
-		if ((${#command[@]} != 2)) && ((${#command[@]} != 3)); then
-			abort_compiling "Number of arguments must be 1 or 2." 1 1
-		fi
-		process_argument ${command[1]}
-		if ((${#argument[@]} != 1)) && ((${#argument[@]} != 2)); then
-			abort_compiling "Number of inputs in the first argument must be 1 or 2." 1 10
-		fi
-		process_argument ${command[2]}
-		if ((${#argument[@]} < 0)) || ((${#argument[@]} > 2)); then
-			abort_compiling "Number of inputs in the second argument must be lower or equal to 2." 1 10
-		fi
-		echo "3A/${command[1]}/${command[2]}" >> "./output/$FILE"
-		;;
-	"continue")
-		# Continue - share variables and lists with another script and execute it.
-		if ((${#command[@]} < 2)); then
-			abort_compiling "Number of arguments must be at least 1." 1 1
-		fi
-		process_argument "${command[1]}"
-		if ((${#argument[@]} != 1)); then
-			abort_compiling "Number of inputs in the first argument must be 1." 1 10
-		fi
-		final="3B/${command[1]}"
-		i2=2
-		while ((i2 < ${#command[@]})); do
-			i2="$(($i2+1))"
-			final="${final}/${command[$(($i2-1))]}"
-		done
-		echo "$final" >> "./output/$FILE"
-		;;
-	"seldisk")
-		# Select disk.
-		if ((${#command[@]} != 2)); then
-			abort_compiling "Number of arguments must be 1." 1 1
-		fi
-		process_argument ${command[1]}
-		if ((${#argument[@]} != 1)); then
-			abort_compiling "Number of inputs in the first argument must be 1." 1 10
-		fi
-		echo "3C/${command[1]}" >> "./output/$FILE"
-		;;
-	"selpart")
-		# Select partition (mount it at /).
-		if ((${#command[@]} != 2)); then
-			abort_compiling "Number of arguments must be 1." 1 1
-		fi
-		process_argument ${command[1]}
-		if ((${#argument[@]} != 1)); then
-			abort_compiling "Number of inputs in the first argument must be 1." 1 10
-		fi
-		echo "3D/${command[1]}" >> "./output/$FILE"
-		;;
-	"listpart")
-		# List partitions and save in a list.
-		if ((${#command[@]} != 2)); then
-			abort_compiling "Number of arguments must be 1." 1 1
-		fi
-		process_argument ${command[1]}
-		if ((${#argument[@]} != 1)); then
-			abort_compiling "Number of inputs in the first argument must be 1." 1 10
-		fi
-		echo "3E/${command[1]}" >> "./output/$FILE"
+		echo "27/${command[1]}/${command[2]}" >> "./output/$FILE"
 		;;
 	"getdisksize")
 		# Get disk size.
@@ -1248,60 +955,49 @@ case "${command[0]}" in
 		if ((${#argument[@]} != 1)); then
 			abort_compiling "Number of inputs in the second argument must be 1." 1 10
 		fi
-		echo "3F/${command[1]}/${command[2]}" >> "./output/$FILE"
+		echo "28/${command[1]}/${command[2]}" >> "./output/$FILE"
 		;;
 	"showlogo")
 		# Show SMC Computer splash screen.
 		if ((${#command[@]} != 1)); then
 			abort_compiling "Number of arguments must be 0." 1 1
 		fi
-		echo "40/1" >> "./output/$FILE"
+		echo "29/1" >> "./output/$FILE"
 		;;
 	"hidelogo")
 		# Hide SMC Computer splash screen.
 		if ((${#command[@]} != 1)); then
 			abort_compiling "Number of arguments must be 0." 1 1
 		fi
-		echo "40/0" >> "./output/$FILE"
+		echo "29/0" >> "./output/$FILE"
 		;;
 	"enabletext")
 		# Enable text on screen.
 		if ((${#command[@]} != 1)); then
 			abort_compiling "Number of arguments must be 0." 1 1
 		fi
-		echo "41/1" >> "./output/$FILE"
+		echo "2A/1" >> "./output/$FILE"
 		;;
 	"disabletext")
 		# Disable text on screen.
 		if ((${#command[@]} != 1)); then
 			abort_compiling "Number of arguments must be 0." 1 1
 		fi
-		echo "41/0" >> "./output/$FILE"
+		echo "2A/0" >> "./output/$FILE"
 		;;
 	"shutdown")
 		# Shut down.
 		if ((${#command[@]} != 1)); then
 			abort_compiling "Number of arguments must be 0." 1 1
 		fi
-		echo "42/1" >> "./output/$FILE"
+		echo "2B/1" >> "./output/$FILE"
 		;;
 	"reboot")
 		# Reboot.
 		if ((${#command[@]} != 1)); then
 			abort_compiling "Number of arguments must be 0." 1 1
 		fi
-		echo "42/2" >> "./output/$FILE"
-		;;
-	"adduser")
-		# Add user.
-		if ((${#command[@]} != 2)); then
-			abort_compiling "Number of arguments must be 1." 1 1
-		fi
-		process_argument ${command[1]}
-		if ((${#argument[@]} != 1)); then
-			abort_compiling "Number of inputs in the first argument must be 1." 1 10
-		fi
-		echo "43/${command[1]}" >> "./output/$FILE"
+		echo "2B/2" >> "./output/$FILE"
 		;;
 	"writedisk")
 		# Direct disk write.
@@ -1316,7 +1012,7 @@ case "${command[0]}" in
 		if ((${#argument[@]} != 2)); then
 			abort_compiling "Number of inputs in the second argument must be 2." 1 10
 		fi
-		echo "44/${command[1]}/${command[2]}" >> "./output/$FILE"
+		echo "2C/${command[1]}/${command[2]}" >> "./output/$FILE"
 		;;
 	"loadcode")
 		# Load PC code.
@@ -1327,14 +1023,29 @@ case "${command[0]}" in
 		if ((${#argument[@]} != 1)); then
 			abort_compiling "Number of inputs in the first argument must be 1." 1 10
 		fi
-		echo "45/${command[1]}" >> "./output/$FILE"
+		echo "2D/${command[1]}" >> "./output/$FILE"
 		;;
 	"leavebios")
 		# Disable BIOS setup mode.
 		if ((${#command[@]} != 1)); then
 			abort_compiling "Number of arguments must be 0." 1 1
 		fi
-		echo "46" >> "./output/$FILE"
+		echo "2E" >> "./output/$FILE"
+		;;
+	"readdisk")
+		# Disable BIOS setup mode.
+		if ((${#command[@]} != 3)); then
+			abort_compiling "Number of arguments must be 2." 1 1
+		fi
+		process_argument ${command[1]}
+		if ((${#argument[@]} != 2)); then
+			abort_compiling "Number of inputs in the first argument must be 2." 1 10
+		fi
+		process_argument ${command[2]}
+		if ((${#argument[@]} != 1)); then
+			abort_compiling "Number of inputs in the second argument must be 1." 1 10
+		fi
+		echo "2E" >> "./output/$FILE"
 		;;
 	"")
 		# Comment.
