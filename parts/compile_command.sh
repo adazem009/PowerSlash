@@ -1047,6 +1047,56 @@ case "${command[0]}" in
 		fi
 		echo "2E" >> "./output/$FILE"
 		;;
+	"print>")
+		# Multi-line print start
+		if ((${#command[@]} > 2)); then
+			abort_compiling "Number of arguments must be 0 or 1." 1 1
+		fi
+		cch=0
+		if ((${#command[@]} == 2)); then
+			process_argument ${command[1]}
+			if ((${#argument[@]} != 1)); then
+				abort_compiling "Number of inputs in the second argument must be 1." 1 10
+			fi
+			cch=1
+			echo "21/${argument[0]}" >> "./output/$FILE"
+		fi
+		oldi=$i1 && suc=0
+		while (( i1 < ${#PRG[@]} )); do
+			i1=$((i1+1))
+			line="${PRG[$((i1-1))]}" && str="" && i2=0
+			se=0
+			while (( i2 <  ${#line} )); do
+				i2=$((i2+1))
+				ch="${line:$((i2-1)):1}"
+				if [[ "$ch" != ' ' ]] && [[ "$ch" != '	' ]] || ((se == 1)); then
+					se=1
+					str="${str}${ch}"
+				fi
+			done
+			if [[ "$str" = '<print' ]]; then
+				suc=1
+				break
+			else
+				if [[ "$str" != '""' ]] && [[ "$str" != "''" ]]; then
+					echo "A/$str" >> "./output/$FILE"
+				fi
+				echo "E" >> "./output/$FILE"
+			fi
+		done
+		if ((suc == 0)); then
+			i1=$oldi
+			abort_compiling "print>: Unexpected end of file. Maybe '<print' is missing?" 1 16
+		fi
+		if ((cch == 1)); then
+			echo "21/255255255" >> "./output/$FILE"
+		fi
+		;;
+	"<print")
+		# Multi-line print end
+		# Nothing here
+		:
+		;;
 	"")
 		# Comment.
 		if [[ "$disout" != "1" ]]; then
