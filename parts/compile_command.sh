@@ -1165,7 +1165,7 @@ case "${command[0]}" in
 					echo "15/${argument[$((i5-1))]}/${tmp0}arg_$((i4-1))${tmp0}" >> "./output/$FILE"
 				done
 			done
-			echo "15/${tmp0}arg_count${tmp0},$((${#command[@]}-1))" >> "./output/$FILE"
+			echo "10/${tmp0}arg_count${tmp0},$((${#command[@]}-1))" >> "./output/$FILE"
 			i4=0
 			len="$(wc -l < "./.functions/${command[0]}")"
 			while ((i4 < len)); do
