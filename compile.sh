@@ -56,6 +56,12 @@ cmd_db ()
 	touch .functions/loadcode
 	touch .functions/leavebios
 	touch .functions/readdisk
+	touch ".functions/print>"
+	touch ".functions/<print"
+	touch .functions/cpdisk
+	touch .functions/bintolist
+	touch .functions/listtobin
+	touch .functions/readvar
 }
 process_command ()
 {
