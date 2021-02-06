@@ -62,6 +62,7 @@ cmd_db ()
 	touch .functions/bintolist
 	touch .functions/listtobin
 	touch .functions/readvar
+	touch .functions/getindex
 }
 process_command ()
 {
