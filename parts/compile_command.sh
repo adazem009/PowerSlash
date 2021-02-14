@@ -102,9 +102,21 @@ process_if()
 					i4="$(($i4+1))"
 					lentemp="${#args[0]}"
 					lentemp="$(($lentemp+1))"
+					if [[ "${arg:0:1}" = '"' ]] || [[ "${arg:0:1}" = "'" ]]; then
+						qs="${arg:0:1}"
+					else
+						qs=""
+					fi
 					until ((i4 == lentemp)); do
-						if [[ "${arg:$(($i4-1)):1}" = '"' ]]; then
+						if [[ "${arg:$(($i4-1)):1}" = "$qs" ]]; then
 							q=$((1-q))
+							if ((q == 0)); then
+								if [[ "${arg:${i4}:1}" = '"' ]] || [[ "${arg:${i4}:1}" = "'" ]]; then
+									qs="${arg:${i4}:1}"
+								else
+									qs=""
+								fi
+							fi
 						fi
 						if [[ "${args[0]:$(($i4-1)):1}" = ' ' ]] && ((q == 0)); then
 							abort_compiling "Unexpected space after second value." 1 5
@@ -144,8 +156,22 @@ process_if()
 				if [[ "${#temp4[@]}" != "3" ]]; then
 					abort_compiling "Number of condition inputs must be 3 or 1." 1 6
 				fi
-				temp0='"'
-				final="${final}/${temp4[0]},${temp0}${temp4[1]}${temp0},${temp4[2]}"
+				temp0='"' temp1="'"
+				if [[ "${temp4[0]}" == *'"'* ]]; then
+					#full0="${temp1}${temp4[0]}${temp1}"
+					full0="${temp4[0]}"
+				else
+					#full0="${temp0}${temp4[0]}${temp0}"
+					full0="${temp4[0]}"
+				fi
+				if [[ "${temp4[2]}" == *'"'* ]]; then
+					#full2="${temp1}${temp4[2]}${temp1}"
+					full2="${temp4[2]}"
+				else
+					#full2="${temp0}${temp4[2]}${temp0}"
+					full2="${temp4[2]}"
+				fi
+				final="${final}/${full0},${temp0}${temp4[1]}${temp0},${full2}"
 			fi
 			if ((negate == 1)); then
 				temp0='"!"'
