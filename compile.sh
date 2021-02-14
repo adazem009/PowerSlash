@@ -71,16 +71,26 @@ process_command ()
 	command=()
 	quotes=0
 	temp=""
+	if [[ "${cmd:0:1}" = "'" ]]; then
+		quote="'"
+	else
+		quote='"'
+	fi
 	i2=0
 	while ((i2 < cmdlen)); do
 		i2="$(($i2+1))"
 		chartemp="$(($i2-1))"
 		chartemp="${cmd:${chartemp}:1}"
-		if [ "$chartemp" = '"' ]; then
+		if [ "$chartemp" = "$quote" ]; then
 			quotes="$((1-$quotes))"
 		fi
 		if [ "$chartemp" = "/" ] && ((quotes == 0)); then
 			lentemp="${#command[@]}"
+			if [[ "${cmd:$i2:1}" = "'" ]] || [[ "${cmd:$i2:1}" = '"' ]]; then
+				quote="${cmd:$i2:1}"
+			else
+				quote=""
+			fi
 			addcmd="$temp"
 			command[${#command[@]}]="$addcmd"
 			temp=""
@@ -103,15 +113,25 @@ process_argument ()
 	quotes=0
 	quoted=0
 	temp=""
+	if [[ "${avalue:0:1}" = "'" ]]; then
+		quote="'"
+	else
+		quote='"'
+	fi
 	i2=0
 	while ((i2 < arglen)); do
 		i2="$(($i2+1))"
-		if [ "${avalue:$(($i2-1)):1}" = '"' ]; then
+		if [ "${avalue:$(($i2-1)):1}" = "$quote" ]; then
 			quotes="$((1-$quotes))"
 			quoted=1
 		fi
 		if [ "${avalue:$(($i2-1)):1}" = "," ] && ((quotes == 0)); then
 			temp3=1
+			if [[ "${avalue:$i2:1}" = "'" ]] || [[ "${avalue:$i2:1}" = '"' ]]; then
+				quote="${avalue:$i2:1}"
+			else
+				quote=""
+			fi
 		else
 			temp3=0
 		fi
@@ -141,10 +161,15 @@ process_argument2 ()
 	quotes=0
 	quoted=0
 	temp=""
+	if [[ "${avalue:0:1}" = "'" ]]; then
+		quote="'"
+	else
+		quote='"'
+	fi
 	i2=0
 	while ((i2 < arglen)); do
 		i2="$(($i2+1))"
-		if [ "${avalue:$(($i2-1)):1}" = '"' ]; then
+		if [ "${avalue:$(($i2-1)):1}" = "$quote" ]; then
 			quotes="$((1-$quotes))"
 			quoted=1
 		fi
@@ -154,7 +179,7 @@ process_argument2 ()
 			temp3=0
 		fi
 		if ((temp3 == 1)) || [ "$i2" = "$arglen" ]; then
-			if [ "$i2" = "$arglen" ] && [ "${avalue:$(($i2-1)):1}" != '"' ]; then
+			if [ "$i2" = "$arglen" ] && [ "${avalue:$(($i2-1)):1}" != "$quote" ]; then
 				temp="${temp}${avalue:$(($i2-1)):1}"
 			fi
 			if ((quoted == 1)); then
@@ -166,7 +191,7 @@ process_argument2 ()
 			temp=""
 			quoted=0
 		else
-			if [ "${avalue:$(($i2-1)):1}" != '"' ]; then
+			if [ "${avalue:$(($i2-1)):1}" != "$quote" ]; then
 				temp="${temp}${avalue:$(($i2-1)):1}"
 			fi
 		fi
