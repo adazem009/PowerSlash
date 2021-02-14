@@ -63,6 +63,7 @@ cmd_db ()
 	touch .functions/listtobin
 	touch .functions/readvar
 	touch .functions/getindex
+	touch .functions/smc_getarg
 }
 process_command ()
 {
