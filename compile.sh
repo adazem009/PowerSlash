@@ -58,6 +58,8 @@ cmd_db ()
 	touch .functions/readdisk
 	touch ".functions/print>"
 	touch ".functions/<print"
+	touch .functions/showcplist
+	touch .functions/hidecplist
 	touch .functions/cpdisk
 	touch .functions/bintolist
 	touch .functions/listtobin
