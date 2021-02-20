@@ -70,134 +70,130 @@ cmd_db ()
 process_command ()
 {
 	local cmd="$1"
-	cmdlen=${#cmd}
 	command=()
-	quotes=0
 	temp=""
-	if [[ "${cmd:0:1}" = "'" ]]; then
-		quote="'"
-	else
-		quote='"'
-	fi
 	i2=0
-	while ((i2 < cmdlen)); do
-		i2="$(($i2+1))"
-		chartemp="$(($i2-1))"
-		chartemp="${cmd:${chartemp}:1}"
-		if [ "$chartemp" = "$quote" ]; then
-			quotes="$((1-$quotes))"
-		fi
-		if [ "$chartemp" = "/" ] && ((quotes == 0)); then
-			lentemp="${#command[@]}"
-			if [[ "${cmd:$i2:1}" = "'" ]] || [[ "${cmd:$i2:1}" = '"' ]]; then
-				quote="${cmd:$i2:1}"
+	while ((i2 < ${#cmd})); do
+		# Command/function name
+		while ((i2 < ${#cmd})) && [[ "${cmd:$((i2-1)):1}" != "/" ]]; do
+			i2="$(($i2+1))"
+			if [[ "${cmd:$((i2-1)):1}" = '"' ]] || [[ "${cmd:$((i2-1)):1}" = "'" ]]; then
+				abort_compiling "Invalid command/function name." 1 "-3"
+			fi
+			if [[ "${cmd:$((i2-1)):1}" != "/" ]]; then
+				temp="${temp}${cmd:$((i2-1)):1}"
+			fi
+		done
+		command[${#command[@]}]="$temp"
+		temp=""
+		while ((i2 < ${#cmd})); do
+			i2="$(($i2+1))"
+			if [[ "${cmd:$((i2-1)):1}" = '"' ]] || [[ "${cmd:$((i2-1)):1}" = "'" ]]; then
+				temp="${temp}${cmd:$((i2-1)):1}"
+				quote="${cmd:$((i2-1)):1}"
+				cur=""
+				while ((i2 < ${#cmd})) && [[ "$cur" != "$quote" ]]; do
+					i2="$(($i2+1))"
+					cur="${cmd:$((i2-1)):1}"
+					temp="${temp}$cur"
+				done
+			elif [[ "${cmd:$((i2-1)):1}" = "/" ]]; then
+				command[${#command[@]}]="$temp"
+				temp=""
 			else
-				quote=""
+				temp="${temp}${cmd:$((i2-1)):1}"
 			fi
-			addcmd="$temp"
-			command[${#command[@]}]="$addcmd"
-			temp=""
-		else
-			if [[ "$chartemp" != ' ' ]] && [[ "$chartemp" != '	' ]] || ((${#command[@]} > 0)); then
-				temp="${temp}${chartemp}"
-			fi
-		fi
+		done
 	done
-	lentemp="${#command[@]}"
-	addcmd="$temp"
-	command[${#command[@]}]="$addcmd"
+	if [[ "$temp" != "" ]]; then
+		command[${#command[@]}]="$temp"
+	fi
 }
 process_argument ()
 {
-	avalue=$1
-	arglen=${#avalue}
+	cmd="$1"
 	argument=()
-	argument_translation=()
-	quotes=0
-	quoted=0
 	temp=""
-	if [[ "${avalue:0:1}" = "'" ]]; then
-		quote="'"
-	else
-		quote='"'
-	fi
 	i2=0
-	while ((i2 < arglen)); do
-		i2="$(($i2+1))"
-		if [ "${avalue:$(($i2-1)):1}" = "$quote" ]; then
-			quotes="$((1-$quotes))"
-			quoted=1
-		fi
-		if [ "${avalue:$(($i2-1)):1}" = "," ] && ((quotes == 0)); then
-			temp3=1
-			if [[ "${avalue:$i2:1}" = "'" ]] || [[ "${avalue:$i2:1}" = '"' ]]; then
-				quote="${avalue:$i2:1}"
+	if [[ "$cmd" != "" ]]; then
+		while ((i2 < ${#cmd})); do
+			i2="$(($i2+1))"
+			if [[ "${cmd:$((i2-1)):1}" = '"' ]] || [[ "${cmd:$((i2-1)):1}" = "'" ]]; then
+				temp="${temp}${cmd:$((i2-1)):1}"
+				quote="${cmd:$((i2-1)):1}"
+				cur=""
+				while ((i2 < ${#cmd})) && [[ "$cur" != "$quote" ]]; do
+					i2="$(($i2+1))"
+					cur="${cmd:$((i2-1)):1}"
+					temp="${temp}$cur"
+				done
+				argument[${#argument[@]}]="$temp"
+				temp=""
+			elif [[ "${cmd:$((i2-1)):1}" = "," ]]; then
+				if [[ "$temp" != "" ]]; then
+					argument[${#argument[@]}]="$temp"
+				fi
+				temp=""
 			else
-				quote=""
+				temp="${temp}${cmd:$((i2-1)):1}"
 			fi
-		else
-			temp3=0
-		fi
-		if ((temp3 == 1)) || [ "$i2" = "$arglen" ]; then
-			if [ "$i2" = "$arglen" ]; then
-				temp="${temp}${avalue:$(($i2-1)):1}"
-			fi
-			if ((quoted == 1)); then
-				argument_translation[${#argument_translation[@]}]="0"
-			else
-				argument_translation[${#argument_translation[@]}]="0"
-			fi
+		done
+		if [[ "$temp" != "" ]]; then
 			argument[${#argument[@]}]="$temp"
-			temp=""
-			quoted=0
-		else
-			temp="${temp}${avalue:$(($i2-1)):1}"
 		fi
-	done
+	fi
 }
 process_argument2 ()
 {
-	avalue=$1
-	arglen=${#avalue}
+	cmd="$1"
 	argument=()
-	argument_translation=()
-	quotes=0
-	quoted=0
 	temp=""
-	if [[ "${avalue:0:1}" = "'" ]]; then
-		quote="'"
-	else
-		quote='"'
-	fi
 	i2=0
-	while ((i2 < arglen)); do
+	while ((i2 < ${#cmd})); do
 		i2="$(($i2+1))"
-		if [ "${avalue:$(($i2-1)):1}" = "$quote" ]; then
-			quotes="$((1-$quotes))"
-			quoted=1
-		fi
-		if [ "${avalue:$(($i2-1)):1}" = "," ] && ((quotes == 0)); then
-			temp3=1
-		else
-			temp3=0
-		fi
-		if ((temp3 == 1)) || [ "$i2" = "$arglen" ]; then
-			if [ "$i2" = "$arglen" ] && [ "${avalue:$(($i2-1)):1}" != "$quote" ]; then
-				temp="${temp}${avalue:$(($i2-1)):1}"
+		if [[ "${cmd:$((i2-1)):1}" = '"' ]] || [[ "${cmd:$((i2-1)):1}" = "'" ]]; then
+			temp="${temp}${cmd:$((i2-1)):1}"
+			temp2=""
+			quote="${cmd:$((i2-1)):1}"
+			cur=""
+			while ((i2 < ${#cmd})) && [[ "$cur" != "$quote" ]]; do
+				i2="$(($i2+1))"
+				cur="${cmd:$((i2-1)):1}"
+				if [[ "$cur" != "$quote" ]]; then
+					temp2="${temp2}$cur"
+				fi
+				temp="${temp}$cur"
+			done
+			if [[ "$temp" = "$temp2" ]]; then
+				abort_compiling "Cannot pass variable." 1 "-4"
 			fi
-			if ((quoted == 1)); then
-				argument_translation[${#argument_translation[@]}]="0"
-			else
-				argument_translation[${#argument_translation[@]}]="0"
-			fi
-			argument[${#argument[@]}]="$temp"
+			argument[${#argument[@]}]="$temp2"
 			temp=""
-			quoted=0
-		else
-			if [ "${avalue:$(($i2-1)):1}" != "$quote" ]; then
-				temp="${temp}${avalue:$(($i2-1)):1}"
-			fi
+			temp2=""
+		elif [[ "${cmd:$((i2-1)):1}" = "," ]]; then
+			temp=""
+			temp2=""
 		fi
+	done
+}
+process_input()
+{
+	local in="$1" pi=0 qu=0
+	input=""
+	if [[ "${in:0:1}" = '"' ]] || [[ "${in:0:1}" = "'" ]]; then
+		pi=1 qu=1
+		input_type=s
+	else
+		re='^-?[0-9]+([.][0-9]+)?$'
+		if [[ $temp =~ $re ]]; then
+			input_type=s
+		else
+			input_type=v
+		fi
+	fi
+	while (( pi < $((${#in}-qu)) )); do
+		pi=$((pi+1))
+		input="${input}${in:$((pi-1)):1}"
 	done
 }
 abort_compiling()
@@ -246,12 +242,20 @@ else
 	echo "Error: Couldn't open ${FILE}."
 	exit -1
 fi
+IFS=$'\r\n' GLOBIGNORE='*' command eval  'PRG=($(cat $SOURCE_FILE))'
+if [[ "${PRG[0]}" = '//!Lithium' ]]; then
+	arch="lithium"
+	outext="bin"
+else
+	arch="smc"
+	outext="smc"
+fi
 if [[ "$EXT" = "pwsl" ]] || [[ "$EXT" = "PWSL" ]]; then
-	FILE="${NAME}.smc"
+	FILE="${NAME}.$outext"
 elif [[ "$EXT" = "pwsle" ]] || [[ "$EXT" = "PWSLE" ]]; then
 	FILE="$NAME"
 else
-	FILE="${SOURCE_FILE}.smc"
+	FILE="${SOURCE_FILE}.$outext"
 fi
 echo > "./output/$FILE" && rm "./output/$FILE" && touch "./output/$FILE"
 if [ -d "./.functions" ]; then
@@ -263,7 +267,6 @@ cmd_db
 def=0
 func=0
 ifs=0
-IFS=$'\r\n' GLOBIGNORE='*' command eval  'PRG=($(cat $SOURCE_FILE))'
 # Compile
 tmpid=0
 prg_len="${#PRG[@]}"
@@ -303,6 +306,12 @@ until ((contains == 0)) || ((chain >= 50)); do
 	if [[ "$2" != "1" ]]; then
 		print_info "Compiling additional functions..."
 	fi
+	if [[ "$arch" = "lithium" ]]; then
+		if [[ "$2" != "1" ]]; then
+			print_info "Skipping because of lack of arch support."
+		fi
+		break
+	fi
 	chain=$((chain+1))
 	IFS=$'\r\n' GLOBIGNORE='*' command eval  'PRG=($(cat ./output/$FILE))'
 	rm "./output/$FILE"
@@ -312,10 +321,10 @@ until ((contains == 0)) || ((chain >= 50)); do
 		i1="$(($i1+1))"
 		process_command "${PRG[$(($i1-1))]}"
 		contains=0
-		i4=0
-		while ((i4 < ${#functions})); do
-			i4=$((i4+1))
-			if [[ "${functions[$((i4-1))]}" = "${command[0]}" ]]; then
+		ai4=0
+		while ((ai4 < ${#functions})); do
+			ai4=$((ai4+1))
+			if [[ "${functions[$((ai4-1))]}" = "${command[0]}" ]]; then
 				contains=1
 			fi
 		done
@@ -324,22 +333,22 @@ until ((contains == 0)) || ((chain >= 50)); do
 				print_info "Found function '${command[0]}'"
 			fi
 			tmp0='"'
-			i4=1
-			while ((i4 < ${#command[@]})); do
-				i4=$((i4+1))
-				echo "14/${tmp0}arg_$((i4-1))${tmp0}" >> "./output/$FILE"
-				process_argument "${command[$((i4-1))]}"
+			ai4=1
+			while ((ai4 < ${#command[@]})); do
+				ai4=$((ai4+1))
+				echo "14/${tmp0}arg_$((ai4-1))${tmp0}" >> "./output/$FILE"
+				process_argument "${command[$((ai4-1))]}"
 				i5=0
 				while ((i5 < ${#argument[@]})); do
 					i5=$((i5+1))
-					echo "15/${argument[$((i5-1))]}/${tmp0}arg_$((i4-1))${tmp0}" >> "./output/$FILE"
+					echo "15/${argument[$((i5-1))]}/${tmp0}arg_$((ai4-1))${tmp0}" >> "./output/$FILE"
 				done
 			done
 			echo "15/${tmp0}arg_count${tmp0},$((${#command[@]}-1))" >> "./output/$FILE"
-			i4=0
+			ai4=0
 			len="$(wc -l < "./.functions/${command[0]}")"
-			while ((i4 < len)); do
-				i4=$((i4+1))
+			while ((ai4 < len)); do
+				ai4=$((ai4+1))
 				tmp0='!'
 				echo "$(sed "${i4}${tmp0}d" "./.functions/${command[0]}")" >> "./output/$FILE"
 			done
@@ -358,6 +367,12 @@ IFS=$'\r\n' GLOBIGNORE='*' command eval  'PRG=($(cat ./output/$FILE))'
 ifs=0
 i1=0
 while (( i1 < prg_len )); do
+	if [[ "$arch" = "lithium" ]]; then
+		if [[ "$2" != "1" ]]; then
+			print_info "Skipping because of lack of arch support."
+		fi
+		break
+	fi
 	i1="$(($i1+1))"
 	process_command "${PRG[$(($i1-1))]}"
 	if [[ "${command[0]}" = "4" ]]; then
