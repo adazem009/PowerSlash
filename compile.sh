@@ -75,13 +75,23 @@ process_command ()
 	i2=0
 	while ((i2 < ${#cmd})); do
 		# Command/function name
+#		if [[ "${cmd:$i2:1}" = " " ]] || [[ "${cmd:$i2:1}" = "	" ]]; then
+#			i2="$(($i2+1))"
+#		fi
+#		while [[ "${cmd:$((i2-1)):1}" = " " ]] || [[ "${cmd:$((i2-1)):1}" = "	" ]]; do
+#			i2="$(($i2+1))"
+#		done
 		while ((i2 < ${#cmd})) && [[ "${cmd:$((i2-1)):1}" != "/" ]]; do
 			i2="$(($i2+1))"
 			if [[ "${cmd:$((i2-1)):1}" = '"' ]] || [[ "${cmd:$((i2-1)):1}" = "'" ]]; then
-				abort_compiling "Invalid command/function name." 1 "-3"
+				if ((ign == 0)); then
+					abort_compiling "Invalid command/function name." 1 "-3"
+				fi
 			fi
 			if [[ "${cmd:$((i2-1)):1}" != "/" ]]; then
-				temp="${temp}${cmd:$((i2-1)):1}"
+				if [[ "${cmd:$((i2-1)):1}" != " " ]] && [[ "${cmd:$((i2-1)):1}" != "	" ]]; then
+					temp="${temp}${cmd:$((i2-1)):1}"
+				fi
 			fi
 		done
 		command[${#command[@]}]="$temp"
@@ -108,6 +118,7 @@ process_command ()
 	if [[ "$temp" != "" ]]; then
 		command[${#command[@]}]="$temp"
 	fi
+	ign=0
 }
 process_argument ()
 {
@@ -220,6 +231,7 @@ YELLOW='\033[1;33m'
 NC='\033[0m'
 SOURCE_FILE=$1
 EXT=""
+ign=0
 disout="$1"
 i1=0
 while ((i1 < ${#SOURCE_FILE})); do
@@ -277,6 +289,7 @@ functions=()
 i1=0
 while (( i1 < prg_len )); do
 	i1="$(($i1+1))"
+	ign=1
 	process_command "${PRG[$(($i1-1))]}"
 	if [[ "${command[0]}" = "define" ]]; then
 		process_argument2 "${command[1]}"
@@ -324,6 +337,9 @@ until ((contains == 0)) || ((chain >= 50)); do
 		ai4=0
 		while ((ai4 < ${#functions})); do
 			ai4=$((ai4+1))
+			if [[ "${command[0]}" = "" ]]; then
+				break
+			fi
 			if [[ "${functions[$((ai4-1))]}" = "${command[0]}" ]]; then
 				contains=1
 			fi
@@ -346,11 +362,12 @@ until ((contains == 0)) || ((chain >= 50)); do
 			done
 			echo "15/${tmp0}arg_count${tmp0},$((${#command[@]}-1))" >> "./output/$FILE"
 			ai4=0
+			echo "./.functions/${command[0]}"
 			len="$(wc -l < "./.functions/${command[0]}")"
 			while ((ai4 < len)); do
 				ai4=$((ai4+1))
 				tmp0='!'
-				echo "$(sed "${i4}${tmp0}d" "./.functions/${command[0]}")" >> "./output/$FILE"
+				echo "$(sed "${ai4}${tmp0}d" "./.functions/${command[0]}")" >> "./output/$FILE"
 			done
 		else
 			echo "${PRG[$(($i1-1))]}" >> "./output/$FILE"
