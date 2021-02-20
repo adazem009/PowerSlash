@@ -245,8 +245,13 @@ process_if()
 					lentemp="${#args[2]}"
 					lentemp="$(($lentemp+1))"
 					until ((i4 == lentemp)); do
-						if [[ "${arg:$(($i4-1)):1}" = '"' ]]; then
-							q=$((1-q))
+						if [[ "${args[2]:$(($i4-1)):1}" = "$qs" ]]; then
+							q=0 qs=""
+						fi
+						if [[ "${args[2]:$(($i4-1)):1}" = '"' ]] || [[ "${args[2]:$(($i4-1)):1}" = "'" ]]; then
+							if [[ "$qs" = "" ]]; then
+								q=1 qs="${args[2]:$(($i4-1)):1}"
+							fi
 						fi
 						if [[ "${args[2]:$(($i4-1)):1}" = ' ' ]] && ((q == 0)); then
 							abort_compiling "Unexpected space after second value." 1 5
