@@ -245,8 +245,13 @@ process_if()
 					lentemp="${#args[2]}"
 					lentemp="$(($lentemp+1))"
 					until ((i4 == lentemp)); do
-						if [[ "${arg:$(($i4-1)):1}" = '"' ]]; then
-							q=$((1-q))
+						if [[ "${args[2]:$(($i4-1)):1}" = "$qs" ]]; then
+							q=0 qs=""
+						fi
+						if [[ "${args[2]:$(($i4-1)):1}" = '"' ]] || [[ "${args[2]:$(($i4-1)):1}" = "'" ]]; then
+							if [[ "$qs" = "" ]]; then
+								q=1 qs="${args[2]:$(($i4-1)):1}"
+							fi
 						fi
 						if [[ "${args[2]:$(($i4-1)):1}" = ' ' ]] && ((q == 0)); then
 							abort_compiling "Unexpected space after second value." 1 5
@@ -314,7 +319,7 @@ case "${command[0]}" in
 		if ((${#command[@]} != 2)); then
 			abort_compiling "Number of arguments must be 1." 1 1
 		fi
-		process_argument ${command[1]}
+		process_argument "${command[1]}"
 		if ((${#argument[@]} != 1)); then
 			abort_compiling "Number of inputs in the first argument must be 1." 1 10
 		fi
@@ -380,8 +385,13 @@ case "${command[0]}" in
 			backslash="${argument[$(($i4-1))]}"
 			backslash="${backslash:0:1}${backslash:1:1}"
 			if [[ "$backslash" = "\n" ]]; then
-				echo "E" >> "./output/$FILE"
-			elif [[ "$backslash" = "\c" ]]; then
+				if [[ "$arch" = "lithium" ]]; then
+					echo n >> "./output/$FILE"
+					echo 0 >> "./output/$FILE"
+				else
+					echo "E" >> "./output/$FILE"
+				fi
+			elif [[ "$backslash" = "\c" ]] && [[ "$arch" = "lithium" ]]; then
 				color=""
 				i5=2
 				while ((i5 < ${#argument[$(($i4-1))]})); do
@@ -392,22 +402,34 @@ case "${command[0]}" in
 				quote='"'
 				col=1
 				echo "25/${color}" >> "./output/$FILE"
-			elif [[ "$backslash" = "\b" ]]; then
+			elif [[ "$backslash" = "\b" ]] && [[ "$arch" = "lithium" ]]; then
 				bold="${argument[$(($i4-1))]}"
 				bold="${bold:2:1}"
-			elif [[ "$backslash" = "\i" ]]; then
+			elif [[ "$backslash" = "\i" ]] && [[ "$arch" = "lithium" ]]; then
 				italic="${argument[$(($i4-1))]}"
 				italic="${italic:2:1}"
-			elif [[ "$backslash" = "\u" ]]; then
+			elif [[ "$backslash" = "\u" ]] && [[ "$arch" = "lithium" ]]; then
 				underlined="${argument[$(($i4-1))]}"
 				underlined="${underlined:2:1}"
 			elif [[ "${backslash:0:1}" = '\' ]]; then
 				abort_compiling "Invalid backslash escape." 1 16
 			else
 				if (( $((bold+italic+underlined)) == 0 )); then
-					echo "A/${argument[$(($i4-1))]}" >> "./output/$FILE"
+					if [[ "$arch" = "lithium" ]]; then
+						echo p >> "./output/$FILE"
+						echo 1 >> "./output/$FILE"
+						process_input "${argument[$(($i4-1))]}"
+						echo "$input_type" >> "./output/$FILE"
+						echo "$input" >> "./output/$FILE"
+					else
+						echo "A/${argument[$(($i4-1))]}" >> "./output/$FILE"
+					fi
 				else
-					echo "A/${argument[$(($i4-1))]}/${bold},${italic},${underlined}" >> "./output/$FILE"
+					if [[ "$arch" = "lithium" ]]; then
+						abort_compiling "Unknown backslash escape error." 1 16
+					else
+						echo "A/${argument[$(($i4-1))]}/${bold},${italic},${underlined}" >> "./output/$FILE"
+					fi
 				fi
 			fi
 		done
@@ -421,15 +443,40 @@ case "${command[0]}" in
 		if ((${#command[@]} == 0)); then
 			abort_compiling "No arguments." 1 1
 		fi
-		i2=1
-		if ((${#command[@]} > 2)); then
-			if [[ "$disout" != "1" ]]; then
-				print_info "Using multiple read commands." 1
+		i3=1
+		while ((i3 < ${#command[@]})); do
+			i3="$(($i3+1))"
+			process_argument "${command[$(($i3-1))]}"
+			if (( ${#argument[@]} != 2 )); then
+				case "${i3:$((${#i3}-1)):1}" in
+					1)
+						tmp0=st
+						;;
+					2)
+						tmp0=nd
+						;;
+					3)
+						tmp0=rd
+						;;
+					*)
+						tmp0=th
+						;;
+				esac
+				abort_compiling "Number of inputs in the ${i3}${tmp0} argument must be 2." 1 10
 			fi
-		fi
-		while ((i2 < ${#command[@]})); do
-			i2="$(($i2+1))"
-			echo "B/${command[$(($i2-1))]}" >> "./output/$FILE"
+			if [[ "$arch" = "lithium" ]]; then
+				echo "B" >> "./output/$FILE"
+				echo 2 >> "./output/$FILE"
+				i5=0
+				while ((i5 < 2)); do
+					i5=$((i5+1))
+					process_input "${argument[$((i5-1))]}"
+					echo "$input_type" >> "./output/$FILE"
+					echo "$input" >> "./output/$FILE"
+				done
+			else
+				echo "B/${command[$(($i3-1))]}" >> "./output/$FILE"
+			fi
 		done
 		;;
 	"keywait")
@@ -455,7 +502,7 @@ case "${command[0]}" in
 		if ((${#command[@]} > 3)); then
 			abort_compiling "Only expression and scale arguments can be used." 1 1
 		fi
-		process_argument2 ${command[1]}
+		process_argument2 "${command[1]}"
 		var=""
 		i3=0
 		until [[ "${argument[0]:$(($i3-1)):1}" = "=" ]]; do
@@ -626,7 +673,7 @@ case "${command[0]}" in
 		if ((${#command[@]} != 3)); then
 			abort_compiling "Number of arguments must be 2." 1 1
 		fi
-		process_argument ${command[1]}
+		process_argument "${command[1]}"
 		if ((${#argument[@]} != 2)); then
 			abort_compiling "Number of inputs in the first argument must be 2." 1 10
 		fi
@@ -644,11 +691,11 @@ case "${command[0]}" in
 		if ((${#command[@]} != 3)); then
 			abort_compiling "Number of arguments must be 2." 1 1
 		fi
-		process_argument ${command[1]}
+		process_argument "${command[1]}"
 		if ((${#argument[@]} != 2)); then
 			abort_compiling "Number of inputs in the first argument must be 2." 1 10
 		fi
-		process_argument ${command[2]}
+		process_argument "${command[2]}"
 		if ((${#argument[@]} == 0)); then
 			abort_compiling "Number of inputs in the second argument must be at least 1." 1 10
 		fi
@@ -659,11 +706,11 @@ case "${command[0]}" in
 		if ((${#command[@]} != 3)); then
 			abort_compiling "Number of arguments must be 2." 1 1
 		fi
-		process_argument ${command[1]}
+		process_argument "${command[1]}"
 		if ((${#argument[@]} != 1)); then
 			abort_compiling "Number of inputs in the first argument must be 1." 1 10
 		fi
-		process_argument ${command[2]}
+		process_argument "${command[2]}"
 		if ((${#argument[@]} == 0)); then
 			abort_compiling "Number of inputs in the second argument must be at least 1." 1 10
 		fi
@@ -674,7 +721,7 @@ case "${command[0]}" in
 		if ((${#command[@]} != 2)) && ((${#command[@]} != 3)); then
 			abort_compiling "Number of arguments must be 1 or 2." 1 1
 		fi
-		process_argument ${command[1]}
+		process_argument "${command[1]}"
 		if ((${#argument[@]} == 0)); then
 			abort_compiling "Number of inputs in the first argument must be at least 1." 1 10
 		fi
@@ -685,11 +732,11 @@ case "${command[0]}" in
 		if ((${#command[@]} != 3)); then
 			abort_compiling "Number of arguments must be 2." 1 1
 		fi
-		process_argument ${command[1]}
+		process_argument "${command[1]}"
 		if ((${#argument[@]} != 1)); then
 			abort_compiling "Number of inputs in the first argument must be 1." 1 10
 		fi
-		process_argument ${command[2]}
+		process_argument "${command[2]}"
 		if ((${#argument[@]} != 1)); then
 			abort_compiling "Number of inputs in the second argument must be 1." 1 10
 		fi
@@ -700,11 +747,11 @@ case "${command[0]}" in
 		if ((${#command[@]} != 3)); then
 			abort_compiling "Number of arguments must be 2." 1 1
 		fi
-		process_argument ${command[1]}
+		process_argument "${command[1]}"
 		if ((${#argument[@]} != 2)); then
 			abort_compiling "Number of inputs in the first argument must be 2." 1 10
 		fi
-		process_argument ${command[2]}
+		process_argument "${command[2]}"
 		if ((${#argument[@]} != 1)); then
 			abort_compiling "Number of inputs in the second argument must be 1." 1 10
 		fi
@@ -715,11 +762,11 @@ case "${command[0]}" in
 		if ((${#command[@]} != 3)); then
 			abort_compiling "Number of arguments must be 2." 1 1
 		fi
-		process_argument ${command[1]}
+		process_argument "${command[1]}"
 		if ((${#argument[@]} != 2)); then
 			abort_compiling "Number of inputs in the first argument must be 2." 1 10
 		fi
-		process_argument ${command[2]}
+		process_argument "${command[2]}"
 		if ((${#argument[@]} != 1)); then
 			abort_compiling "Number of inputs in the second argument must be 1." 1 10
 		fi
@@ -730,11 +777,11 @@ case "${command[0]}" in
 		if ((${#command[@]} != 3)); then
 			abort_compiling "Number of arguments must be 2." 1 1
 		fi
-		process_argument ${command[1]}
+		process_argument "${command[1]}"
 		if ((${#argument[@]} != 2)); then
 			abort_compiling "Number of inputs in the first argument must be 2." 1 10
 		fi
-		process_argument ${command[2]}
+		process_argument "${command[2]}"
 		if ((${#argument[@]} == 0)); then
 			abort_compiling "Number of inputs in the second argument must be at least 1." 1 10
 		fi
@@ -745,11 +792,11 @@ case "${command[0]}" in
 		if ((${#command[@]} != 3)); then
 			abort_compiling "Number of arguments must be 2." 1 1
 		fi
-		process_argument ${command[1]}
+		process_argument "${command[1]}"
 		if ((${#argument[@]} != 1)); then
 			abort_compiling "Number of inputs in the first argument must be 1." 1 10
 		fi
-		process_argument ${command[2]}
+		process_argument "${command[2]}"
 		if ((${#argument[@]} == 0)); then
 			abort_compiling "Number of inputs in the second argument must be at least 1." 1 10
 		fi
@@ -856,7 +903,7 @@ case "${command[0]}" in
 		if ((${#command[@]} != 2)); then
 			abort_compiling "Number of arguments must be 1." 1 1
 		fi
-		process_argument ${command[1]}
+		process_argument "${command[1]}"
 		if ((${#argument[@]} != 1)); then
 			abort_compiling "Number of inputs in the first argument must be 1." 1 10
 		fi
@@ -867,7 +914,7 @@ case "${command[0]}" in
 		if ((${#command[@]} != 2)); then
 			abort_compiling "Number of arguments must be 1." 1 1
 		fi
-		process_argument ${command[1]}
+		process_argument "${command[1]}"
 		if ((${#argument[@]} != 1)); then
 			abort_compiling "Number of inputs in the first argument must be 1." 1 10
 		fi
@@ -892,7 +939,7 @@ case "${command[0]}" in
 		if ((${#command[@]} != 2)); then
 			abort_compiling "Number of arguments must be 1." 1 1
 		fi
-		process_argument ${command[1]}
+		process_argument "${command[1]}"
 		if ((${#argument[@]} != 1)); then
 			abort_compiling "Number of inputs in the first argument must be 1." 1 10
 		fi
@@ -903,7 +950,7 @@ case "${command[0]}" in
 		if ((${#command[@]} != 2)); then
 			abort_compiling "Number of arguments must be 1." 1 1
 		fi
-		process_argument ${command[1]}
+		process_argument "${command[1]}"
 		if ((${#argument[@]} != 1)); then
 			abort_compiling "Number of inputs in the first argument must be 1." 1 10
 		fi
@@ -914,7 +961,7 @@ case "${command[0]}" in
 		if ((${#command[@]} != 2)); then
 			abort_compiling "Number of arguments must be 1." 1 1
 		fi
-		process_argument ${command[1]}
+		process_argument "${command[1]}"
 		if ((${#argument[@]} != 2)); then
 			abort_compiling "Number of inputs in the first argument must be 2." 1 10
 		fi
@@ -925,7 +972,7 @@ case "${command[0]}" in
 		if ((${#command[@]} != 2)); then
 			abort_compiling "Number of arguments must be 1." 1 1
 		fi
-		process_argument ${command[1]}
+		process_argument "${command[1]}"
 		if ((${#argument[@]} != 1)); then
 			abort_compiling "Number of inputs in the first argument must be 1." 1 10
 		fi
@@ -936,7 +983,7 @@ case "${command[0]}" in
 		if ((${#command[@]} != 2)); then
 			abort_compiling "Number of arguments must be 1." 1 1
 		fi
-		process_argument ${command[1]}
+		process_argument "${command[1]}"
 		if ((${#argument[@]} != 2)); then
 			abort_compiling "Number of inputs in the first argument must be 2." 1 10
 		fi
@@ -947,7 +994,7 @@ case "${command[0]}" in
 		if ((${#command[@]} != 2)); then
 			abort_compiling "Number of arguments must be 1." 1 1
 		fi
-		process_argument ${command[1]}
+		process_argument "${command[1]}"
 		if ((${#argument[@]} != 2)); then
 			abort_compiling "Number of inputs in the first argument must be 2." 1 10
 		fi
@@ -958,11 +1005,11 @@ case "${command[0]}" in
 		if ((${#command[@]} != 3)); then
 			abort_compiling "Number of arguments must be 2." 1 1
 		fi
-		process_argument ${command[1]}
+		process_argument "${command[1]}"
 		if ((${#argument[@]} != 1)); then
 			abort_compiling "Number of inputs in the first argument must be 1." 1 10
 		fi
-		process_argument ${command[2]}
+		process_argument "${command[2]}"
 		if ((${#argument[@]} != 1)); then
 			abort_compiling "Number of inputs in the second argument must be 1." 1 10
 		fi
@@ -973,11 +1020,11 @@ case "${command[0]}" in
 		if ((${#command[@]} != 3)); then
 			abort_compiling "Number of arguments must be 2." 1 1
 		fi
-		process_argument ${command[1]}
+		process_argument "${command[1]}"
 		if ((${#argument[@]} != 1)); then
 			abort_compiling "Number of inputs in the first argument must be 1." 1 10
 		fi
-		process_argument ${command[2]}
+		process_argument "${command[2]}"
 		if ((${#argument[@]} != 1)); then
 			abort_compiling "Number of inputs in the second argument must be 1." 1 10
 		fi
@@ -1030,11 +1077,11 @@ case "${command[0]}" in
 		if ((${#command[@]} != 3)); then
 			abort_compiling "Number of arguments must be 2." 1 1
 		fi
-		process_argument ${command[1]}
+		process_argument "${command[1]}"
 		if ((${#argument[@]} != 1)); then
 			abort_compiling "Number of inputs in the first argument must be 1." 1 10
 		fi
-		process_argument ${command[2]}
+		process_argument "${command[2]}"
 		if ((${#argument[@]} != 2)); then
 			abort_compiling "Number of inputs in the second argument must be 2." 1 10
 		fi
@@ -1045,7 +1092,7 @@ case "${command[0]}" in
 		if ((${#command[@]} != 2)); then
 			abort_compiling "Number of arguments must be 1." 1 1
 		fi
-		process_argument ${command[1]}
+		process_argument "${command[1]}"
 		if ((${#argument[@]} != 1)); then
 			abort_compiling "Number of inputs in the first argument must be 1." 1 10
 		fi
@@ -1063,11 +1110,11 @@ case "${command[0]}" in
 		if ((${#command[@]} != 3)); then
 			abort_compiling "Number of arguments must be 2." 1 1
 		fi
-		process_argument ${command[1]}
+		process_argument "${command[1]}"
 		if ((${#argument[@]} != 2)); then
 			abort_compiling "Number of inputs in the first argument must be 2." 1 10
 		fi
-		process_argument ${command[2]}
+		process_argument "${command[2]}"
 		if ((${#argument[@]} != 1)); then
 			abort_compiling "Number of inputs in the second argument must be 1." 1 10
 		fi
@@ -1080,7 +1127,7 @@ case "${command[0]}" in
 		fi
 		cch=0
 		if ((${#command[@]} == 2)); then
-			process_argument ${command[1]}
+			process_argument "${command[1]}"
 			if ((${#argument[@]} != 1)); then
 				abort_compiling "Number of inputs in the second argument must be 1." 1 10
 			fi
@@ -1128,7 +1175,7 @@ case "${command[0]}" in
 		if ((${#command[@]} != 2)); then
 			abort_compiling "Number of arguments must be 1." 1 1
 		fi
-		process_argument ${command[1]}
+		process_argument "${command[1]}"
 		if ((${#argument[@]} != 1)); then
 			abort_compiling "Number of inputs in the first argument must be 1." 1 10
 		fi
@@ -1146,11 +1193,11 @@ case "${command[0]}" in
 		if ((${#command[@]} != 3)); then
 			abort_compiling "Number of arguments must be 2." 1 1
 		fi
-		process_argument ${command[1]}
+		process_argument "${command[1]}"
 		if ((${#argument[@]} != 1)) && ((${#argument[@]} != 2)); then
 			abort_compiling "Number of inputs in the first argument must be 1 or 2." 1 10
 		fi
-		process_argument ${command[2]}
+		process_argument "${command[2]}"
 		if ((${#argument[@]} != 1)); then
 			abort_compiling "Number of inputs in the second argument must be 1." 1 10
 		fi
@@ -1161,11 +1208,11 @@ case "${command[0]}" in
 		if ((${#command[@]} != 3)); then
 			abort_compiling "Number of arguments must be 2." 1 1
 		fi
-		process_argument ${command[1]}
+		process_argument "${command[1]}"
 		if ((${#argument[@]} != 1)); then
 			abort_compiling "Number of inputs in the first argument must be 1." 1 10
 		fi
-		process_argument ${command[2]}
+		process_argument "${command[2]}"
 		if ((${#argument[@]} != 1)); then
 			abort_compiling "Number of inputs in the second argument must be 1." 1 10
 		fi
@@ -1176,11 +1223,11 @@ case "${command[0]}" in
 		if ((${#command[@]} != 3)); then
 			abort_compiling "Number of arguments must be 2." 1 1
 		fi
-		process_argument ${command[1]}
+		process_argument "${command[1]}"
 		if ((${#argument[@]} != 1)); then
 			abort_compiling "Number of inputs in the first argument must be 1." 1 10
 		fi
-		process_argument ${command[2]}
+		process_argument "${command[2]}"
 		if ((${#argument[@]} != 1)); then
 			abort_compiling "Number of inputs in the second argument must be 1." 1 10
 		fi
@@ -1191,11 +1238,11 @@ case "${command[0]}" in
 		if ((${#command[@]} != 3)); then
 			abort_compiling "Number of arguments must be 2." 1 1
 		fi
-		process_argument ${command[1]}
+		process_argument "${command[1]}"
 		if ((${#argument[@]} != 1)); then
 			abort_compiling "Number of inputs in the first argument must be 1." 1 10
 		fi
-		process_argument ${command[2]}
+		process_argument "${command[2]}"
 		if ((${#argument[@]} != 1)); then
 			abort_compiling "Number of inputs in the second argument must be 1." 1 10
 		fi
@@ -1206,11 +1253,11 @@ case "${command[0]}" in
 		if ((${#command[@]} != 3)); then
 			abort_compiling "Number of arguments must be 2." 1 1
 		fi
-		process_argument ${command[1]}
+		process_argument "${command[1]}"
 		if ((${#argument[@]} != 2)); then
 			abort_compiling "Number of inputs in the first argument must be 2." 1 10
 		fi
-		process_argument ${command[2]}
+		process_argument "${command[2]}"
 		if ((${#argument[@]} != 1)); then
 			abort_compiling "Number of inputs in the second argument must be 1." 1 10
 		fi
@@ -1221,11 +1268,11 @@ case "${command[0]}" in
 		if ((${#command[@]} != 3)); then
 			abort_compiling "Number of arguments must be 2." 1 1
 		fi
-		process_argument ${command[1]}
+		process_argument "${command[1]}"
 		if ((${#argument[@]} != 2)); then
 			abort_compiling "Number of inputs in the first argument must be 2." 1 10
 		fi
-		process_argument ${command[2]}
+		process_argument "${command[2]}"
 		if ((${#argument[@]} != 3)); then
 			abort_compiling "Number of inputs in the second argument must be 3." 1 10
 		fi
