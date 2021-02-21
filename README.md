@@ -1,5 +1,5 @@
 # PowerSlash
-PowerSlash to SMC compiler
+PowerSlash compiler for SMC Computer and LithiumPC.
 
 I'm currently working on PowerSlash documentation. You'll see it here once it's finished.
 
