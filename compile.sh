@@ -81,7 +81,8 @@ process_command ()
 #		while [[ "${cmd:$((i2-1)):1}" = " " ]] || [[ "${cmd:$((i2-1)):1}" = "	" ]]; do
 #			i2="$(($i2+1))"
 #		done
-		while ((i2 < ${#cmd})) && [[ "${cmd:$((i2-1)):1}" != "/" ]]; do
+		cur=""
+		while ((i2 < ${#cmd})) && [[ "$cur" != "/" ]]; do
 			i2="$(($i2+1))"
 			if [[ "${cmd:$((i2-1)):1}" = '"' ]] || [[ "${cmd:$((i2-1)):1}" = "'" ]]; then
 				if ((ign == 0)); then
@@ -93,6 +94,7 @@ process_command ()
 					temp="${temp}${cmd:$((i2-1)):1}"
 				fi
 			fi
+			cur="${cmd:$((i2-1)):1}"
 		done
 		command[${#command[@]}]="$temp"
 		temp=""
@@ -126,7 +128,7 @@ process_argument ()
 	argument=()
 	temp=""
 	i2=0
-	if [[ "$cmd" != "" ]]; then
+	if true; then #[[ "$cmd" != "" ]]; then
 		while ((i2 < ${#cmd})); do
 			i2="$(($i2+1))"
 			if [[ "${cmd:$((i2-1)):1}" = '"' ]] || [[ "${cmd:$((i2-1)):1}" = "'" ]]; then
