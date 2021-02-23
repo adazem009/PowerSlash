@@ -66,6 +66,12 @@ cmd_db ()
 	touch .functions/readvar
 	touch .functions/getindex
 	touch .functions/smc_getarg
+	touch .functions/add
+	touch .functions/sub
+	touch .functions/multi
+	touch .functions/div
+	touch .functions/mod
+	touch .functions/abs
 }
 process_command ()
 {
