@@ -401,7 +401,7 @@ case "${command[0]}" in
 				done
 				quote='"'
 				col=1
-				echo "25/${color}" >> "./output/$FILE"
+				echo "21/${color}" >> "./output/$FILE"
 			elif [[ "$backslash" = "\b" ]] && [[ "$arch" != "lithium" ]]; then
 				bold="${argument[$(($i4-1))]}"
 				bold="${bold:2:1}"
