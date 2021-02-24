@@ -435,7 +435,7 @@ case "${command[0]}" in
 		done
 		if ((col == 1)); then
 			quote='"'
-			echo "25/${quote}255255255${quote}" >> "./output/$FILE"
+			echo "21/${quote}255255255${quote}" >> "./output/$FILE"
 		fi
 		;;
 	"read")
