@@ -391,7 +391,7 @@ case "${command[0]}" in
 				else
 					echo "E" >> "./output/$FILE"
 				fi
-			elif [[ "$backslash" = "\c" ]] && [[ "$arch" = "lithium" ]]; then
+			elif [[ "$backslash" = "\c" ]] && [[ "$arch" != "lithium" ]]; then
 				color=""
 				i5=2
 				while ((i5 < ${#argument[$(($i4-1))]})); do
@@ -402,13 +402,13 @@ case "${command[0]}" in
 				quote='"'
 				col=1
 				echo "25/${color}" >> "./output/$FILE"
-			elif [[ "$backslash" = "\b" ]] && [[ "$arch" = "lithium" ]]; then
+			elif [[ "$backslash" = "\b" ]] && [[ "$arch" != "lithium" ]]; then
 				bold="${argument[$(($i4-1))]}"
 				bold="${bold:2:1}"
-			elif [[ "$backslash" = "\i" ]] && [[ "$arch" = "lithium" ]]; then
+			elif [[ "$backslash" = "\i" ]] && [[ "$arch" != "lithium" ]]; then
 				italic="${argument[$(($i4-1))]}"
 				italic="${italic:2:1}"
-			elif [[ "$backslash" = "\u" ]] && [[ "$arch" = "lithium" ]]; then
+			elif [[ "$backslash" = "\u" ]] && [[ "$arch" != "lithium" ]]; then
 				underlined="${argument[$(($i4-1))]}"
 				underlined="${underlined:2:1}"
 			elif [[ "${backslash:0:1}" = '\' ]]; then
