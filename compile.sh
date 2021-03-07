@@ -285,6 +285,7 @@ mkdir ./.functions
 echo > "./output/${FILE}.old" && rm "./output/${FILE}.old" && touch "./output/${FILE}.old"
 cmd_db
 def=0
+libid=0
 func=0
 ifs=0
 # Compile
@@ -299,7 +300,7 @@ while (( i1 < prg_len )); do
 	i1="$(($i1+1))"
 	ign=1
 	process_command "${PRG[$(($i1-1))]}"
-	if [[ "${command[0]}" = "define" ]]; then
+	if [[ "${command[0]}" = "define" ]] || [[ "${command[0]}" = "linkdef" ]]; then
 		process_argument2 "${command[1]}"
 		if [[ "$2" != "1" ]]; then
 			print_info "Found function '${argument[0]}'" 1
@@ -340,45 +341,52 @@ until ((contains == 0)) || ((chain >= 50)); do
 	i1=0
 	while (( i1 < prg_len )); do
 		i1="$(($i1+1))"
-		process_command "${PRG[$(($i1-1))]}"
-		contains=0
-		ai4=0
-		while ((ai4 < ${#functions})); do
-			ai4=$((ai4+1))
-			if [[ "${command[0]}" = "" ]]; then
-				break
-			fi
-			if [[ "${functions[$((ai4-1))]}" = "${command[0]}" ]]; then
-				contains=1
-			fi
-		done
-		if ((contains == 1)); then
-			if [[ "$2" != "1" ]]; then
-				print_info "Found function '${command[0]}'"
-			fi
-			tmp0='"'
-			ai4=1
-			while ((ai4 < ${#command[@]})); do
-				ai4=$((ai4+1))
-				echo "14/${tmp0}arg_$((ai4-1))${tmp0}" >> "./output/$FILE"
-				process_argument "${command[$((ai4-1))]}"
-				i5=0
-				while ((i5 < ${#argument[@]})); do
-					i5=$((i5+1))
-					echo "15/${argument[$((i5-1))]}/${tmp0}arg_$((ai4-1))${tmp0}" >> "./output/$FILE"
-				done
-			done
-			echo "15/${tmp0}arg_count${tmp0},$((${#command[@]}-1))" >> "./output/$FILE"
-			ai4=0
-			echo "./.functions/${command[0]}"
-			len="$(wc -l < "./.functions/${command[0]}")"
-			while ((ai4 < len)); do
-				ai4=$((ai4+1))
-				tmp0='!'
-				echo "$(sed "${ai4}${tmp0}d" "./.functions/${command[0]}")" >> "./output/$FILE"
-			done
+		if [[ "${PRG[$(($i1-1))]}" = ">>" ]]; then
+			echo ">>" >> "./output/$FILE"
+			echo "${PRG[$i1]}" >> "./output/$FILE"
+			echo "${PRG[$(($i1+1))]}" >> "./output/$FILE"
+			i1="$(($i1+2))"
 		else
-			echo "${PRG[$(($i1-1))]}" >> "./output/$FILE"
+			process_command "${PRG[$(($i1-1))]}"
+			contains=0
+			ai4=0
+			while ((ai4 < ${#functions})); do
+				ai4=$((ai4+1))
+				if [[ "${command[0]}" = "" ]]; then
+					break
+				fi
+				if [[ "${functions[$((ai4-1))]}" = "${command[0]}" ]]; then
+					contains=1
+				fi
+			done
+			if ((contains == 1)); then
+				if [[ "$2" != "1" ]]; then
+					print_info "Found function '${command[0]}'"
+				fi
+				tmp0='"'
+				ai4=1
+				while ((ai4 < ${#command[@]})); do
+					ai4=$((ai4+1))
+					echo "14/${tmp0}arg_$((ai4-1))${tmp0}" >> "./output/$FILE"
+					process_argument "${command[$((ai4-1))]}"
+					i5=0
+					while ((i5 < ${#argument[@]})); do
+						i5=$((i5+1))
+						echo "15/${argument[$((i5-1))]}/${tmp0}arg_$((ai4-1))${tmp0}" >> "./output/$FILE"
+					done
+				done
+				echo "15/${tmp0}arg_count${tmp0},$((${#command[@]}-1))" >> "./output/$FILE"
+				ai4=0
+				echo "./.functions/${command[0]}"
+				len="$(wc -l < "./.functions/${command[0]}")"
+				while ((ai4 < len)); do
+					ai4=$((ai4+1))
+					tmp0='!'
+					echo "$(sed "${ai4}${tmp0}d" "./.functions/${command[0]}")" >> "./output/$FILE"
+				done
+			else
+				echo "${PRG[$(($i1-1))]}" >> "./output/$FILE"
+			fi
 		fi
 	done
 done
@@ -399,11 +407,18 @@ while (( i1 < prg_len )); do
 		break
 	fi
 	i1="$(($i1+1))"
-	process_command "${PRG[$(($i1-1))]}"
-	if [[ "${command[0]}" = "4" ]]; then
-		ifs=$((ifs+1))
-	elif [[ "${command[0]}" = "5" ]]; then
-		ifs=$((ifs-1))
+	if [[ "${PRG[$(($i1-1))]}" = ">>" ]]; then
+		echo ">>" >> "./output/$FILE"
+		echo "${PRG[$i1]}" >> "./output/$FILE"
+		echo "${PRG[$(($i1+1))]}" >> "./output/$FILE"
+		i1="$(($i1+2))"
+	else
+		process_command "${PRG[$(($i1-1))]}"
+		if [[ "${command[0]}" = "4" ]]; then
+			ifs=$((ifs+1))
+		elif [[ "${command[0]}" = "5" ]]; then
+			ifs=$((ifs-1))
+		fi
 	fi
 done
 if ((ifs != 0)); then
