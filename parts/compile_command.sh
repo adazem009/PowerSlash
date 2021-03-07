@@ -815,7 +815,32 @@ case "${command[0]}" in
 			abort_compiling "Can't define a function inside another function." 1 12
 		fi
 		def=$i1
-		if [[ "${argument[0]:0:1}" != '"' ]]; then
+		if [[ "${argument[0]:0:1}" != '"' ]] && [[ "${argument[0]:0:1}" != "'" ]]; then
+			abort_compiling "Can't get function name from a variable." 1 15
+		fi
+		process_argument2 "${command[1]}"
+		defname="${argument[0]}"
+		deftype="cp"
+		if [ -f "./.functions/$defname" ]; then
+			abort_compiling "Command or function '${defname}' already exists." 1 14
+		fi
+		rm "./output/${FILE}.old" && cp "./output/$FILE" "./output/${FILE}.old"
+		;;
+	"linkdef")
+		# Linkable (library) function definition.
+		if ((${#command[@]} != 2)); then
+			abort_compiling "Number of arguments must be 1." 1 1
+		fi
+		process_argument "${command[1]}"
+		if ((${#argument[@]} != 1)); then
+			abort_compiling "Number of inputs in the first argument must be 1." 1 10
+		fi
+		if ((def != 0)); then
+			abort_compiling "Can't define a function inside another function." 1 12
+		fi
+		def=$i1
+		deftype="lib"
+		if [[ "${argument[0]:0:1}" != '"' ]] && [[ "${argument[0]:0:1}" != "'" ]]; then
 			abort_compiling "Can't get function name from a variable." 1 15
 		fi
 		process_argument2 "${command[1]}"
@@ -834,7 +859,7 @@ case "${command[0]}" in
 			abort_compiling "Can't start a function definition inside another function." 1 12
 		fi
 		if (($((def+1)) != i1)); then
-			abort_compiling "Unexpected token '}'." 1 13
+			abort_compiling "Unexpected token '{'." 1 13
 		fi
 		func=1
 		defstart="$(wc -l < "./output/$FILE")"
@@ -851,18 +876,43 @@ case "${command[0]}" in
 		func=0
 		i4=$defstart
 		len="$(wc -l < "./output/$FILE")"
+		if [[ "$deftype" = "lib" ]]; then
+			echo > .tmp
+		fi
 		while ((i4 < len)); do
 			i4=$((i4+1))
 			tmp0='!'
-			echo "$(sed "${i4}${tmp0}d" "./output/$FILE")" >> "./.functions/$defname"
+			if [[ "$deftype" = "lib" ]]; then
+				echo "$(sed "${i4}${tmp0}d" "./output/$FILE")" >> "./.tmp"
+			else
+				echo "$(sed "${i4}${tmp0}d" "./output/$FILE")" >> "./.functions/$defname"
+			fi
 		done
 		rm "./output/$FILE" && mv "./output/${FILE}.old" "./output/$FILE" && touch "./output/${FILE}.old"
+		if [[ "$deftype" = "lib" ]]; then
+			source ./parts/upgrade.sh 1 ../.tmp
+			libid=$((libid+1))
+			IFS=$'\r\n' GLOBIGNORE='*' command eval  'smc=($(cat ./.tmp))'
+			image=""
+			convi=0
+			while (( convi < ${#smc[@]} )); do
+				convi=$((convi+1))
+				line="${smc[$((convi-1))]}"
+				len=${#line}
+				image="${image}${len};${line}"
+			done
+			echo ">>" >> "./output/$FILE"
+			echo "tmp_lib$libid" >> "./output/$FILE"
+			echo "$image" >> "./output/$FILE"
+			defpath="./.functions/$defname" # This is a workaround for "No such file or directory" in echo > file
+			echo "1B/tmp_lib$libid" > .functions/$defname
+		fi
 		if [[ "$disout" != "1" ]]; then
 			print_info "Compiled function '${defname}'." 1
 		fi
-		if [[ "$disout" != "1" ]]; then
-			cat "./.functions/$defname"
-		fi
+		#if [[ "$disout" != "1" ]]; then
+		#	cat "./.functions/$defname"
+		#fi
 		;;
 	"run")
 		# Run binary.
