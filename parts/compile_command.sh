@@ -876,8 +876,8 @@ case "${command[0]}" in
 		func=0
 		i4=$defstart
 		len="$(wc -l < "./output/$FILE")"
-		if [[ "$deftype" = "lib" ]]; then
-			echo > .tmp
+		if [[ "$deftype" = "lib" ]] && [ -f ".tmp" ]; then
+			rm .tmp
 		fi
 		while ((i4 < len)); do
 			i4=$((i4+1))
@@ -904,8 +904,8 @@ case "${command[0]}" in
 			echo ">>" >> "./output/$FILE"
 			echo "tmp_lib$libid" >> "./output/$FILE"
 			echo "$image" >> "./output/$FILE"
-			defpath="./.functions/$defname" # This is a workaround for "No such file or directory" in echo > file
 			echo "1B/tmp_lib$libid" > .functions/$defname
+			rm .tmp
 		fi
 		if [[ "$disout" != "1" ]]; then
 			print_info "Compiled function '${defname}'." 1
