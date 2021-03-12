@@ -30,6 +30,7 @@ cmd_db ()
 	touch .functions/getitem
 	touch .functions/getlistlength
 	touch .functions/define
+	touch .functions/linkdef
 	touch ".functions/{"
 	touch ".functions/}"
 	touch .functions/run
@@ -408,9 +409,6 @@ while (( i1 < prg_len )); do
 	fi
 	i1="$(($i1+1))"
 	if [[ "${PRG[$(($i1-1))]}" = ">>" ]]; then
-		echo ">>" >> "./output/$FILE"
-		echo "${PRG[$i1]}" >> "./output/$FILE"
-		echo "${PRG[$(($i1+1))]}" >> "./output/$FILE"
 		i1="$(($i1+2))"
 	else
 		process_command "${PRG[$(($i1-1))]}"
@@ -426,5 +424,8 @@ if ((ifs != 0)); then
 fi
 rm -rf ./.functions
 rm "./output/${FILE}.old"
+if [ -f .tmp.old ]; then
+	rm .tmp.old
+fi
 source ./parts/upgrade.sh "$2"
 echo -e "[ ${GREEN}OK${NC} ] Compiled $SOURCE_FILE"
