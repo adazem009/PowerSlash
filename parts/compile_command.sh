@@ -376,9 +376,9 @@ case "${command[0]}" in
 		fi
 		i4=0
 		process_argument "${command[1]}"
-		bold=0
-		italic=0
-		underlined=0
+		bold=""
+		italic=""
+		underlined=""
 		col=0
 		while ((i4 < ${#argument[@]})); do
 			i4="$(($i4+1))"
@@ -426,7 +426,7 @@ case "${command[0]}" in
 			elif [[ "${backslash:0:1}" = '\' ]]; then
 				abort_compiling "Invalid backslash escape." 1 16
 			else
-				if (( $((bold+italic+underlined)) == 0 )); then
+				if [[ "$bold" = "" ]] && [[ "$italic" = "" ]] && [[ "$underlined" = "" ]]; then
 					if [[ "$arch" = "lithium" ]]; then
 						echo p >> "./output/$FILE"
 						echo 1 >> "./output/$FILE"
