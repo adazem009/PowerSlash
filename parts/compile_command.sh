@@ -403,14 +403,26 @@ case "${command[0]}" in
 				col=1
 				echo "21/${color}" >> "./output/$FILE"
 			elif [[ "$backslash" = "\b" ]] && [[ "$arch" != "lithium" ]]; then
-				bold="${argument[$(($i4-1))]}"
-				bold="${bold:2:1}"
+				arg="${argument[$(($i4-1))]}"
+				i5=2 bold=""
+				while ((i5 < ${#argument[$(($i4-1))]})); do
+					i5=$((i5+1))
+					bold="${bold}${arg:$((i5-1)):1}"
+				done
 			elif [[ "$backslash" = "\i" ]] && [[ "$arch" != "lithium" ]]; then
-				italic="${argument[$(($i4-1))]}"
-				italic="${italic:2:1}"
+				arg="${argument[$(($i4-1))]}"
+				i5=2 italic=""
+				while ((i5 < ${#argument[$(($i4-1))]})); do
+					i5=$((i5+1))
+					italic="${italic}${arg:$((i5-1)):1}"
+				done
 			elif [[ "$backslash" = "\u" ]] && [[ "$arch" != "lithium" ]]; then
-				underlined="${argument[$(($i4-1))]}"
-				underlined="${underlined:2:1}"
+				arg="${argument[$(($i4-1))]}"
+				i5=2 underlined=""
+				while ((i5 < ${#argument[$(($i4-1))]})); do
+					i5=$((i5+1))
+					underlined="${underlined}${arg:$((i5-1)):1}"
+				done
 			elif [[ "${backslash:0:1}" = '\' ]]; then
 				abort_compiling "Invalid backslash escape." 1 16
 			else
