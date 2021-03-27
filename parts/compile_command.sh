@@ -844,8 +844,8 @@ case "${command[0]}" in
 			abort_compiling "Number of arguments must be 1." 1 1
 		fi
 		process_argument "${command[1]}"
-		if ((${#argument[@]} != 1)); then
-			abort_compiling "Number of inputs in the first argument must be 1." 1 10
+		if ((${#argument[@]} != 1)) && ((${#argument[@]} != 2)); then
+			abort_compiling "Number of inputs in the first argument must be 1 or 2." 1 10
 		fi
 		if ((def != 0)); then
 			abort_compiling "Can't define a function inside another function." 1 12
@@ -855,8 +855,17 @@ case "${command[0]}" in
 		if [[ "${argument[0]:0:1}" != '"' ]] && [[ "${argument[0]:0:1}" != "'" ]]; then
 			abort_compiling "Can't get function name from a variable." 1 15
 		fi
+		if [[ "${argument[1]}" != "" ]]; then
+			if [[ "${argument[1]:0:1}" != '"' ]] && [[ "${argument[1]:0:1}" != "'" ]]; then
+				abort_compiling "Can't get library ID from a variable." 1 15
+			fi
+		fi
 		process_argument2 "${command[1]}"
 		defname="${argument[0]}"
+		last_libid="${argument[1]}"
+		if ((last_libid > 0)) && (( last_libid <= $((libid+1)) )); then
+			abort_compiling "Conflicting library ID. Numbers are not recommended!" 1 15
+		fi
 		if [ -f "./.functions/$defname" ]; then
 			abort_compiling "Command or function '${defname}' already exists." 1 14
 		fi
@@ -903,7 +912,12 @@ case "${command[0]}" in
 		rm "./output/$FILE" && mv "./output/${FILE}.old" "./output/$FILE" && touch "./output/${FILE}.old"
 		if [[ "$deftype" = "lib" ]]; then
 			source ./parts/upgrade.sh 1 ../.tmp
-			libid=$((libid+1))
+			if [[ "$last_libid" = "" ]]; then
+				libid=$((libid+1))
+				cur_libid="$libid"
+			else
+				cur_libid="$last_libid"
+			fi
 			IFS=$'\r\n' GLOBIGNORE='*' command eval  'smc=($(cat ./.tmp))'
 			image=""
 			convi=0
@@ -914,9 +928,9 @@ case "${command[0]}" in
 				image="${image}${len};${line}"
 			done
 			echo ">>" >> "./output/$FILE"
-			echo "tmp_lib$libid" >> "./output/$FILE"
+			echo "tmp_lib_$cur_libid" >> "./output/$FILE"
 			echo "$image" >> "./output/$FILE"
-			echo "1B/tmp_lib$libid" > .functions/$defname
+			echo "1B/tmp_lib_$cur_libid" > .functions/$defname
 			rm .tmp
 		fi
 		if [[ "$disout" != "1" ]]; then
