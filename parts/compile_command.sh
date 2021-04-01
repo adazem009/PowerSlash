@@ -844,8 +844,8 @@ case "${command[0]}" in
 			abort_compiling "Number of arguments must be 1." 1 1
 		fi
 		process_argument "${command[1]}"
-		if ((${#argument[@]} != 1)) && ((${#argument[@]} != 2)); then
-			abort_compiling "Number of inputs in the first argument must be 1 or 2." 1 10
+		if ((${#argument[@]} != 1)) && ((${#argument[@]} != 2)) && ((${#argument[@]} != 3)); then
+			abort_compiling "Number of inputs in the first argument must be 1, 2 or 3." 1 10
 		fi
 		if ((def != 0)); then
 			abort_compiling "Can't define a function inside another function." 1 12
@@ -860,11 +860,31 @@ case "${command[0]}" in
 				abort_compiling "Can't get library ID from a variable." 1 15
 			fi
 		fi
+		if [[ "${argument[2]}" != "" ]]; then
+			if [[ "${argument[2]:0:1}" != '"' ]] && [[ "${argument[2]:0:1}" != "'" ]]; then
+				abort_compiling "Can't get library type from a variable." 1 15
+			fi
+		fi
 		process_argument2 "${command[1]}"
 		defname="${argument[0]}"
 		last_libid="${argument[1]}"
 		if ((last_libid > 0)) && (( last_libid <= $((libid+1)) )); then
 			abort_compiling "Conflicting library ID. Numbers are not recommended!" 1 15
+		fi
+		if [[ "${argument[2]}" = "" ]]; then
+			lib_type="local"
+		else
+			case "${argument[2]}" in
+				"local")
+					lib_type="local"
+					;;
+				"global")
+					lib_type="global"
+					;;
+				*)
+					abort_compiling "Unknown library type '${argument[2]}'" 1 15
+					;;
+			esac
 		fi
 		if [ -f "./.functions/$defname" ]; then
 			abort_compiling "Command or function '${defname}' already exists." 1 14
@@ -927,10 +947,15 @@ case "${command[0]}" in
 				len=${#line}
 				image="${image}${len};${line}"
 			done
+			if [[ "$lib_type" = "global" ]]; then
+				prefix='$'
+			else
+				prefix=""
+			fi
 			echo ">>" >> "./output/$FILE"
-			echo "tmp_lib_$cur_libid" >> "./output/$FILE"
+			echo "${prefix}tmp_lib_$cur_libid" >> "./output/$FILE"
 			echo "$image" >> "./output/$FILE"
-			echo "1B/tmp_lib_$cur_libid" > .functions/$defname
+			echo "1B/${prefix}tmp_lib_$cur_libid" > .functions/$defname
 			rm .tmp
 		fi
 		if [[ "$disout" != "1" ]]; then
