@@ -318,7 +318,9 @@ while (( i1 < prg_len )); do
 		num=`cat .includes`
 		chmod +x compile.sh
 		./compile.sh "include/${argument[0]}" "$2" ".include_`cat .includes`" || abort_compiling "Failed to include ${argument[0]} - error $?" $?
-		cat "./output/.include_$num" | tee -a "./output/$FILE" > /dev/null
+		if [ -f "./output/.include_$num" ]; then
+			cat "./output/.include_$num" | tee -a "./output/$FILE" > /dev/null
+		fi
 		echo "$((`cat .includes`-1))" > .includes
 	fi
 	PRG[${#PRG[@]}]="${OLDPRG[$(($i1-1))]}"
@@ -377,9 +379,19 @@ until ((contains == 0)) || ((chain >= 50)); do
 		break
 	fi
 	chain=$((chain+1))
-	IFS=$'\r\n' GLOBIGNORE='*' command eval  'PRG=($(cat ./output/$FILE))'
-	rm "./output/$FILE"
-	prg_len="${#PRG[@]}"
+	if [ -f ./output/$FILE ]; then
+		IFS=$'\r\n' GLOBIGNORE='*' command eval  'PRG=($(cat ./output/$FILE))'
+		rm "./output/$FILE"
+		prg_len="${#PRG[@]}"
+	else
+		prg_len=0
+	fi
+	if ((prg_len == 0)); then
+		if [[ "$2" != "1" ]]; then
+			print_info "Skipping because the output file is empty."
+		fi
+		break
+	fi
 	i1=0
 	while (( i1 < prg_len )); do
 		i1="$(($i1+1))"
@@ -437,6 +449,9 @@ if ((chain >= 50)); then
 fi
 if [[ "$2" != "1" ]]; then
 	print_info "Searching for additional syntax errors..."
+fi
+if ! [ -f ./output/$FILE ]; then
+	touch ./output/$FILE
 fi
 IFS=$'\r\n' GLOBIGNORE='*' command eval  'PRG=($(cat ./output/$FILE))'
 ifs=0
