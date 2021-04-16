@@ -424,7 +424,7 @@ until ((contains == 0)) || ((chain >= 50)); do
 	done
 done
 if ((chain >= 50)); then
-	abort_compiling "$FILE Woah! I got stuck in a loop... please check your functions!" 0 -2
+	abort_compiling "Woah! I got stuck in a loop... please check your functions!" 0 -2
 fi
 if [[ "$2" != "1" ]]; then
 	print_info "Searching for additional syntax errors..."
