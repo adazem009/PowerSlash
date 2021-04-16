@@ -280,10 +280,12 @@ if [[ "$3" != "" ]]; then
 	FILE="$3"
 fi
 echo > "./output/$FILE" && rm "./output/$FILE" && touch "./output/$FILE"
-if [ -d "./.functions" ]; then
+if [ -d "./.functions" ] && [[ "$3" = "" ]]; then
 	rm -rf ./.functions
 fi
-mkdir ./.functions
+if [[ "$3" = "" ]]; then
+	mkdir ./.functions
+fi
 echo > "./output/${FILE}.old" && rm "./output/${FILE}.old" && touch "./output/${FILE}.old"
 cmd_db
 def=0
