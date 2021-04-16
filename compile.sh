@@ -309,6 +309,9 @@ while (( i1 < prg_len )); do
 		if ! [[ -f "./include/${argument[0]}" ]]; then
 			abort_compiling "${argument[0]}: File not found"
 		fi
+		if ! [[ -f .includes ]]; then
+			touch .includes
+		fi
 		echo "$((`cat .includes`+1))" > .includes
 		num=`cat .includes`
 		chmod +x compile.sh
@@ -319,8 +322,12 @@ while (( i1 < prg_len )); do
 	PRG[${#PRG[@]}]="${OLDPRG[$(($i1-1))]}"
 done
 if [[ "$3" = "" ]]; then
-	rm ./output/.include*
-	rm .includes
+	if [[ `ls -a output | grep \.include` != "" ]]; then
+		rm ./output/.include*
+	fi
+	if [[ -f .includes ]]; then
+		rm .includes
+	fi
 fi
 tmpid=0
 prg_len="${#PRG[@]}"
