@@ -461,7 +461,9 @@ done
 if ((ifs != 0)); then
 	abort_compiling "Number of if statements doesn't equal number of endif statements." 0 -3
 fi
-rm -rf ./.functions
+if [[ "$3" = "" ]]; then
+	rm -rf ./.functions
+fi
 rm "./output/${FILE}.old"
 if [ -f .tmp.old ]; then
 	rm .tmp.old
