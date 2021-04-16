@@ -1489,6 +1489,11 @@ case "${command[0]}" in
 		fi
 		echo "38/${command[1]}/${command[2]}" >> "./output/$FILE"
 		;;
+	"include")
+		# Include.
+		# This is defined in compile.sh
+		:
+		;;
 	"")
 		# Comment.
 		if [[ "$disout" != "1" ]]; then

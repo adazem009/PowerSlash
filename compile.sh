@@ -73,6 +73,7 @@ cmd_db ()
 	touch .functions/div
 	touch .functions/mod
 	touch .functions/abs
+	touch .functions/include
 }
 process_command ()
 {
@@ -238,7 +239,7 @@ RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
-SOURCE_FILE=$1
+SOURCE_FILE="$1"
 EXT=""
 ign=0
 disout="$1"
@@ -256,14 +257,11 @@ if [[ "$EXT" = "$SOURCE_FILE" ]]; then
 	NAME="$EXT"
 	EXT=""
 fi
-if test -f "$SOURCE_FILE"; then
-	# Nothing here
-	:
-else
-	echo "Error: Couldn't open ${FILE}."
+if ! [[ -f "$SOURCE_FILE" ]]; then
+	echo "Error: Couldn't open ${SOURCE_FILE}."
 	exit -1
 fi
-IFS=$'\r\n' GLOBIGNORE='*' command eval  'PRG=($(cat $SOURCE_FILE))'
+IFS=$'\r\n' GLOBIGNORE='*' command eval  'OLDPRG=($(cat $SOURCE_FILE))'
 if [[ "${PRG[0]}" = '//!Lithium' ]]; then
 	arch="lithium"
 	outext="bin"
@@ -278,6 +276,9 @@ elif [[ "$EXT" = "pwsle" ]] || [[ "$EXT" = "PWSLE" ]]; then
 else
 	FILE="${SOURCE_FILE}.$outext"
 fi
+if [[ "$3" != "" ]]; then
+	FILE="$3"
+fi
 echo > "./output/$FILE" && rm "./output/$FILE" && touch "./output/$FILE"
 if [ -d "./.functions" ]; then
 	rm -rf ./.functions
@@ -290,6 +291,37 @@ libid=0
 func=0
 ifs=0
 # Compile
+prg_len="${#OLDPRG[@]}"
+if [[ "$2" != "1" ]]; then
+	print_info "Searching for includes..."
+fi
+PRG=()
+i1=0
+while (( i1 < prg_len )); do
+	i1="$(($i1+1))"
+	ign=1
+	process_command "${OLDPRG[$(($i1-1))]}"
+	if [[ "${command[0]}" = "include" ]]; then
+		process_argument2 "${command[1]}"
+		if [[ "$2" != "1" ]]; then
+			print_info "Including '${argument[0]}'" 1
+		fi
+		if ! [[ -f "./include/${argument[0]}" ]]; then
+			abort_compiling "${argument[0]}: File not found"
+		fi
+		echo "$((`cat .includes`+1))" > .includes
+		num=`cat .includes`
+		chmod +x compile.sh
+		./compile.sh "include/${argument[0]}" "$2" ".include_`cat .includes`" || abort_compiling "Failed to include ${argument[0]} - error $?" $?
+		cat "./output/.include_$num" | tee -a "./output/$FILE" > /dev/null
+		echo "$((`cat .includes`-1))" > .includes
+	fi
+	PRG[${#PRG[@]}]="${OLDPRG[$(($i1-1))]}"
+done
+if [[ "$3" = "" ]]; then
+	rm ./output/.include*
+	rm .includes
+fi
 tmpid=0
 prg_len="${#PRG[@]}"
 if [[ "$2" != "1" ]]; then
@@ -325,10 +357,10 @@ while (( i1 < prg_len )); do
 done
 chain=0
 contains=1
-until ((contains == 0)) || ((chain >= 50)); do
-	if [[ "$2" != "1" ]]; then
+if [[ "$2" != "1" ]]; then
 		print_info "Compiling additional functions..."
-	fi
+fi
+until ((contains == 0)) || ((chain >= 50)); do
 	if [[ "$arch" = "lithium" ]]; then
 		if [[ "$2" != "1" ]]; then
 			print_info "Skipping because of lack of arch support."
@@ -342,6 +374,7 @@ until ((contains == 0)) || ((chain >= 50)); do
 	i1=0
 	while (( i1 < prg_len )); do
 		i1="$(($i1+1))"
+		contains=0
 		if [[ "${PRG[$(($i1-1))]}" = ">>" ]]; then
 			echo ">>" >> "./output/$FILE"
 			echo "${PRG[$i1]}" >> "./output/$FILE"
@@ -349,7 +382,6 @@ until ((contains == 0)) || ((chain >= 50)); do
 			i1="$(($i1+2))"
 		else
 			process_command "${PRG[$(($i1-1))]}"
-			contains=0
 			ai4=0
 			while ((ai4 < ${#functions})); do
 				ai4=$((ai4+1))
@@ -392,7 +424,7 @@ until ((contains == 0)) || ((chain >= 50)); do
 	done
 done
 if ((chain >= 50)); then
-	abort_compiling "Woah! I got stuck in a loop... please check your functions!" 0 -2
+	abort_compiling "$FILE Woah! I got stuck in a loop... please check your functions!" 0 -2
 fi
 if [[ "$2" != "1" ]]; then
 	print_info "Searching for additional syntax errors..."
