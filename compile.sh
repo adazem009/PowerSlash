@@ -317,7 +317,7 @@ while (( i1 < prg_len )); do
 			print_info "Including '${argument[0]}'" 1
 		fi
 		if ! [[ -f "./include/${argument[0]}" ]]; then
-			abort_compiling "${argument[0]}: File not found"
+			abort_compiling "${argument[0]}: File not found" 1 1
 		fi
 		if ! [[ -f .includes ]]; then
 			touch .includes
@@ -325,7 +325,7 @@ while (( i1 < prg_len )); do
 		echo "$((`cat .includes`+1))" > .includes
 		num=`cat .includes`
 		chmod +x compile.sh
-		./compile.sh "include/${argument[0]}" "$2" ".include_`cat .includes`" "$auto" || abort_compiling "Failed to include ${argument[0]} - error $?" $?
+		./compile.sh "include/${argument[0]}" "$2" ".include_`cat .includes`" "$auto" || abort_compiling "Failed to include ${argument[0]} - error $sv" 1 $sv
 		if [ -f "./output/.include_$num" ]; then
 			cat "./output/.include_$num" | tee -a "./output/$FILE" > /dev/null
 		fi
