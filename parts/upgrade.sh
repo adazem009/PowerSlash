@@ -19,6 +19,7 @@ if [[ "$arch" = "smc" ]]; then
 	else
 		fname="$2"
 	fi
+	auto="$3"
 	# Rename output file
 	mv "./output/$fname" "./output/${fname}.old"
 	# Convert every line
@@ -46,7 +47,7 @@ if [[ "$arch" = "smc" ]]; then
 					echo "${argument[$((i11-1))]}" >> "./output/$fname"
 				done
 			done
-			if [[ "$1" != "1" ]]; then
+			if [[ "$1" != "1" ]] && [[ "$auto" != "1" ]]; then
 				echo -e "\e[1A\e[KConverting to new SMC format... line $i of ${#out[@]}..."
 			fi
 		fi
