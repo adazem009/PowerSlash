@@ -74,6 +74,7 @@ cmd_db ()
 	touch .functions/mod
 	touch .functions/abs
 	touch .functions/include
+	touch .functions/getletterindex
 }
 process_command ()
 {
