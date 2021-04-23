@@ -75,6 +75,7 @@ cmd_db ()
 	touch .functions/abs
 	touch .functions/include
 	touch .functions/getletterindex
+	touch .functions/replacedisk
 }
 process_command ()
 {
