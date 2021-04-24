@@ -327,7 +327,7 @@ while (( i1 < prg_len )); do
 		echo "$((`cat .includes`+1))" > .includes
 		num=`cat .includes`
 		chmod +x compile.sh
-		./compile.sh "include/${argument[0]}" "$2" ".include_`cat .includes`" "$auto" || abort_compiling "Failed to include ${argument[0]} - error $sv" 1 $sv
+		./compile.sh "include/${argument[0]}" "$2" ".include_`cat .includes`" "$auto" || abort_compiling "Failed to include ${argument[0]} - error $?" 1 $?
 		if [ -f "./output/.include_$num" ]; then
 			cat "./output/.include_$num" | tee -a "./output/$FILE" > /dev/null
 		fi
