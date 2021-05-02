@@ -77,6 +77,7 @@ cmd_db ()
 	touch .functions/getletterindex
 	touch .functions/replacedisk
 	touch .functions/insmedia
+	touch .functions/smc_skiploop
 }
 process_command ()
 {
