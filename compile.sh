@@ -79,6 +79,7 @@ cmd_db ()
 	touch .functions/insmedia
 	touch .functions/smc_skiploop
 	touch .functions/smc_skipif
+	touch .functions/smc_if
 }
 process_command ()
 {

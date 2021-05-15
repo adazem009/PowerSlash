@@ -1565,6 +1565,25 @@ case "${command[0]}" in
 		fi
 		echo "3D/${command[1]}/${command[2]}" >> "./output/$FILE"
 		;;
+	"smc_if")
+		# SMC interpreting - if.
+		if ((${#command[@]} != 4)); then
+			abort_compiling "Number of arguments must be 3." 1 1
+		fi
+		process_argument "${command[1]}"
+		if ((${#argument[@]} != 1)) && ((${#argument[@]} != 2)); then
+			abort_compiling "Number of inputs in the first argument must be 1 or 2." 1 10
+		fi
+		process_argument "${command[2]}"
+		if ((${#argument[@]} != 6)); then
+			abort_compiling "Number of inputs in the second argument must be 6." 1 10
+		fi
+		process_argument "${command[3]}"
+		if ((${#argument[@]} != 4)); then
+			abort_compiling "Number of inputs in the third argument must be 4." 1 10
+		fi
+		echo "3E/${command[1]}/${command[2]}/${command[3]}" >> "./output/$FILE"
+		;;
 	"")
 		# Comment.
 		if [[ "$disout" != "1" ]]; then
