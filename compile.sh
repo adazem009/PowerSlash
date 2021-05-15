@@ -78,6 +78,7 @@ cmd_db ()
 	touch .functions/replacedisk
 	touch .functions/insmedia
 	touch .functions/smc_skiploop
+	touch .functions/smc_skipif
 }
 process_command ()
 {
