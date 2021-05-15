@@ -1548,7 +1548,7 @@ case "${command[0]}" in
 		if ((${#argument[@]} != 4)); then
 			abort_compiling "Number of inputs in the first argument must be 4." 1 10
 		fi
-		echo "3C/${command[1]}" >> "./output/$FILE"
+		echo "3C/${command[1]}/${command[2]}" >> "./output/$FILE"
 		;;
 	"smc_skipif")
 		# SMC interpreting - skip if.
@@ -1563,7 +1563,7 @@ case "${command[0]}" in
 		if ((${#argument[@]} != 4)); then
 			abort_compiling "Number of inputs in the first argument must be 4." 1 10
 		fi
-		echo "3D/${command[1]}" >> "./output/$FILE"
+		echo "3D/${command[1]}/${command[2]}" >> "./output/$FILE"
 		;;
 	"")
 		# Comment.
