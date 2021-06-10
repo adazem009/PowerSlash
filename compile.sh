@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # PowerSlash to SMC compiler
-# 2020 - adazem09
+# 2020 - 2021 - adazem09
 #
 # --- Functions ---
 cmd_db ()
