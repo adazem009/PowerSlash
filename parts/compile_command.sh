@@ -1584,6 +1584,13 @@ case "${command[0]}" in
 		fi
 		echo "3E/${command[1]}/${command[2]}/${command[3]}" >> "./output/$FILE"
 		;;
+	"deletechar")
+		# Delete last printed character.
+		if ((${#command[@]} != 1)); then
+			abort_compiling "Number of arguments must be 0." 1 1
+		fi
+		echo "3F" >> "./output/$FILE"
+		;;
 	"")
 		# Comment.
 		if [[ "$disout" != "1" ]]; then

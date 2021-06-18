@@ -80,6 +80,7 @@ cmd_db ()
 	touch .functions/smc_skiploop
 	touch .functions/smc_skipif
 	touch .functions/smc_if
+	touch .functions/deletechar
 }
 process_command ()
 {
