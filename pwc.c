@@ -309,10 +309,39 @@ char *_getcontent(const char *input)
 	}
 	return out;
 }
+char *endstrconv(char *infn, char *outfn)
+{
+	int line_alloc=64;
+	char *line = (char*) malloc(line_alloc);
+	strcpy(line,"");
+	char c;
+	FILE *ir = fopen(infn,"r");
+	FILE *ow = fopen(outfn,"w");
+	while((c=getc(ir)) != EOF)
+	{
+		if(c == '\n')
+		{
+			fprintf(ow,"%ld;%s",strlen(line),line);
+			strcpy(line,"");
+		}
+		else
+		{
+			if((strlen(line)+2) > line_alloc)
+			{
+				line = (char*) realloc(line,strlen(line)+2);
+				line_alloc=strlen(line)+2;
+			}
+			strncat(line,&c,1);
+		}
+	}
+	fclose(ir);
+	fclose(ow);
+}
 int main(int argc, char *argv[])
 {
 	int filesize,i,i2=0,i3,argn,inputn,line,input_alloc,arg_alloc,fullcmd_alloc,raw_alloc,linec=0,comment;
 	char filename[255],outfn[255],c='\0',newl='\n',conv[10240],conv2[10240],cmd[32],quote,err[64],print_in[102400],print_in2[102400];
+	bool strconv=false;
 	if(argc < 2)
 	{
 		print_usage(argv[0]);
@@ -333,6 +362,11 @@ int main(int argc, char *argv[])
 			}
 			i++;
 			strcpy(outfn,argv[i]);
+		}
+		else if(strcmp(argv[i],"--string") == 0)
+		{
+			// Convert to one-line string after compilation
+			strconv=true;
 		}
 		else
 		{
@@ -1575,5 +1609,16 @@ int main(int argc, char *argv[])
 	}
 	fclose(fr);
 	fclose(ow);
+	if(strconv)
+	{
+		endstrconv(outfn,".tmp");
+		ow = fopen(outfn,"w");
+		FILE *ar = fopen(".tmp","r");
+		while((c=getc(ar)) != EOF)
+			putc(c,ow);
+		fclose(ow);
+		fclose(ar);
+		remove(".tmp");
+	}
 	return 0;
 }
