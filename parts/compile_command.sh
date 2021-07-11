@@ -1207,7 +1207,7 @@ case "${command[0]}" in
 		echo "2E" >> "./output/$FILE"
 		;;
 	"readdisk")
-		# Disable BIOS setup mode.
+		# Read byte from disk.
 		if ((${#command[@]} != 3)); then
 			abort_compiling "Number of arguments must be 2." 1 1
 		fi
@@ -1219,7 +1219,7 @@ case "${command[0]}" in
 		if ((${#argument[@]} != 1)); then
 			abort_compiling "Number of inputs in the second argument must be 1." 1 10
 		fi
-		echo "2E" >> "./output/$FILE"
+		echo "2F" >> "./output/$FILE"
 		;;
 	"print>")
 		# Multi-line print start
@@ -1394,7 +1394,7 @@ case "${command[0]}" in
 		fi
 		process_argument "${command[3]}"
 		if ((${#argument[@]} != 0)) && ((${#argument[@]} != 1)); then
-			abort_compiling "Number of inputs in the second argument must be 0 or 1." 1 10
+			abort_compiling "Number of inputs in the third argument must be 0 or 1." 1 10
 		fi
 		echo "F/1/${command[2]}/${command[1]}/${command[3]}" >> "./output/$FILE"
 		;;
@@ -1413,7 +1413,7 @@ case "${command[0]}" in
 		fi
 		process_argument "${command[3]}"
 		if ((${#argument[@]} != 0)) && ((${#argument[@]} != 1)); then
-			abort_compiling "Number of inputs in the second argument must be 0 or 1." 1 10
+			abort_compiling "Number of inputs in the third argument must be 0 or 1." 1 10
 		fi
 		echo "F/2/${command[2]}/${command[1]}/${command[3]}" >> "./output/$FILE"
 		;;
@@ -1432,7 +1432,7 @@ case "${command[0]}" in
 		fi
 		process_argument "${command[3]}"
 		if ((${#argument[@]} != 0)) && ((${#argument[@]} != 1)); then
-			abort_compiling "Number of inputs in the second argument must be 0 or 1." 1 10
+			abort_compiling "Number of inputs in the third argument must be 0 or 1." 1 10
 		fi
 		echo "F/3/${command[2]}/${command[1]}/${command[3]}" >> "./output/$FILE"
 		;;
@@ -1451,7 +1451,7 @@ case "${command[0]}" in
 		fi
 		process_argument "${command[3]}"
 		if ((${#argument[@]} != 0)) && ((${#argument[@]} != 1)); then
-			abort_compiling "Number of inputs in the second argument must be 0 or 1." 1 10
+			abort_compiling "Number of inputs in the third argument must be 0 or 1." 1 10
 		fi
 		echo "F/4/${command[2]}/${command[1]}/${command[3]}" >> "./output/$FILE"
 		;;
@@ -1470,7 +1470,7 @@ case "${command[0]}" in
 		fi
 		process_argument "${command[3]}"
 		if ((${#argument[@]} != 0)) && ((${#argument[@]} != 1)); then
-			abort_compiling "Number of inputs in the second argument must be 0 or 1." 1 10
+			abort_compiling "Number of inputs in the third argument must be 0 or 1." 1 10
 		fi
 		echo "F/5/${command[2]}/${command[1]}/${command[3]}" >> "./output/$FILE"
 		;;
@@ -1546,7 +1546,7 @@ case "${command[0]}" in
 		fi
 		process_argument "${command[2]}"
 		if ((${#argument[@]} != 4)); then
-			abort_compiling "Number of inputs in the first argument must be 4." 1 10
+			abort_compiling "Number of inputs in the second argument must be 4." 1 10
 		fi
 		echo "3C/${command[1]}/${command[2]}" >> "./output/$FILE"
 		;;
@@ -1561,7 +1561,7 @@ case "${command[0]}" in
 		fi
 		process_argument "${command[2]}"
 		if ((${#argument[@]} != 4)); then
-			abort_compiling "Number of inputs in the first argument must be 4." 1 10
+			abort_compiling "Number of inputs in the second argument must be 4." 1 10
 		fi
 		echo "3D/${command[1]}/${command[2]}" >> "./output/$FILE"
 		;;
