@@ -311,7 +311,7 @@ char *_getcontent(const char *input)
 }
 int main(int argc, char *argv[])
 {
-	int filesize,i,i2,i3,argn,inputn,line,input_alloc,arg_alloc,fullcmd_alloc,raw_alloc,linec=0,comment;
+	int filesize,i,i2=0,i3,argn,inputn,line,input_alloc,arg_alloc,fullcmd_alloc,raw_alloc,linec=0,comment;
 	char filename[255],outfn[255],c='\0',newl='\n',conv[10240],conv2[10240],cmd[32],quote,err[64],print_in[102400],print_in2[102400];
 	if(argc < 2)
 	{
