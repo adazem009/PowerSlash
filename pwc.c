@@ -373,7 +373,6 @@ int main(int argc, char *argv[])
 					strncat(input,&newl,1);
 					if((strlen(arg) + strlen(input) + 2) > arg_alloc)
 					{
-						printf("realloc arg\n");
 						arg = (char*) realloc(arg,(strlen(arg) + strlen(input) + 2));
 						arg_alloc = strlen(arg) + strlen(input) + 2;
 					}
@@ -404,7 +403,6 @@ int main(int argc, char *argv[])
 					// Add arg
 					if((strlen(fullcmd) + strlen(arg) + 2) > fullcmd_alloc)
 					{
-						printf("realloc fullcmd\n");
 						fullcmd = (char*) realloc(fullcmd,(strlen(fullcmd) + strlen(arg) + 2));
 						fullcmd_alloc = strlen(fullcmd) + strlen(arg) + 2;
 					}
@@ -428,7 +426,6 @@ int main(int argc, char *argv[])
 			// Add line
 			if((strlen(raw) + strlen(fullcmd) + 2) > raw_alloc)
 			{
-				printf("realloc raw\n");
 				raw = (char*) realloc(raw,(strlen(raw) + strlen(fullcmd) + 2));
 				raw_alloc = strlen(raw) + strlen(fullcmd) + 2;
 			}
