@@ -384,6 +384,7 @@ int main(int argc, char *argv[])
 	char *fullcmd = (char*) malloc(fullcmd_alloc);
 	char *raw = (char*) malloc(raw_alloc);
 	int flines[linec];
+	memset(flines,0,linec*sizeof(int));
 	// Convert to raw program
 	line=0;
 	while(c != EOF)
