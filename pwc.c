@@ -427,7 +427,7 @@ int main(int argc, char *argv[])
 					}
 					if((c != ' ') && (c != '	') && (c != ',') && (c != '/') && (c != '\n') && (c != EOF))
 					{
-						if((strlen(input)*200000+2) > input_alloc)
+						if((strlen(input)+2) > input_alloc)
 						{
 							input = (char*) realloc(input,(strlen(input)+2));
 							input_alloc=strlen(input)+2;
