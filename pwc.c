@@ -383,6 +383,12 @@ int main(int argc, char *argv[])
 	char *arg = (char*) malloc(arg_alloc);
 	char *fullcmd = (char*) malloc(fullcmd_alloc);
 	char *raw = (char*) malloc(raw_alloc);
+	// Initialise strings
+	strcpy(input,"");
+	strcpy(arg,"");
+	strcpy(fullcmd,"");
+	strcpy(raw,"");
+	// Lines array
 	int flines[linec];
 	memset(flines,0,linec*sizeof(int));
 	// Convert to raw program
