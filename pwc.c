@@ -1303,11 +1303,14 @@ int main(int argc, char *argv[])
 			// cpdisk/disk_ID,0_1_or_2_(full__exclude_MBR__MBR_only)/output_var
 			if(cmd_argc != 2)
 				_error("Number of arguments must be 2",true,line+1,12);
-			if(_getinputc(0,i,cmd_argc,raw) != 2)
-				_error("Number of inputs in the first argument must be 2",true,line+1,13);
+			if((_getinputc(0,i,cmd_argc,raw) != 1) && (_getinputc(0,i,cmd_argc,raw) != 2))
+				_error("Number of inputs in the first argument must be 1 or 2",true,line+1,13);
 			if(_getinputc(1,i,cmd_argc,raw) != 1)
 				_error("Number of inputs in the second argument must be 1",true,line+1,13);
-			fprintf(ow,"32\n2\n2\n%s\n%s\n1\n%s\n",_getinput(0,0,i,cmd_argc,raw),_getinput(0,1,i,cmd_argc,raw),_getinput(1,0,i,cmd_argc,raw));
+			if(_getinputc(0,i,cmd_argc,raw) == 1)
+				fprintf(ow,"32\n2\n1\n%s\n1\n%s\n",_getinput(0,0,i,cmd_argc,raw),_getinput(1,0,i,cmd_argc,raw));
+			else
+				fprintf(ow,"32\n2\n2\n%s\n%s\n1\n%s\n",_getinput(0,0,i,cmd_argc,raw),_getinput(0,1,i,cmd_argc,raw),_getinput(1,0,i,cmd_argc,raw));
 		}
 		else if(strcmp(cmd,"bintolist") == 0)
 		{
