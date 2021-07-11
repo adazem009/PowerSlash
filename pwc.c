@@ -231,9 +231,9 @@ char *_process_if(char *raw, int i, int line, int cmd_argc)
 			}
 			// Compile
 			if(negate)
-				sprintf(part4,"4\n%s\n%s\n%s\n'!'\n",val1,op,val2);
+				sprintf(part4,"4\n%s\n'%s'\n%s\n'!'\n",val1,op,val2);
 			else
-				sprintf(part4,"3\n%s\n%s\n%s\n",val1,op,val2);
+				sprintf(part4,"3\n%s\n'%s'\n%s\n",val1,op,val2);
 			strcat(part3,part4);
 			in_i2++;
 		}
@@ -267,7 +267,7 @@ char *_process_if(char *raw, int i, int line, int cmd_argc)
 				_error(err,true,line+1,16);
 			}
 			// Compile
-			sprintf(part4,"1\n%s\n",gate);
+			sprintf(part4,"1\n'%s'\n",gate);
 			strcat(part3,part4);
 			in_i2++;
 		}
