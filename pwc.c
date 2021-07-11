@@ -25,6 +25,53 @@ void print_usage(char *cmdarg)
 {
 	printf("Usage:\n%s <file>\n",cmdarg);
 }
+int _lastchar(char *input, char c)
+{
+	int i,out=0;
+	for(i=0; i<strlen(input); i++)
+		if(input[i] == c)
+			out=i;
+	return out;
+}
+char *_f_name_ext(char *fname, int option)
+{
+	char part[255]="",name[255],ext[255],*str_to_ret;
+	int i=0, last=_lastchar(fname,'.');
+	bool dot=false;
+	for(i=0; i<strlen(fname); i++)
+	{
+		if((fname[i] == '.') && (i == last))
+		{
+			strcpy(name,part);
+			strcpy(part,"");
+			dot=true;
+		}
+		else
+			strncat(part,&fname[i],1);
+	}
+	if(dot)
+		strcpy(ext,part);
+	else
+	{
+		strcpy(ext,"");
+		strcpy(name,part);
+	}
+	switch(option)
+	{
+		case 0:
+			str_to_ret = malloc(sizeof(char) * sizeof(name));
+			strcpy(str_to_ret,name);
+			break;
+		case 1:
+			str_to_ret = malloc(sizeof(char) * sizeof(ext));
+			strcpy(str_to_ret,ext);
+			break;
+		default:
+			return NULL;
+			break;
+	}
+	return str_to_ret;
+}
 int _lcount(char *fname)
 {
 	int lc=0;
@@ -265,18 +312,54 @@ char *_getcontent(const char *input)
 int main(int argc, char *argv[])
 {
 	int filesize,i,i2,i3,argn,inputn,line,input_alloc,arg_alloc,fullcmd_alloc,raw_alloc,linec=0,comment;
-	char filename[255],c='\0',newl='\n',conv[10240],conv2[10240],cmd[32],quote,err[64],print_in[102400],print_in2[102400];
-	// Read args
-	//for(i=0;i<argc;i++)
-	// TODO: Read more args
-	//if(argc < 2)
-	if(argc != 2)
+	char filename[255],outfn[255],c='\0',newl='\n',conv[10240],conv2[10240],cmd[32],quote,err[64],print_in[102400],print_in2[102400];
+	if(argc < 2)
 	{
 		print_usage(argv[0]);
 		exit(1);
 	}
-	// Read the first arg for now
-	strcpy(filename,argv[1]);
+	strcpy(filename,"");
+	strcpy(outfn,"");
+	// Read args
+	for(i=1;i<argc;i++)
+	{
+		if(strcmp(argv[i],"-o") == 0)
+		{
+			// Output file name option
+			if(i+1 == argc)
+			{
+				printf("%s: missing output file operand\n",argv[0]);
+				exit(1);
+			}
+			i++;
+			strcpy(outfn,argv[i]);
+		}
+		else
+		{
+			if(argv[i][0] == '-')
+			{
+				printf("%s: unknown option: '%s'\n",argv[0],argv[i]);
+				exit(1);
+			}
+			strcpy(filename,argv[i]);
+		}
+	}
+	if(strcmp(filename,"") == 0)
+	{
+		printf("%s: missing input file operand\n",argv[0]);
+		exit(1);
+	}
+	if(strcmp(outfn,"") == 0)
+	{
+		// Default output file name
+		if(strcmp(_f_name_ext(filename,1),"smc") == 0)
+		{
+			strcpy(outfn,filename);
+			strcat(outfn,".smc");
+		}
+		else
+			sprintf(outfn,"%s.smc",_f_name_ext(filename,0));
+	}
 	FILE *fr;
 	fr=fopen(filename,"r");
 	if(errno != 0)
@@ -512,7 +595,7 @@ int main(int argc, char *argv[])
 	//printf("%s",raw);
 	// Open output file
 	FILE *ow;
-	ow=fopen("out.smc","w");
+	ow=fopen(outfn,"w");
 	// Compile all commands
 	int cmd_argc,arg_inputc,in_i,in_i2,in_tmp,col,col2,bold,italic,underlined;
 	char part[10240],part2[16],part3[10240],part4[10240],val1[512],op[3],val2[512],gate[4];
