@@ -469,7 +469,6 @@ int main(int argc, char *argv[])
 									strncat(print_in,&c,1);
 							}
 						}
-						printf("%s\n",print_in);
 						if(strcmp(print_in,"<print") == 0)
 						{
 							if((i3 != 0) || (c != '\n'))
