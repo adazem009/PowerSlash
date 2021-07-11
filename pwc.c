@@ -482,13 +482,12 @@ int main(int argc, char *argv[])
 					i2++;
 					strcat(print_in2,"print\n1\n1\n\\n\n");
 				}
-				// This realloc() doesn't always work for some reason...
-				/*if((strlen(raw) + strlen(print_in2)) > raw_alloc)
+				if((strlen(raw) + strlen(print_in2) + 2) > raw_alloc)
 				{
-					raw = (char*) realloc(raw,(strlen(raw) + strlen(print_in2)));
-					raw_alloc = strlen(raw) + strlen(print_in2);
-				}*/
-				//strcat(raw,print_in2);
+					raw = (char*) realloc(raw,(strlen(raw) + strlen(print_in2) + 2));
+					raw_alloc = strlen(raw) + strlen(print_in2) + 2;
+				}
+				strcat(raw,print_in2);
 			}
 			// Exception for <print
 			else if(strcmp(cmd,"<print") == 0)
