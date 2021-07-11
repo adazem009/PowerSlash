@@ -453,8 +453,23 @@ int main(int argc, char *argv[])
 							if(c == '/')
 								_error("Syntax error",true,line+1,14);
 							if((c != '\n') && (c != ',') && (c != ' ') && (c != '	'))
-								strncat(print_in,&c,1);
+							{
+								if((c == '"') || (c == '\''))
+								{
+									strncat(print_in,&c,1);
+									quote=c;
+									c='\0';
+									while((c != quote) && (c != '\n'))
+									{
+										c=getc(fr);
+										strncat(print_in,&c,1);
+									}
+								}
+								else
+									strncat(print_in,&c,1);
+							}
 						}
+						printf("%s\n",print_in);
 						if(strcmp(print_in,"<print") == 0)
 						{
 							if((i3 != 0) || (c != '\n'))
