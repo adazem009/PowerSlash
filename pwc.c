@@ -211,16 +211,16 @@ char *_process_if(char *raw, int i, int line, int cmd_argc, char *filename)
 				if(negate)
 				{
 					if((strcmp(val1,"false") == 0) || (strcmp(val1,"0") == 0))
-						sprintf(part4,"3\n0\n'=='\n0\n");
+						sprintf(part4,"3\n0\n\"==\"\n0\n");
 					else
-						sprintf(part4,"4\n0\n'=='\n0\n'!'\n");
+						sprintf(part4,"4\n0\n\"==\"\n0\n'!'\n");
 				}
 				else
 				{
 					if((strcmp(val1,"true") == 0) || (strcmp(val1,"1") == 0))
-						sprintf(part4,"3\n0\n'=='\n0\n");
+						sprintf(part4,"3\n0\n\"==\"\n0\n");
 					else
-						sprintf(part4,"4\n0\n'=='\n0\n'!'\n");
+						sprintf(part4,"4\n0\n\"==\"\n0\n'!'\n");
 				}
 				strcat(part3,part4);
 				in_i2++;
@@ -257,9 +257,9 @@ char *_process_if(char *raw, int i, int line, int cmd_argc, char *filename)
 				}
 				// Compile
 				if(negate)
-					sprintf(part4,"4\n%s\n'%s'\n%s\n'!'\n",val1,op,val2);
+					sprintf(part4,"4\n%s\n\"%s\"\n%s\n'!'\n",val1,op,val2);
 				else
-					sprintf(part4,"3\n%s\n'%s'\n%s\n",val1,op,val2);
+					sprintf(part4,"3\n%s\n\"%s\"\n%s\n",val1,op,val2);
 				strcat(part3,part4);
 				in_i2++;
 			}
@@ -294,7 +294,7 @@ char *_process_if(char *raw, int i, int line, int cmd_argc, char *filename)
 				_error(err,true,line+1,16,filename);
 			}
 			// Compile
-			sprintf(part4,"1\n'%s'\n",gate);
+			sprintf(part4,"1\n\"%s\"\n",gate);
 			strcat(part3,part4);
 			in_i2++;
 		}
@@ -754,7 +754,7 @@ int main(int argc, char *argv[])
 			else
 			{
 				rewind(funcr);
-				fprintf(ow,"10\n1\n2\n'arg_count'\n%d\n",cmd_argc);
+				fprintf(ow,"10\n1\n2\n\"arg_count\"\n%d\n",cmd_argc);
 				for(in_i=0; in_i < cmd_argc; in_i++)
 				{
 					fprintf(ow,"14\n2\n1\narg_%d\n%d\n",in_i+1,_getinputc(in_i,i,cmd_argc,raw));
@@ -952,7 +952,7 @@ int main(int argc, char *argv[])
 						else if(part[in_i] == '-')
 							strcpy(op,"2");
 						sprintf(part4,"tmp_calc%d",in_i2);
-						fprintf(ow,"F\n3\n1\n%s\n1\n'%s'\n2\n%s\n%s\n",op,part4,val1,val2);
+						fprintf(ow,"F\n3\n1\n%s\n1\n\"%s\"\n2\n%s\n%s\n",op,part4,val1,val2);
 						in_i2++;
 						strcpy(val1,part4);
 						strcpy(val2,"");
@@ -975,9 +975,9 @@ int main(int argc, char *argv[])
 			}
 			strcpy(val2,part3);
 			if(cmd_argc == 2)
-				fprintf(ow,"F\n4\n1\n%s\n1\n'%s'\n2\n%s\n%s\n1\n%s\n",op,part2,val1,val2,_getinput(1,0,i,cmd_argc,raw));
+				fprintf(ow,"F\n4\n1\n%s\n1\n\"%s\"\n2\n%s\n%s\n1\n%s\n",op,part2,val1,val2,_getinput(1,0,i,cmd_argc,raw));
 			else
-				fprintf(ow,"F\n3\n1\n%s\n1\n'%s'\n2\n%s\n%s\n",op,part2,val1,val2);
+				fprintf(ow,"F\n3\n1\n%s\n1\n\"%s\"\n2\n%s\n%s\n",op,part2,val1,val2);
 		}
 		else if(strcmp(cmd,"set") == 0)
 		{
