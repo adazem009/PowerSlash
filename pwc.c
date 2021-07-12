@@ -636,6 +636,7 @@ int main(int argc, char *argv[])
 		line++;
 	}
 	// Free memory
+	free(input);
 	free(arg);
 	free(fullcmd);
 	//printf("%s",raw);
@@ -1686,5 +1687,7 @@ int main(int argc, char *argv[])
 		fclose(ar);
 		remove(".tmp");
 	}
+	free(raw);
+	system("rm -rf .functions");
 	return 0;
 }
