@@ -849,7 +849,7 @@ int main(int argc, char *argv[])
 						else if(part[in_i] == '-')
 							strcpy(op,"2");
 						sprintf(part4,"tmp_calc%d",in_i2);
-						fprintf(ow,"F\n3\n1\n%s\n1\n%s\n2\n%s\n%s\n",op,part4,val1,val2);
+						fprintf(ow,"F\n3\n1\n%s\n1\n'%s'\n2\n%s\n%s\n",op,part4,val1,val2);
 						in_i2++;
 						strcpy(val1,part4);
 						strcpy(val2,"");
@@ -871,7 +871,7 @@ int main(int argc, char *argv[])
 				in_i++;
 			}
 			strcpy(val2,part3);
-			fprintf(ow,"F\n3\n1\n%s\n1\n%s\n2\n%s\n%s\n",op,part2,val1,val2);
+			fprintf(ow,"F\n3\n1\n%s\n1\n'%s'\n2\n%s\n%s\n",op,part2,val1,val2);
 		}
 		else if(strcmp(cmd,"set") == 0)
 		{
