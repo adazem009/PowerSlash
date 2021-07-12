@@ -711,6 +711,13 @@ int main(int argc, char *argv[])
 			else
 			{
 				rewind(funcr);
+				fprintf(ow,"10\n1\n2\n'arg_count'\n%d\n",cmd_argc);
+				for(in_i=0; in_i < cmd_argc; in_i++)
+				{
+					fprintf(ow,"14\n2\n1\narg_%d\n%d\n",in_i+1,_getinputc(in_i,i,cmd_argc,raw));
+					for(in_i2=0; in_i2 < _getinputc(in_i,i,cmd_argc,raw); in_i2++)
+						fprintf(ow,"%s\n",_getinput(in_i,in_i2,i,cmd_argc,raw));
+				}
 				while((c=getc(funcr)) != EOF)
 					putc(c,ow);
 				fclose(funcr);
