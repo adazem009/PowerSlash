@@ -21,6 +21,7 @@
 #include<stdlib.h>
 #include<errno.h>
 #include<stdbool.h>
+#include<dirent.h>
 void print_usage(char *cmdarg)
 {
 	printf("Usage:\n%s <file>\n",cmdarg);
@@ -281,8 +282,12 @@ char *_process_if(char *raw, int i, int line, int cmd_argc)
 	strcpy(str_to_ret,part3);
 	return str_to_ret;
 }
-char *_getcontent(const char *input)
+char *_getcontent(const char *input, int line)
 {
+	if((input[0] != '"') && (input[0] != '\''))
+		_error("Can't get content from a variable",true,line+1,14);
+	if(input[strlen(input)-1] != input[0])
+		_error("Missing end quote",true,line+1,14);
 	char quote;
 	int i,out_alloc=128;
 	char *out = (char*) malloc(out_alloc);
@@ -340,7 +345,7 @@ char *endstrconv(char *infn, char *outfn)
 int main(int argc, char *argv[])
 {
 	int filesize,i,i2=0,i3,argn,inputn,line,input_alloc,arg_alloc,fullcmd_alloc,raw_alloc,linec=0,comment;
-	char filename[255],outfn[255],c='\0',newl='\n',conv[10240],conv2[10240],cmd[32],quote,err[64],print_in[102400],print_in2[102400];
+	char filename[255],outfn[255],c='\0',newl='\n',conv[10240],conv2[10240],cmd[32],quote,err[128],print_in[102400],print_in2[102400];
 	bool strconv=false;
 	if(argc < 2)
 	{
@@ -635,11 +640,21 @@ int main(int argc, char *argv[])
 	free(fullcmd);
 	//printf("%s",raw);
 	// Open output file
-	FILE *ow;
+	FILE *ow, *funcr;
 	ow=fopen(outfn,"w");
 	// Compile all commands
-	int cmd_argc,arg_inputc,in_i,in_i2,in_tmp,col,col2,bold,italic,underlined;
-	char part[10240],part2[16],part3[10240],part4[10240],val1[512],op[3],val2[512],gate[4];
+	int cmd_argc,arg_inputc,in_i,in_i2,in_tmp,col,col2,bold,italic,underlined,func_type;
+	char part[10240],part2[16],part3[10240],part4[10240],val1[512],op[3],val2[512],gate[4],func_name[255];
+	bool _def=false,_def_started=false;
+	DIR *funcdir = opendir(".functions");
+	if(funcdir)
+	{
+		closedir(funcdir);
+		system("rm -rf .functions");
+		system("mkdir .functions");
+	}
+	else
+		system("mkdir .functions");
 	i=0;
 	i2=0;
 	while(i < strlen(raw))
@@ -665,8 +680,20 @@ int main(int argc, char *argv[])
 		cmd_argc=strtol(part2,NULL,10);
 		// Skip newline
 		i++;
-		// Built-in functions
-		if(strcmp(cmd,"exit") == 0)
+		// Functions
+		sprintf(part,".functions/%s",cmd);
+		if((funcr=fopen(part,"r")) && !(_def && !(_def_started)))
+		{
+			if((strcmp(cmd,func_name) == 0) && (_def == true))
+			{
+				sprintf(err,"Can not use a function that is currently being defined\nUse 'linkdef' instead of 'define' with the 'source' function to fix this");
+				_error(err,true,line+1,14);
+			}
+			while((c=getc(funcr)) != EOF)
+				putc(c,ow);
+			fclose(funcr);
+		}
+		else if(strcmp(cmd,"exit") == 0)
 		{
 			// exit
 			if(cmd_argc > 0)
@@ -803,7 +830,7 @@ int main(int argc, char *argv[])
 				_error("Number of arguments must be 1",true,line+1,12);
 			if(_getinputc(0,i,cmd_argc,raw) != 1)
 				_error("Number of inputs in the first argument must be 1",true,line+1,13);
-			strcpy(part,_getcontent(_getinput(0,0,i,cmd_argc,raw)));
+			strcpy(part,_getcontent(_getinput(0,0,i,cmd_argc,raw),line));
 			in_i=0;
 			// Get variable name
 			strcpy(part2,"");
@@ -1017,7 +1044,17 @@ int main(int argc, char *argv[])
 		}
 		else if(strcmp(cmd,"define") == 0)
 		{
-			_error("Coming soon!",true,line+1,18);
+			// define/function_name
+			if(_def)
+				_error("Can't define sub-function",true,line+1,14);
+			if(cmd_argc != 1)
+				_error("Number of arguments must be 1",true,line+1,12);
+			if(_getinputc(0,i,cmd_argc,raw) != 1)
+				_error("Number of inputs in the first argument must be 1",true,line+1,13);
+			_def=true;
+			_def_started=false;
+			func_type=1;
+			strcpy(func_name,_getcontent(_getinput(0,0,i,cmd_argc,raw),line));
 		}
 		else if(strcmp(cmd,"linkdef") == 0)
 		{
@@ -1025,11 +1062,35 @@ int main(int argc, char *argv[])
 		}
 		else if(strcmp(cmd,"{") == 0)
 		{
-			_error("Coming soon!",true,line+1,18);
+			if(!(_def))
+				_error("Unexpected token '{'",true,line+1,14);
+			if(cmd_argc != 0)
+				_error("Number of arguments must be 0",true,line+1,12);
+			if(func_type == 1)
+			{
+				fclose(ow);
+				sprintf(part,".functions/%s",func_name);
+				ow = fopen(part,"w");
+			}
+			else if(func_type == 2)
+				_error("Coming soon!",true,line+1,18);
+			_def_started=true;
 		}
+		else if((_def) && (!(_def_started)))
+			_error("Expected token '{' but got a function",true,line+1,14);
 		else if(strcmp(cmd,"}") == 0)
 		{
-			_error("Coming soon!",true,line+1,18);
+			if(!(_def))
+				_error("Unexpected token '}'",true,line+1,14);
+			if(cmd_argc != 0)
+				_error("Number of arguments must be 0",true,line+1,12);
+			if(func_type == 1)
+			{
+				fclose(ow);
+				ow = fopen(outfn,"w");
+			}
+			_def=false;
+			_def_started=false;
 		}
 		else if(strcmp(cmd,"run") == 0)
 		{
@@ -1610,6 +1671,8 @@ int main(int argc, char *argv[])
 			}
 		}
 	}
+	if(_def)
+		_error("Unexpected end of file while searching for function end",false,0,2);
 	fclose(fr);
 	fclose(ow);
 	if(strconv)
