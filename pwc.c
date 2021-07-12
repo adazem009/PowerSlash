@@ -680,8 +680,10 @@ int main(int argc, char *argv[])
 	FILE *ow, *funcr;
 	ow=fopen(outfn,"w");
 	// Compile all commands
-	int cmd_argc,arg_inputc,in_i,in_i2,in_tmp,col,col2,bold,italic,underlined,func_type,linkdef_type;
+	int cmd_argc,arg_inputc,in_i,in_i2,in_tmp,col,col2,bold,italic,underlined,func_type=0,linkdef_type=0;
 	char part[10240],part2[16],part3[10240],part4[10240],val1[512],op[3],val2[512],gate[4],func_name[255],linkdef_var_name[32];
+	strcpy(func_name,"");
+	strcpy(linkdef_var_name,"");
 	bool _def=false,_def_started=false;
 	DIR *funcdir = opendir(".functions");
 	if(funcdir)
