@@ -871,10 +871,13 @@ int main(int argc, char *argv[])
 		else if(strcmp(cmd,"calc") == 0)
 		{
 			// calc/expression
-			if(cmd_argc != 1)
-				_error("Number of arguments must be 1",true,line+1,12,filename);
+			if((cmd_argc != 1) && (cmd_argc != 2))
+				_error("Number of arguments must be 1 or 2",true,line+1,12,filename);
 			if(_getinputc(0,i,cmd_argc,raw) != 1)
 				_error("Number of inputs in the first argument must be 1",true,line+1,13,filename);
+			if(cmd_argc == 2)
+				if(_getinputc(1,i,cmd_argc,raw) != 1)
+					_error("Number of inputs in the second argument must be 1",true,line+1,13,filename);
 			strcpy(part,_getcontent(_getinput(0,0,i,cmd_argc,raw),line,filename));
 			in_i=0;
 			// Get variable name
@@ -943,7 +946,10 @@ int main(int argc, char *argv[])
 				in_i++;
 			}
 			strcpy(val2,part3);
-			fprintf(ow,"F\n3\n1\n%s\n1\n'%s'\n2\n%s\n%s\n",op,part2,val1,val2);
+			if(cmd_argc == 2)
+				fprintf(ow,"F\n4\n1\n%s\n1\n'%s'\n2\n%s\n%s\n1\n%s\n",op,part2,val1,val2,_getinput(1,0,i,cmd_argc,raw));
+			else
+				fprintf(ow,"F\n3\n1\n%s\n1\n'%s'\n2\n%s\n%s\n",op,part2,val1,val2);
 		}
 		else if(strcmp(cmd,"set") == 0)
 		{
