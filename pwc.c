@@ -1055,10 +1055,13 @@ int main(int argc, char *argv[])
 			fprintf(ow,"14\n%d\n%d\n",cmd_argc,in_tmp);
 			for(in_i2=0;in_i2<in_tmp;in_i2++)
 				fprintf(ow,"%s\n",_getinput(0,in_i2,i,cmd_argc,raw));
-			in_tmp=_getinputc(1,i,cmd_argc,raw);
-			fprintf(ow,"%d\n",in_tmp);
-			for(in_i2=0;in_i2<in_tmp;in_i2++)
-				fprintf(ow,"%s\n",_getinput(1,in_i2,i,cmd_argc,raw));
+			if(cmd_argc == 2)
+			{
+				in_tmp=_getinputc(1,i,cmd_argc,raw);
+				fprintf(ow,"%d\n",in_tmp);
+				for(in_i2=0;in_i2<in_tmp;in_i2++)
+					fprintf(ow,"%s\n",_getinput(1,in_i2,i,cmd_argc,raw));
+			}
 		}
 		else if(strcmp(cmd,"append") == 0)
 		{
