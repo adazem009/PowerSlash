@@ -205,41 +205,64 @@ char *_process_if(char *raw, int i, int line, int cmd_argc, char *filename)
 				}
 				in_i++;
 			}
-			// Read operator
-			strcpy(op,"");
-			while((in_i < strlen(part)) && ((part[in_i] == '=') || (part[in_i] == '!') || (part[in_i] == '>') || (part[in_i] == '<')))
+			if((strcmp(val1,"false") == 0) || (strcmp(val1,"true") == 0) || (strcmp(val1,"0") == 0) || (strcmp(val1,"1") == 0))
 			{
-				strncat(op,&part[in_i],1);
-				in_i++;
-			}
-			if((strcmp(op,"==") != 0) && (strcmp(op,"!=") != 0) && (strcmp(op,">") != 0) && (strcmp(op,"!>") != 0) && (strcmp(op,">=") != 0) && (strcmp(op,"!>=") != 0) && (strcmp(op,"<") != 0) && (strcmp(op,"!<") != 0) && (strcmp(op,"<=") != 0) && (strcmp(op,"!<=") != 0))
-			{
-				sprintf(err,"Unknown operator: '%s'",op);
-				_error(err,true,line+1,15,filename);
-			}
-			// Read value 2
-			strcpy(val2,"");
-			while((in_i < strlen(part)) && (part[in_i] != ']') && (part[in_i] != '=') && (part[in_i] != '!') && (part[in_i] != '>') && (part[in_i] != '<'))
-			{
-				strncat(val2,&part[in_i],1);
-				if((part[in_i] == '"') || (part[in_i] == '\''))
+				// Compile
+				if(negate)
 				{
-					quote=part[in_i];
-					do
-					{
-						in_i++;
-						strncat(val2,&part[in_i],1);
-					}while(part[in_i] != quote);
+					if((strcmp(val1,"false") == 0) || (strcmp(val1,"0") == 0))
+						sprintf(part4,"3\n0\n'=='\n0\n");
+					else
+						sprintf(part4,"4\n0\n'=='\n0\n'!'\n");
 				}
-				in_i++;
+				else
+				{
+					if((strcmp(val1,"true") == 0) || (strcmp(val1,"1") == 0))
+						sprintf(part4,"3\n0\n'=='\n0\n");
+					else
+						sprintf(part4,"4\n0\n'=='\n0\n'!'\n");
+				}
+				strcat(part3,part4);
+				in_i2++;
 			}
-			// Compile
-			if(negate)
-				sprintf(part4,"4\n%s\n'%s'\n%s\n'!'\n",val1,op,val2);
 			else
-				sprintf(part4,"3\n%s\n'%s'\n%s\n",val1,op,val2);
-			strcat(part3,part4);
-			in_i2++;
+			{
+				// Read operator
+				strcpy(op,"");
+				while((in_i < strlen(part)) && ((part[in_i] == '=') || (part[in_i] == '!') || (part[in_i] == '>') || (part[in_i] == '<')))
+				{
+					strncat(op,&part[in_i],1);
+					in_i++;
+				}
+				if((strcmp(op,"==") != 0) && (strcmp(op,"!=") != 0) && (strcmp(op,">") != 0) && (strcmp(op,"!>") != 0) && (strcmp(op,">=") != 0) && (strcmp(op,"!>=") != 0) && (strcmp(op,"<") != 0) && (strcmp(op,"!<") != 0) && (strcmp(op,"<=") != 0) && (strcmp(op,"!<=") != 0))
+				{
+					sprintf(err,"Unknown operator: '%s'",op);
+					_error(err,true,line+1,15,filename);
+				}
+				// Read value 2
+				strcpy(val2,"");
+				while((in_i < strlen(part)) && (part[in_i] != ']') && (part[in_i] != '=') && (part[in_i] != '!') && (part[in_i] != '>') && (part[in_i] != '<'))
+				{
+					strncat(val2,&part[in_i],1);
+					if((part[in_i] == '"') || (part[in_i] == '\''))
+					{
+						quote=part[in_i];
+						do
+						{
+							in_i++;
+							strncat(val2,&part[in_i],1);
+						}while(part[in_i] != quote);
+					}
+					in_i++;
+				}
+				// Compile
+				if(negate)
+					sprintf(part4,"4\n%s\n'%s'\n%s\n'!'\n",val1,op,val2);
+				else
+					sprintf(part4,"3\n%s\n'%s'\n%s\n",val1,op,val2);
+				strcat(part3,part4);
+				in_i2++;
+			}
 		}
 		if(part[in_i] != ']')
 			_error("Syntax error",true,line+1,14,filename);
@@ -536,6 +559,11 @@ int main(int argc, char *argv[])
 					sprintf(conv,"%d",inputn);
 					strncat(conv,&newl,1);
 					strcat(conv,arg);
+					if((strlen(conv)+2) > arg_alloc)
+					{
+						arg = (char*) realloc(arg,(strlen(conv)+2));
+						arg_alloc=strlen(conv)+2;
+					}
 					strcpy(arg,conv);
 					// Add arg
 					if((strlen(fullcmd) + strlen(arg) + 2) > fullcmd_alloc)
@@ -1667,7 +1695,12 @@ int main(int argc, char *argv[])
 			fclose(funcr);
 			sprintf(part,"%s include/%s --include -o ",argv[0],_getcontent(_getinput(0,0,i,cmd_argc,raw),line,filename));
 			strcat(part,part3);
-			system(part);
+			if(system(part) != 0)
+			{
+				strcpy(err,"Failed to include ");
+				strcat(err,_getcontent(_getinput(0,0,i,cmd_argc,raw),line,filename));
+				_error(err,true,line+1,18,filename);
+			}
 			funcr = fopen(part3,"r");
 			while((c=getc(funcr)) != EOF)
 				putc(c,ow);
