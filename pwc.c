@@ -1785,7 +1785,7 @@ int main(int argc, char *argv[])
 			in_tmp=_getinputc(0,i,cmd_argc,raw);
 			if((in_tmp != 1) && (in_tmp != 2))
 				_error("Number of inputs in the first argument must be 1 or 2",true,line+1,13,filename);
-			fprintf(ow,"3E\n2\n%d\n",in_tmp);
+			fprintf(ow,"3E\n3\n%d\n",in_tmp);
 			for(in_i=0;in_i<in_tmp;in_i++)
 				fprintf(ow,"%s\n",_getinput(0,in_i,i,cmd_argc,raw));
 			in_tmp=_getinputc(1,i,cmd_argc,raw);
