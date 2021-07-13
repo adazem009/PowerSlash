@@ -271,7 +271,7 @@ char *_process_if(char *raw, int i, int line, int cmd_argc, char *filename)
 		if(in_i < strlen(part))
 		{
 			strcpy(gate,"");
-			while((in_i < strlen(part)) && (part[in_i] != '['))
+			while((in_i < strlen(part)) && (part[in_i] != '[') && (part[in_i] == '!'))
 			{
 				strncat(gate,&part[in_i],1);
 				in_i++;
