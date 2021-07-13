@@ -1,29 +1,9 @@
-# PowerSlash compiler (C version)
-New PowerSlash compiler written in C.
-
+# PowerSlash userspace compiler for EarthOS
 
 ## Compiling and using
 ```
-gcc pwc.c -o pwc
-./pwc filename
+gcc pwc.c -o pwuc
+./pwuc filename
 ```
 
-
-### Options
-`-o` - output file:
-
-```
-./pwc -o output filename
-```
-
-
-`--string` - convert to one-line string after compilation:
-
-```
-./pwc filename --string
-```
-
-Useful for BIOS builds.
-
-
-`--include-dir path` - custom include directory path
+Check out the kernel space compiler for more usage info: https://github.com/adazem009/PowerSlash/blob/c/README.md
