@@ -1470,7 +1470,7 @@ int main(int argc, char *argv[])
 			// print>
 			// print>/color
 			// text
-			// text,bold_value,italic_value,underlined_value
+			// text,\n,text
 			// ...
 			// <print
 			if((cmd_argc != 0) && (cmd_argc != 1))
