@@ -24,3 +24,6 @@ gcc pwc.c -o pwc
 ```
 
 Useful for BIOS builds.
+
+
+`--include-dir path` - custom include directory path
