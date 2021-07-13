@@ -371,7 +371,7 @@ void endstrconv(char *infn, char *outfn, char *mode)
 int main(int argc, char *argv[])
 {
 	int filesize,i,i2=0,i3,argn,inputn,line,input_alloc,arg_alloc,fullcmd_alloc,raw_alloc,linec=0,comment;
-	char filename[255],outfn[255],c='\0',newl='\n',conv[10240],conv2[10240],cmd[32],quote,err[128],print_in[102400],print_in2[102400];
+	char filename[255],outfn[255],c='\0',newl='\n',conv[10240],conv2[10240],cmd[32],quote,err[128],print_in[102400],print_in2[102400],include_dir[255];
 	bool strconv=false,forceinclude=false;
 	if(argc < 2)
 	{
@@ -380,6 +380,7 @@ int main(int argc, char *argv[])
 	}
 	strcpy(filename,"");
 	strcpy(outfn,"");
+	strcpy(include_dir,"include");
 	// Read args
 	for(i=1;i<argc;i++)
 	{
@@ -403,6 +404,17 @@ int main(int argc, char *argv[])
 		{
 			// Include option (don't remove .functions directory, etc.)
 			forceinclude=true;
+		}
+		else if(strcmp(argv[i],"--include-dir") == 0)
+		{
+			// Custom include dir
+			if(i+1 == argc)
+			{
+				printf("%s: missing path\n",argv[0]);
+				exit(1);
+			}
+			i++;
+			strcpy(include_dir,argv[i]);
 		}
 		else
 		{
@@ -1685,7 +1697,7 @@ int main(int argc, char *argv[])
 				_error("Number of arguments must be 1",true,line+1,12,filename);
 			if(_getinputc(0,i,cmd_argc,raw) != 1)
 				_error("Number of inputs in the first argument must be 1",true,line+1,13,filename);
-			sprintf(part4,"include/%s",_getcontent(_getinput(0,0,i,cmd_argc,raw),line,filename));
+			sprintf(part4,"%s/%s",include_dir,_getcontent(_getinput(0,0,i,cmd_argc,raw),line,filename));
 			strcpy(part3,part4);
 			strcat(part3,".include");
 			errno=0;
@@ -1698,8 +1710,10 @@ int main(int argc, char *argv[])
 				_error(err,true,line+1,18,filename);
 			}
 			fclose(funcr);
-			sprintf(part,"%s include/%s --include -o ",argv[0],_getcontent(_getinput(0,0,i,cmd_argc,raw),line,filename));
+			sprintf(part,"%s %s/%s --include -o ",argv[0],include_dir,_getcontent(_getinput(0,0,i,cmd_argc,raw),line,filename));
 			strcat(part,part3);
+			strcat(part," --include-dir ");
+			strcat(part,include_dir);
 			if(system(part) != 0)
 			{
 				strcpy(err,"Failed to include ");
