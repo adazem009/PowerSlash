@@ -1,5 +1,5 @@
 /*
- * PowerSlash compiler - C version
+ * PowerSlash userspace compiler for EarthOS
  *
  * Copyright (C) 2021 - adazem009
  *
@@ -1243,12 +1243,12 @@ int main(int argc, char *argv[])
 		}
 		else if(strcmp(cmd,"run") == 0)
 		{
-			// run/executable_code,wait_or_bg/[arg1]/[arg2]/...
+			// run/executable_code,wait_or_bg,user/[arg1]/[arg2]/...
 			if(cmd_argc == 0)
 				_error("Number of arguments must be at least 1",true,line+1,12,filename);
 			in_tmp=_getinputc(0,i,cmd_argc,raw);
-			if((in_tmp != 1) && (in_tmp != 2))
-				_error("Number of inputs in the first argument must be 1 or 2",true,line+1,13,filename);
+			if(in_tmp != 3)
+				_error("Number of inputs in the first argument must be 3",true,line+1,13,filename);
 			fprintf(ow,"1A\n%d\n%d\n",cmd_argc,in_tmp);
 			for(in_i2=0;in_i2<in_tmp;in_i2++)
 				fprintf(ow,"%s\n",_getinput(0,in_i2,i,cmd_argc,raw));
@@ -1261,12 +1261,12 @@ int main(int argc, char *argv[])
 		}
 		else if(strcmp(cmd,"source") == 0)
 		{
-			// source/executable_code,wait_or_bg/[arg1]/[arg2]/...
+			// source/executable_code,wait_or_bg,user/[arg1]/[arg2]/...
 			if(cmd_argc == 0)
 				_error("Number of arguments must be at least 1",true,line+1,12,filename);
 			in_tmp=_getinputc(0,i,cmd_argc,raw);
-			if((in_tmp != 1) && (in_tmp != 2))
-				_error("Number of inputs in the first argument must be 1 or 2",true,line+1,13,filename);
+			if(in_tmp != 3)
+				_error("Number of inputs in the first argument must be 3",true,line+1,13,filename);
 			fprintf(ow,"1B\n%d\n%d\n",cmd_argc,in_tmp);
 			for(in_i2=0;in_i2<in_tmp;in_i2++)
 				fprintf(ow,"%s\n",_getinput(0,in_i2,i,cmd_argc,raw));
@@ -1318,42 +1318,6 @@ int main(int argc, char *argv[])
 				_error("Number of inputs in the first argument must be 1",true,line+1,13,filename);
 			fprintf(ow,"20\n1\n1\n%s\n",_getinput(0,0,i,cmd_argc,raw));
 		}
-		else if(strcmp(cmd,"listdisk") == 0)
-		{
-			// listdisk/output_list_name
-			if(cmd_argc != 1)
-				_error("Number of arguments must be 1",true,line+1,12,filename);
-			if(_getinputc(0,i,cmd_argc,raw) != 1)
-				_error("Number of inputs in the first argument must be 1",true,line+1,13,filename);
-			fprintf(ow,"22\n1\n1\n%s\n",_getinput(0,0,i,cmd_argc,raw));
-		}
-		else if(strcmp(cmd,"createdisk") == 0)
-		{
-			// createdisk/disk_name,size_in_bytes
-			if(cmd_argc != 1)
-				_error("Number of arguments must be 1",true,line+1,12,filename);
-			if(_getinputc(0,i,cmd_argc,raw) != 2)
-				_error("Number of inputs in the first argument must be 2",true,line+1,13,filename);
-			fprintf(ow,"23\n1\n1\n%s\n",_getinput(0,0,i,cmd_argc,raw));
-		}
-		else if(strcmp(cmd,"rmdisk") == 0)
-		{
-			// rmdisk/disk_name
-			if(cmd_argc != 1)
-				_error("Number of arguments must be 1",true,line+1,12,filename);
-			if(_getinputc(0,i,cmd_argc,raw) != 1)
-				_error("Number of inputs in the first argument must be 1",true,line+1,13,filename);
-			fprintf(ow,"24\n1\n1\n%s\n",_getinput(0,0,i,cmd_argc,raw));
-		}
-		else if(strcmp(cmd,"renamedisk") == 0)
-		{
-			// renamedisk/disk_ID,new_disk_name
-			if(cmd_argc != 1)
-				_error("Number of arguments must be 1",true,line+1,12,filename);
-			if(_getinputc(0,i,cmd_argc,raw) != 2)
-				_error("Number of inputs in the first argument must be 2",true,line+1,13,filename);
-			fprintf(ow,"25\n1\n1\n%s\n",_getinput(0,0,i,cmd_argc,raw));
-		}
 		else if(strcmp(cmd,"beep") == 0)
 		{
 			// beep/frequency,duration_in_seconds
@@ -1374,45 +1338,6 @@ int main(int argc, char *argv[])
 				_error("Number of inputs in the second argument must be 1",true,line+1,13,filename);
 			fprintf(ow,"27\n2\n1\n%s\n1\n%s\n",_getinput(0,0,i,cmd_argc,raw),_getinput(1,0,i,cmd_argc,raw));
 		}
-		else if(strcmp(cmd,"getdisksize") == 0)
-		{
-			// getdisksize/disk_ID/output_var
-			if(cmd_argc != 2)
-				_error("Number of arguments must be 2",true,line+1,12,filename);
-			if(_getinputc(0,i,cmd_argc,raw) != 1)
-				_error("Number of inputs in the first argument must be 1",true,line+1,13,filename);
-			if(_getinputc(1,i,cmd_argc,raw) != 1)
-				_error("Number of inputs in the second argument must be 1",true,line+1,13,filename);
-			fprintf(ow,"28\n2\n1\n%s\n1\n%s\n",_getinput(0,0,i,cmd_argc,raw),_getinput(1,0,i,cmd_argc,raw));
-		}
-		else if(strcmp(cmd,"showlogo") == 0)
-		{
-			// showlogo
-			if(cmd_argc != 0)
-				_error("Number of arguments must be 0",true,line+1,12,filename);
-			fprintf(ow,"29\n1\n1\n1\n");
-		}
-		else if(strcmp(cmd,"hidelogo") == 0)
-		{
-			// hidelogo
-			if(cmd_argc != 0)
-				_error("Number of arguments must be 0",true,line+1,12,filename);
-			fprintf(ow,"29\n1\n1\n0\n");
-		}
-		else if(strcmp(cmd,"enabletext") == 0)
-		{
-			// enabletext
-			if(cmd_argc != 0)
-				_error("Number of arguments must be 0",true,line+1,12,filename);
-			fprintf(ow,"2A\n1\n1\n1\n");
-		}
-		else if(strcmp(cmd,"disabletext") == 0)
-		{
-			// disabletext
-			if(cmd_argc != 0)
-				_error("Number of arguments must be 0",true,line+1,12,filename);
-			fprintf(ow,"2A\n1\n1\n0\n");
-		}
 		else if(strcmp(cmd,"shutdown") == 0)
 		{
 			// shutdown
@@ -1426,44 +1351,6 @@ int main(int argc, char *argv[])
 			if(cmd_argc != 0)
 				_error("Number of arguments must be 0",true,line+1,12,filename);
 			fprintf(ow,"2B\n1\n1\n2\n");
-		}
-		else if(strcmp(cmd,"writedisk") == 0)
-		{
-			// writedisk/byte/disk_ID,byte_ID
-			if(cmd_argc != 2)
-				_error("Number of arguments must be 2",true,line+1,12,filename);
-			if(_getinputc(0,i,cmd_argc,raw) != 1)
-				_error("Number of inputs in the first argument must be 1",true,line+1,13,filename);
-			if(_getinputc(1,i,cmd_argc,raw) != 2)
-				_error("Number of inputs in the second argument must be 2",true,line+1,13,filename);
-			fprintf(ow,"2C\n2\n1\n%s\n2\n%s\n%s\n",_getinput(0,0,i,cmd_argc,raw),_getinput(1,0,i,cmd_argc,raw),_getinput(1,1,i,cmd_argc,raw));
-		}
-		else if(strcmp(cmd,"loadcode") == 0)
-		{
-			// loadcode/code
-			if(cmd_argc != 1)
-				_error("Number of arguments must be 1",true,line+1,12,filename);
-			if(_getinputc(0,i,cmd_argc,raw) != 1)
-				_error("Number of inputs in the first argument must be 1",true,line+1,13,filename);
-			fprintf(ow,"2D\n1\n1\n%s\n",_getinput(0,0,i,cmd_argc,raw));
-		}
-		else if(strcmp(cmd,"leavebios") == 0)
-		{
-			// leavebios
-			if(cmd_argc != 0)
-				_error("Number of arguments must be 0",true,line+1,12,filename);
-			fprintf(ow,"2E\n0\n");
-		}
-		else if(strcmp(cmd,"readdisk") == 0)
-		{
-			// readdisk/disk_ID,byte_ID/output_var
-			if(cmd_argc != 2)
-				_error("Number of arguments must be 2",true,line+1,12,filename);
-			if(_getinputc(0,i,cmd_argc,raw) != 2)
-				_error("Number of inputs in the first argument must be 2",true,line+1,13,filename);
-			if(_getinputc(1,i,cmd_argc,raw) != 1)
-				_error("Number of inputs in the second argument must be 1",true,line+1,13,filename);
-			fprintf(ow,"2E\n2\n2\n%s\n%s\n1\n%s\n",_getinput(0,0,i,cmd_argc,raw),_getinput(0,1,i,cmd_argc,raw),_getinput(1,0,i,cmd_argc,raw));
 		}
 		else if(strcmp(cmd,"print>") == 0)
 		{
@@ -1491,36 +1378,6 @@ int main(int argc, char *argv[])
 			// This function doesn't need checks (see the "Exception for print>" comment above)
 			if(col2 == 1)
 				fprintf(ow,"21\n1\n1\n255255255\n");
-		}
-		else if(strcmp(cmd,"showcplist") == 0)
-		{
-			// showcplist/list_name
-			if(cmd_argc != 1)
-				_error("Number of arguments must be 1",true,line+1,12,filename);
-			if(_getinputc(0,i,cmd_argc,raw) != 1)
-				_error("Number of inputs in the first argument must be 1",true,line+1,13,filename);
-			fprintf(ow,"30\n1\n1\n%s\n",_getinput(0,0,i,cmd_argc,raw));
-		}
-		else if(strcmp(cmd,"hidecplist") == 0)
-		{
-			// hidecplist
-			if(cmd_argc != 0)
-				_error("Number of arguments must be 0",true,line+1,12,filename);
-			fprintf(ow,"31\n0\n");
-		}
-		else if(strcmp(cmd,"cpdisk") == 0)
-		{
-			// cpdisk/disk_ID,0_1_or_2_(full__exclude_MBR__MBR_only)/output_var
-			if(cmd_argc != 2)
-				_error("Number of arguments must be 2",true,line+1,12,filename);
-			if((_getinputc(0,i,cmd_argc,raw) != 1) && (_getinputc(0,i,cmd_argc,raw) != 2))
-				_error("Number of inputs in the first argument must be 1 or 2",true,line+1,13,filename);
-			if(_getinputc(1,i,cmd_argc,raw) != 1)
-				_error("Number of inputs in the second argument must be 1",true,line+1,13,filename);
-			if(_getinputc(0,i,cmd_argc,raw) == 1)
-				fprintf(ow,"32\n2\n1\n%s\n1\n%s\n",_getinput(0,0,i,cmd_argc,raw),_getinput(1,0,i,cmd_argc,raw));
-			else
-				fprintf(ow,"32\n2\n2\n%s\n%s\n1\n%s\n",_getinput(0,0,i,cmd_argc,raw),_getinput(0,1,i,cmd_argc,raw),_getinput(1,0,i,cmd_argc,raw));
 		}
 		else if(strcmp(cmd,"bintolist") == 0)
 		{
@@ -1690,6 +1547,150 @@ int main(int argc, char *argv[])
 				_error("Number of inputs in the second argument must be 1",true,line+1,13,filename);
 			fprintf(ow,"38\n2\n1\n%s\n1\n%s\n",_getinput(0,0,i,cmd_argc,raw),_getinput(1,0,i,cmd_argc,raw));
 		}
+		else if(strcmp(cmd,"cd") == 0)
+		{
+			// cd/path
+			if(cmd_argc != 1)
+				_error("Number of arguments must be 1",true,line+1,12,filename);
+			if(_getinputc(0,i,cmd_argc,raw) != 1)
+				_error("Number of inputs in the first argument must be 1",true,line+1,13,filename);
+			fprintf(ow,"22\n1\n1\n%s\n",_getinput(0,0,i,cmd_argc,raw));
+		}
+		else if(strcmp(cmd,"pwd") == 0)
+		{
+			// pwd/output_var
+			if(cmd_argc != 1)
+				_error("Number of arguments must be 1",true,line+1,12,filename);
+			if(_getinputc(0,i,cmd_argc,raw) != 1)
+				_error("Number of inputs in the first argument must be 1",true,line+1,13,filename);
+			fprintf(ow,"23\n1\n1\n%s\n",_getinput(0,0,i,cmd_argc,raw));
+		}
+		else if(strcmp(cmd,"getfile") == 0)
+		{
+			// getfile/path/output_list_name
+			if(cmd_argc != 2)
+				_error("Number of arguments must be 2",true,line+1,12,filename);
+			if(_getinputc(0,i,cmd_argc,raw) != 1)
+				_error("Number of inputs in the first argument must be 1",true,line+1,13,filename);
+			if(_getinputc(1,i,cmd_argc,raw) != 1)
+				_error("Number of inputs in the second argument must be 1",true,line+1,13,filename);
+			fprintf(ow,"24\n2\n1\n%s\n1\n%s\n",_getinput(0,0,i,cmd_argc,raw),_getinput(1,0,i,cmd_argc,raw));
+		}
+		else if(strcmp(cmd,"adduser") == 0)
+		{
+			// adduser/username
+			if(cmd_argc != 1)
+				_error("Number of arguments must be 1",true,line+1,12,filename);
+			if(_getinputc(0,i,cmd_argc,raw) != 1)
+				_error("Number of inputs in the first argument must be 1",true,line+1,13,filename);
+			fprintf(ow,"25\n1\n1\n%s\n",_getinput(0,0,i,cmd_argc,raw));
+		}
+		else if(strcmp(cmd,"deleteuser") == 0)
+		{
+			// deleteuser/username
+			if(cmd_argc != 1)
+				_error("Number of arguments must be 1",true,line+1,12,filename);
+			if(_getinputc(0,i,cmd_argc,raw) != 1)
+				_error("Number of inputs in the first argument must be 1",true,line+1,13,filename);
+			fprintf(ow,"28\n1\n1\n%s\n",_getinput(0,0,i,cmd_argc,raw));
+		}
+		else if(strcmp(cmd,"addgroup") == 0)
+		{
+			// addgroup/group_name
+			if(cmd_argc != 1)
+				_error("Number of arguments must be 1",true,line+1,12,filename);
+			if(_getinputc(0,i,cmd_argc,raw) != 1)
+				_error("Number of inputs in the first argument must be 1",true,line+1,13,filename);
+			fprintf(ow,"29\n1\n1\n%s\n",_getinput(0,0,i,cmd_argc,raw));
+		}
+		else if(strcmp(cmd,"deletegroup") == 0)
+		{
+			// deletegroup/group_name
+			if(cmd_argc != 1)
+				_error("Number of arguments must be 1",true,line+1,12,filename);
+			if(_getinputc(0,i,cmd_argc,raw) != 1)
+				_error("Number of inputs in the first argument must be 1",true,line+1,13,filename);
+			fprintf(ow,"2A\n1\n1\n%s\n",_getinput(0,0,i,cmd_argc,raw));
+		}
+		else if(strcmp(cmd,"togroup") == 0)
+		{
+			// togroup/username/group_name
+			if(cmd_argc != 2)
+				_error("Number of arguments must be 2",true,line+1,12,filename);
+			if(_getinputc(0,i,cmd_argc,raw) != 1)
+				_error("Number of inputs in the first argument must be 1",true,line+1,13,filename);
+			if(_getinputc(1,i,cmd_argc,raw) != 1)
+				_error("Number of inputs in the second argument must be 1",true,line+1,13,filename);
+			fprintf(ow,"2C\n2\n1\n%s\n1\n%s\n",_getinput(0,0,i,cmd_argc,raw),_getinput(1,0,i,cmd_argc,raw));
+		}
+		else if(strcmp(cmd,"fromgroup") == 0)
+		{
+			// fromgroup/username/group_name
+			if(cmd_argc != 2)
+				_error("Number of arguments must be 2",true,line+1,12,filename);
+			if(_getinputc(0,i,cmd_argc,raw) != 1)
+				_error("Number of inputs in the first argument must be 1",true,line+1,13,filename);
+			if(_getinputc(1,i,cmd_argc,raw) != 1)
+				_error("Number of inputs in the second argument must be 1",true,line+1,13,filename);
+			fprintf(ow,"2D\n2\n1\n%s\n1\n%s\n",_getinput(0,0,i,cmd_argc,raw),_getinput(1,0,i,cmd_argc,raw));
+		}
+		else if(strcmp(cmd,"getusers") == 0)
+		{
+			// getusers/output_list_name
+			if(cmd_argc != 1)
+				_error("Number of arguments must be 1",true,line+1,12,filename);
+			if(_getinputc(0,i,cmd_argc,raw) != 1)
+				_error("Number of inputs in the first argument must be 1",true,line+1,13,filename);
+			fprintf(ow,"2E\n1\n1\n%s\n",_getinput(0,0,i,cmd_argc,raw));
+		}
+		else if(strcmp(cmd,"getgroups") == 0)
+		{
+			// getgroups/output_list_name
+			if(cmd_argc != 1)
+				_error("Number of arguments must be 1",true,line+1,12,filename);
+			if(_getinputc(0,i,cmd_argc,raw) != 1)
+				_error("Number of inputs in the first argument must be 1",true,line+1,13,filename);
+			fprintf(ow,"2F\n1\n1\n%s\n",_getinput(0,0,i,cmd_argc,raw));
+		}
+		else if(strcmp(cmd,"getgroup") == 0)
+		{
+			// getgroup/group_name/output_list_name
+			if(cmd_argc != 2)
+				_error("Number of arguments must be 2",true,line+1,12,filename);
+			if(_getinputc(0,i,cmd_argc,raw) != 1)
+				_error("Number of inputs in the first argument must be 1",true,line+1,13,filename);
+			if(_getinputc(1,i,cmd_argc,raw) != 1)
+				_error("Number of inputs in the second argument must be 1",true,line+1,13,filename);
+			fprintf(ow,"30\n2\n1\n%s\n1\n%s\n",_getinput(0,0,i,cmd_argc,raw),_getinput(1,0,i,cmd_argc,raw));
+		}
+		else if(strcmp(cmd,"ls") == 0)
+		{
+			// ls/path/output_list_name
+			if(cmd_argc != 2)
+				_error("Number of arguments must be 2",true,line+1,12,filename);
+			if(_getinputc(0,i,cmd_argc,raw) != 1)
+				_error("Number of inputs in the first argument must be 1",true,line+1,13,filename);
+			if(_getinputc(1,i,cmd_argc,raw) != 1)
+				_error("Number of inputs in the second argument must be 1",true,line+1,13,filename);
+			fprintf(ow,"31\n2\n1\n%s\n1\n%s\n",_getinput(0,0,i,cmd_argc,raw),_getinput(1,0,i,cmd_argc,raw));
+		}
+		else if(strcmp(cmd,"write") == 0)
+		{
+			// write/path/input_list
+			// write/path/input_list,permissions
+			// write/path/input_list,permissions,owner
+			// write/path/input_list,permissions,owner,group
+			if(cmd_argc != 2)
+				_error("Number of arguments must be 2",true,line+1,12,filename);
+			if(_getinputc(0,i,cmd_argc,raw) != 1)
+				_error("Number of inputs in the first argument must be 1",true,line+1,13,filename);
+			in_tmp=_getinputc(1,i,cmd_argc,raw);
+			if((in_tmp < 1) || (in_tmp > 4))
+				_error("Number of inputs in the second argument must be from 1 to 4",true,line+1,13,filename);
+			fprintf(ow,"32\n2\n1\n%s\n%d\n",_getinput(0,0,i,cmd_argc,raw),in_tmp);
+			for(in_i=0;in_i<in_tmp;in_i++)
+				fprintf(ow,"%s\n",_getinput(1,in_tmp,i,cmd_argc,raw));
+		}
 		else if(strcmp(cmd,"include") == 0)
 		{
 			// include/path
@@ -1726,6 +1727,44 @@ int main(int argc, char *argv[])
 			fclose(funcr);
 			remove(part3);
 		}
+		else if(strcmp(cmd,"mkdir") == 0)
+		{
+			// mkdir/path
+			// mkdir/path/
+			// mkdir/path/permissions
+			// mkdir/path/permissions,owner
+			// mkdir/path/permissions,owner,group
+			if((cmd_argc != 1) && (cmd_argc != 2))
+				_error("Number of arguments must be 1 or 2",true,line+1,12,filename);
+			if(_getinputc(0,i,cmd_argc,raw) != 1)
+				_error("Number of inputs in the first argument must be 1",true,line+1,13,filename);
+			fprintf(ow,"39\n%d\n1\n%s\n",cmd_argc,_getinput(0,0,i,cmd_argc,raw));
+			if(cmd_argc == 2)
+			{
+				in_tmp=_getinputc(1,i,cmd_argc,raw);
+				if((in_tmp == 0) || (in_tmp > 3))
+					_error("Number of inputs in the second argument must be from 0 to 3",true,line+1,13,filename);
+				fprintf(ow,"%d\n",in_tmp);
+				for(in_i=0;in_i<in_tmp;in_i++)
+					fprintf(ow,"%s\n",_getinput(1,in_tmp,i,cmd_argc,raw));
+			}
+		}
+		else if(strcmp(cmd,"sync") == 0)
+		{
+			// sync
+			if(cmd_argc != 0)
+				_error("Number of arguments must be 0",true,line+1,12,filename);
+			fprintf(ow,"3A\n0\n");
+		}
+		else if(strcmp(cmd,"kmsg") == 0)
+		{
+			// kmsg/process_name,color,message
+			if(cmd_argc != 1)
+				_error("Number of arguments must be 1",true,line+1,12,filename);
+			if(_getinputc(0,i,cmd_argc,raw) != 3)
+				_error("Number of inputs in the first argument must be 3",true,line+1,13,filename);
+			fprintf(ow,"3C\n1\n3\n%s\n%s\n%s\n",_getinput(0,0,i,cmd_argc,raw),_getinput(0,1,i,cmd_argc,raw),_getinput(0,2,i,cmd_argc,raw));
+		}
 		else if(strcmp(cmd,"getletterindex") == 0)
 		{
 			// getletterindex/string,char/output_var
@@ -1736,26 +1775,6 @@ int main(int argc, char *argv[])
 			if(_getinputc(1,i,cmd_argc,raw) != 1)
 				_error("Number of inputs in the second argument must be 1",true,line+1,13,filename);
 			fprintf(ow,"39\n2\n2\n%s\n%s\n1\n%s\n",_getinput(0,0,i,cmd_argc,raw),_getinput(0,1,i,cmd_argc,raw),_getinput(1,0,i,cmd_argc,raw));
-		}
-		else if(strcmp(cmd,"replacedisk") == 0)
-		{
-			// replacedisk/string/disk_ID
-			if(cmd_argc != 2)
-				_error("Number of arguments must be 2",true,line+1,12,filename);
-			if(_getinputc(0,i,cmd_argc,raw) != 1)
-				_error("Number of inputs in the first argument must be 1",true,line+1,13,filename);
-			if(_getinputc(1,i,cmd_argc,raw) != 1)
-				_error("Number of inputs in the second argument must be 1",true,line+1,13,filename);
-			fprintf(ow,"3A\n2\n1\n%s\n1\n%s\n",_getinput(0,0,i,cmd_argc,raw),_getinput(1,0,i,cmd_argc,raw));
-		}
-		else if(strcmp(cmd,"insmedia") == 0)
-		{
-			// insmedia/string
-			if(cmd_argc != 1)
-				_error("Number of arguments must be 1",true,line+1,12,filename);
-			if(_getinputc(0,i,cmd_argc,raw) != 1)
-				_error("Number of inputs in the first argument must be 1",true,line+1,13,filename);
-			fprintf(ow,"3B\n1\n1\n%s\n",_getinput(0,0,i,cmd_argc,raw));
 		}
 		else if(strcmp(cmd,"smc_skiploop") == 0)
 		{
@@ -1816,6 +1835,46 @@ int main(int argc, char *argv[])
 			fprintf(ow,"%d\n",in_tmp);
 			for(in_i=0;in_i<in_tmp;in_i++)
 				fprintf(ow,"%s\n",_getinput(2,in_i,i,cmd_argc,raw));
+		}
+		else if(strcmp(cmd,"ftest") == 0)
+		{
+			// ftest/path,mode,type/output_list_name
+			if(cmd_argc != 2)
+				_error("Number of arguments must be 2",true,line+1,12,filename);
+			if(_getinputc(0,i,cmd_argc,raw) != 3)
+				_error("Number of inputs in the first argument must be 3",true,line+1,13,filename);
+			if(_getinputc(1,i,cmd_argc,raw) != 1)
+				_error("Number of inputs in the second argument must be 1",true,line+1,13,filename);
+			fprintf(ow,"40\n2\n3\n%s\n%s\n%s\n1\n%s\n",_getinput(0,0,i,cmd_argc,raw),_getinput(0,1,i,cmd_argc,raw),_getinput(0,2,i,cmd_argc,raw),_getinput(1,0,i,cmd_argc,raw));
+		}
+		else if(strcmp(cmd,"mount") == 0)
+		{
+			// mount/filesystem_path,mount_point_path,mode
+			if(cmd_argc != 1)
+				_error("Number of arguments must be 1",true,line+1,12,filename);
+			if(_getinputc(0,i,cmd_argc,raw) != 3)
+				_error("Number of inputs in the first argument must be 3",true,line+1,13,filename);
+			fprintf(ow,"42\n1\n3\n%s\n%s\n%s\n",_getinput(0,0,i,cmd_argc,raw),_getinput(0,1,i,cmd_argc,raw),_getinput(0,2,i,cmd_argc,raw));
+		}
+		else if(strcmp(cmd,"umount") == 0)
+		{
+			// umount/path
+			if(cmd_argc != 1)
+				_error("Number of arguments must be 1",true,line+1,12,filename);
+			if(_getinputc(0,i,cmd_argc,raw) != 1)
+				_error("Number of inputs in the first argument must be 1",true,line+1,13,filename);
+			fprintf(ow,"43\n1\n1\n%s\n",_getinput(0,0,i,cmd_argc,raw));
+		}
+		else if(strcmp(cmd,"geterror") == 0)
+		{
+			// geterror/string,error_type/output_var
+			if(cmd_argc != 2)
+				_error("Number of arguments must be 2",true,line+1,12,filename);
+			if(_getinputc(0,i,cmd_argc,raw) != 2)
+				_error("Number of inputs in the first argument must be 2",true,line+1,13,filename);
+			if(_getinputc(1,i,cmd_argc,raw) != 1)
+				_error("Number of inputs in the second argument must be 1",true,line+1,13,filename);
+			fprintf(ow,"44\n2\n2\n%s\n%s\n1\n%s\n",_getinput(0,0,i,cmd_argc,raw),_getinput(0,1,i,cmd_argc,raw),_getinput(1,0,i,cmd_argc,raw));
 		}
 		else if(strcmp(cmd,"deletechar") == 0)
 		{
