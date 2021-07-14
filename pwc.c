@@ -1243,12 +1243,12 @@ int main(int argc, char *argv[])
 		}
 		else if(strcmp(cmd,"run") == 0)
 		{
-			// run/executable_code,wait_or_bg/[arg1]/[arg2]/...
+			// run/executable_code,wait_or_bg,user/[arg1]/[arg2]/...
 			if(cmd_argc == 0)
 				_error("Number of arguments must be at least 1",true,line+1,12,filename);
 			in_tmp=_getinputc(0,i,cmd_argc,raw);
-			if((in_tmp < 1) || (in_tmp > 4))
-				_error("Number of inputs in the first argument must be 1, 2, 3 or 4",true,line+1,13,filename);
+			if(in_tmp != 3)
+				_error("Number of inputs in the first argument must be 3",true,line+1,13,filename);
 			fprintf(ow,"1A\n%d\n%d\n",cmd_argc,in_tmp);
 			for(in_i2=0;in_i2<in_tmp;in_i2++)
 				fprintf(ow,"%s\n",_getinput(0,in_i2,i,cmd_argc,raw));
@@ -1261,12 +1261,12 @@ int main(int argc, char *argv[])
 		}
 		else if(strcmp(cmd,"source") == 0)
 		{
-			// source/executable_code,wait_or_bg/[arg1]/[arg2]/...
+			// source/executable_code,wait_or_bg,user/[arg1]/[arg2]/...
 			if(cmd_argc == 0)
 				_error("Number of arguments must be at least 1",true,line+1,12,filename);
 			in_tmp=_getinputc(0,i,cmd_argc,raw);
-			if((in_tmp != 1) && (in_tmp != 2))
-				_error("Number of inputs in the first argument must be 1 or 2",true,line+1,13,filename);
+			if(in_tmp != 3)
+				_error("Number of inputs in the first argument must be 3",true,line+1,13,filename);
 			fprintf(ow,"1B\n%d\n%d\n",cmd_argc,in_tmp);
 			for(in_i2=0;in_i2<in_tmp;in_i2++)
 				fprintf(ow,"%s\n",_getinput(0,in_i2,i,cmd_argc,raw));
