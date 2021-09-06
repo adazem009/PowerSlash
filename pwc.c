@@ -837,7 +837,7 @@ int main(int argc, char *argv[])
 				if(part[0] == '\\')
 				{
 					if(part[1] == 'n')
-						fprintf(ow,"2\n");
+						fprintf(ow,"m2\n");
 					else if(part[1] == 'c')
 					{
 						strcpy(part3,"");
@@ -861,9 +861,9 @@ int main(int argc, char *argv[])
 				else
 				{
 					if((part[0] == '"') || (part[0] == '\''))
-						fprintf(ow,"1\n0\n%s\n",_getcontent(part,line,filename));
+						fprintf(ow,"m1\n0\n%s\n",_getcontent(part,line,filename));
 					else
-						fprintf(ow,"1\n1\n%s\n",part);
+						fprintf(ow,"m1\n1\n%s\n",part);
 				}
 			}
 			// TODO: Add color support
