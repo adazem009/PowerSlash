@@ -837,26 +837,20 @@ int main(int argc, char *argv[])
 				if(part[0] == '\\')
 				{
 					if(part[1] == 'n')
-						fprintf(ow,"E\n0\n");
+						fprintf(ow,"2\n");
 					else if(part[1] == 'c')
 					{
 						strcpy(part3,"");
 						for(in_i2=2; in_i2 < strlen(part); in_i2++)
 							strncat(part3,&part[in_i2],1);
-						fprintf(ow,"21\n1\n1\n%s\n",part3);
+						// TODO: Add color support
+						//fprintf(ow,"21\n1\n1\n%s\n",part3);
+						printf("%s: %d: warning: colors have not been implemented yet\n",filename,line+1);
 						col=1;
 					}
 					else if((part[1] == 'b') || (part[1] == 'i') || (part[1] == 'u'))
 					{
-						strcpy(part3,"");
-						for(in_i2=2; in_i2 < strlen(part); in_i2++)
-							strncat(part3,&part[in_i2],1);
-						if(part[1] == 'b')
-							bold=strtol(part3,NULL,10);
-						else if(part[1] == 'i')
-							italic=strtol(part3,NULL,10);
-						else if(part[1] == 'u')
-							underlined=strtol(part3,NULL,10);
+						printf("%s: %d: warning: text style is deprecated\n",filename,line+1);
 					}
 					else
 					{
@@ -866,14 +860,15 @@ int main(int argc, char *argv[])
 				}
 				else
 				{
-					if((bold == 0) && (italic == 0) && (underlined == 0))
-						fprintf(ow,"A\n1\n1\n%s\n",part);
+					if((part[0] == '"') || (part[0] == '\''))
+						fprintf(ow,"1\n0\n%s\n",_getcontent(part,line,filename));
 					else
-						fprintf(ow,"A\n2\n1\n%s\n3\n%d\n%d\n%d\n",part,bold,italic,underlined);
+						fprintf(ow,"1\n1\n%s\n",part);
 				}
 			}
-			if(col == 1)
-				fprintf(ow,"21\n1\n1\n255255255\n");
+			// TODO: Add color support
+			//if(col == 1)
+			//	fprintf(ow,"21\n1\n1\n255255255\n");
 		}
 		else if(strcmp(cmd,"read") == 0)
 		{
