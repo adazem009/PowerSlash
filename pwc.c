@@ -993,7 +993,6 @@ int main(int argc, char *argv[])
 			// set/var,value/var,value/...
 			if(cmd_argc == 0)
 				_error("Number of arguments must be at least 1",true,line+1,12,filename);
-			fprintf(ow,"10\n%d\n",cmd_argc);
 			for(in_i=0;in_i<cmd_argc;in_i++)
 			{
 				in_tmp=_getinputc(in_i,i,cmd_argc,raw);
@@ -1002,9 +1001,18 @@ int main(int argc, char *argv[])
 					sprintf(err,"Number of inputs in argument n. %d must be at least 2",in_i+1);
 					_error(err,true,line+1,13,filename);
 				}
-				fprintf(ow,"%d\n",in_tmp);
-				for(in_i2=0;in_i2<in_tmp;in_i2++)
-					fprintf(ow,"%s\n",_getinput(in_i,in_i2,i,cmd_argc,raw));
+				if((_getinput(in_i,0,i,cmd_argc,raw)[0] == '"') || (_getinput(in_i,0,i,cmd_argc,raw)[0] == '\''))
+					fprintf(ow,"4\n0\n%s\n",_getcontent(_getinput(in_i,0,i,cmd_argc,raw),line,filename));
+				else
+					fprintf(ow,"4\n1\n%s\n",_getinput(in_i,0,i,cmd_argc,raw));
+				fprintf(ow,"0\n%d\n",in_tmp-1);
+				for(in_i2=1;in_i2<in_tmp;in_i2++)
+				{
+					if((_getinput(in_i,in_i2,i,cmd_argc,raw)[0] == '"') || (_getinput(in_i,in_i2,i,cmd_argc,raw)[0] == '\''))
+						fprintf(ow,"0\n%s\n",_getcontent(_getinput(in_i,in_i2,i,cmd_argc,raw),line,filename));
+					else
+						fprintf(ow,"1\n%s\n",_getinput(in_i,in_i2,i,cmd_argc,raw));
+				}
 			}
 		}
 		else if(strcmp(cmd,"round") == 0)
