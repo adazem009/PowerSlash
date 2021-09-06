@@ -340,6 +340,55 @@ char *_getcontent(const char *input, int line, char *filename)
 	}
 	return out;
 }
+int _input_type(char *input)
+{
+	char check[strlen(input)*sizeof(char)];
+	int i;
+	bool isnum;
+	if((input[0] == '"') || (input[0] == '\''))
+		return 0;
+	else
+	{
+		isnum=true;
+		for(i=0; i<strlen(input); i++)
+		{
+			switch(input[i]) {
+				case '0':
+					break;
+				case '1':
+					break;
+				case '2':
+					break;
+				case '3':
+					break;
+				case '4':
+					break;
+				case '5':
+					break;
+				case '6':
+					break;
+				case '7':
+					break;
+				case '8':
+					break;
+				case '9':
+					break;
+				case '.':
+					break;
+				default:
+				{
+					isnum=false;
+					i=strlen(input);
+					break;
+				}
+			}
+		}
+		if(isnum)
+			return 1;
+		else
+			return 2;
+	}
+}
 void endstrconv(char *infn, char *outfn, char *mode)
 {
 	int line_alloc=64;
@@ -860,8 +909,10 @@ int main(int argc, char *argv[])
 				}
 				else
 				{
-					if((part[0] == '"') || (part[0] == '\''))
+					if(_input_type(part) == 0)
 						fprintf(ow,"m1\n0\n%s\n",_getcontent(part,line,filename));
+					else if(_input_type(part) == 1)
+						fprintf(ow,"m1\n0\n%s\n",part);
 					else
 						fprintf(ow,"m1\n1\n%s\n",part);
 				}
@@ -1001,8 +1052,10 @@ int main(int argc, char *argv[])
 					sprintf(err,"Number of inputs in argument n. %d must be at least 2",in_i+1);
 					_error(err,true,line+1,13,filename);
 				}
-				if((_getinput(in_i,0,i,cmd_argc,raw)[0] == '"') || (_getinput(in_i,0,i,cmd_argc,raw)[0] == '\''))
+				if(_input_type(_getinput(in_i,0,i,cmd_argc,raw)) == 0)
 					fprintf(ow,"4\n0\n%s\n",_getcontent(_getinput(in_i,0,i,cmd_argc,raw),line,filename));
+				else if(_input_type(_getinput(in_i,0,i,cmd_argc,raw)) == 1)
+					fprintf(ow,"4\n0\n%s\n",_getinput(in_i,0,i,cmd_argc,raw));
 				else
 					fprintf(ow,"4\n1\n%s\n",_getinput(in_i,0,i,cmd_argc,raw));
 				fprintf(ow,"0\n%d\n",in_tmp-1);
