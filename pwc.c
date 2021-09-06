@@ -903,7 +903,7 @@ int main(int argc, char *argv[])
 			// clear
 			if(cmd_argc > 0)
 				_error("Number of arguments must be 0",true,line+1,12,filename);
-			fprintf(ow,"D\n0\n");
+			fprintf(ow,"3\n");
 		}
 		else if(strcmp(cmd,"calc") == 0)
 		{
