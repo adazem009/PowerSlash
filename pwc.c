@@ -934,7 +934,19 @@ int main(int argc, char *argv[])
 					sprintf(err,"Number of inputs in argument n. %d must be 2",in_i+1);
 					_error(err,true,line+1,13,filename);
 				}
-				fprintf(ow,"B\n1\n2\n%s\n%s\n",_getinput(in_i,0,i,cmd_argc,raw),_getinput(in_i,1,i,cmd_argc,raw));
+				fprintf(ow,"m6\n");
+				if(_input_type(_getinput(in_i,0,i,cmd_argc,raw)) == 0)
+					fprintf(ow,"0\n%s\n",_getcontent(_getinput(in_i,0,i,cmd_argc,raw),line,filename));
+				else if(_input_type(_getinput(in_i,0,i,cmd_argc,raw)) == 1)
+					fprintf(ow,"0\n%s\n",_getinput(in_i,0,i,cmd_argc,raw));
+				else
+					fprintf(ow,"1\n%s\n",_getinput(in_i,0,i,cmd_argc,raw));
+				if(_input_type(_getinput(in_i,1,i,cmd_argc,raw)) == 0)
+					fprintf(ow,"0\n%s\n",_getcontent(_getinput(in_i,1,i,cmd_argc,raw),line,filename));
+				else if(_input_type(_getinput(in_i,1,i,cmd_argc,raw)) == 1)
+					fprintf(ow,"0\n%s\n",_getinput(in_i,1,i,cmd_argc,raw));
+				else
+					fprintf(ow,"1\n%s\n",_getinput(in_i,1,i,cmd_argc,raw));
 			}
 		}
 		else if(strcmp(cmd,"keywait") == 0)
