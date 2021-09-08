@@ -843,7 +843,15 @@ int main(int argc, char *argv[])
 				_error("Number of arguments must be 1",true,line+1,12,filename);
 			if(_getinputc(0,i,cmd_argc,raw) != 1)
 				_error("Number of inputs in the first argument must be 1",true,line+1,13,filename);
-			fprintf(ow,"2\n1\n1\n%s\n",_getinput(0,0,i,cmd_argc,raw));
+			if(_input_type(_getinput(0,0,i,cmd_argc,raw)) == 0)
+			{
+				printf("%s: %d: warning: expected integer without quotes\n",filename,line+1);
+				fprintf(ow,"1\n0\n%s\n",_getcontent(_getinput(0,0,i,cmd_argc,raw),line,filename));
+			}
+			else if(_input_type(_getinput(0,0,i,cmd_argc,raw)) == 1)
+				fprintf(ow,"1\n0\n%s\n",_getinput(0,0,i,cmd_argc,raw));
+			else
+				fprintf(ow,"1\n1\n%s\n",_getinput(0,0,i,cmd_argc,raw));
 		}
 		else if(strcmp(cmd,"endloop") == 0)
 		{
