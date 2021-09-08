@@ -858,7 +858,7 @@ int main(int argc, char *argv[])
 			// endloop
 			if(cmd_argc > 0)
 				_error("Number of arguments must be 0",true,line+1,12,filename);
-			fprintf(ow,"3\n0\n");
+			fprintf(ow,"2\n");
 		}
 		else if(strcmp(cmd,"if") == 0)
 		{
