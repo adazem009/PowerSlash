@@ -1143,7 +1143,7 @@ int main(int argc, char *argv[])
 		else if(strcmp(cmd,"while") == 0)
 		{
 			// while/![value operator value] gate [value operator value] ...
-			fprintf(ow,"7\n%s",_process_if(raw,i,line,cmd_argc,filename));
+			fprintf(ow,"%s10\n0\n0\n",_process_if(raw,i,line,cmd_argc,filename));
 		}
 		else if(strcmp(cmd,"getletter") == 0)
 		{
