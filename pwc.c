@@ -164,18 +164,22 @@ int _getinputc(const int arg, int i, int argc,const char *raw)
 	}
 	return 0;
 }
+char *_getcontent();
+int _input_type();
 char *_process_if(char *raw, int i, int line, int cmd_argc, char *filename)
 {
-	int arg_inputc,in_i,in_i2;
+	int arg_inputc,in_i,in_i2,bool_id=0,op_id;
 	char err[64],part[10240],part2[16],part3[10240],part4[10240],val1[512],op[3],val2[512],gate[4];
 	char quote;
-	bool negate;
+	bool negate,gate_found=false;
 	if(cmd_argc != 1)
 		_error("Number of arguments must be 1",true,line+1,12,"");
 	strcpy(part,_getinput(0,0,i,cmd_argc,raw));
-	strcpy(part3,"");
+	strcpy(part3,"9\n");
 	in_i2=0; // number of arguments in compiled code
 	in_i=0;
+	// TODO: Thanks to SMC v3, it's now possible to create more complex condition checks, for example:
+	// if/[[a == 1] or [a == 2]] && [b == 0]
 	while(in_i < strlen(part))
 	{
 		if((part[in_i] != '[') && (part[in_i] != '!'))
@@ -208,19 +212,20 @@ char *_process_if(char *raw, int i, int line, int cmd_argc, char *filename)
 			if((strcmp(val1,"false") == 0) || (strcmp(val1,"true") == 0) || (strcmp(val1,"0") == 0) || (strcmp(val1,"1") == 0))
 			{
 				// Compile
+				bool_id++;
 				if(negate)
 				{
 					if((strcmp(val1,"false") == 0) || (strcmp(val1,"0") == 0))
-						sprintf(part4,"3\n0\n\"==\"\n0\n");
+						sprintf(part4,"3\n0\n0\n0\n0\n0\n0\n");
 					else
-						sprintf(part4,"4\n0\n\"==\"\n0\n'!'\n");
+						sprintf(part4,"3\n0\n0\n0\n1\n0\n0\n");
 				}
 				else
 				{
 					if((strcmp(val1,"true") == 0) || (strcmp(val1,"1") == 0))
-						sprintf(part4,"3\n0\n\"==\"\n0\n");
+						sprintf(part4,"3\n0\n0\n0\n0\n0\n0\n");
 					else
-						sprintf(part4,"4\n0\n\"==\"\n0\n'!'\n");
+						sprintf(part4,"3\n0\n0\n0\n1\n0\n0\n");
 				}
 				strcat(part3,part4);
 				in_i2++;
@@ -234,7 +239,19 @@ char *_process_if(char *raw, int i, int line, int cmd_argc, char *filename)
 					strncat(op,&part[in_i],1);
 					in_i++;
 				}
-				if((strcmp(op,"==") != 0) && (strcmp(op,"!=") != 0) && (strcmp(op,">") != 0) && (strcmp(op,"!>") != 0) && (strcmp(op,">=") != 0) && (strcmp(op,"!>=") != 0) && (strcmp(op,"<") != 0) && (strcmp(op,"!<") != 0) && (strcmp(op,"<=") != 0) && (strcmp(op,"!<=") != 0))
+				if(strcmp(op,"==") == 0)
+					op_id=0;
+				else if(strcmp(op,"!=") == 0)
+					op_id=1;
+				else if((strcmp(op,">") == 0) || (strcmp(op,"!<=") == 0))
+					op_id=2;
+				else if((strcmp(op,"!>") == 0) || (strcmp(op,"<=") == 0))
+					op_id=5;
+				else if((strcmp(op,">=") == 0) || (strcmp(op,"!<") == 0))
+					op_id=3;
+				else if((strcmp(op,"!>=") == 0) || (strcmp(op,"<") == 0))
+					op_id=4;
+				else
 				{
 					sprintf(err,"Unknown operator: '%s'",op);
 					_error(err,true,line+1,15,filename);
@@ -256,12 +273,37 @@ char *_process_if(char *raw, int i, int line, int cmd_argc, char *filename)
 					in_i++;
 				}
 				// Compile
-				if(negate)
-					sprintf(part4,"4\n%s\n\"%s\"\n%s\n'!'\n",val1,op,val2);
+				// Add value1
+				strcat(part3,"3\n");
+				if(_input_type(val1) == 0)
+					sprintf(part4,"0\n%s\n",_getcontent(val1,line,filename));
+				else if(_input_type(val1) == 1)
+					sprintf(part4,"0\n%s\n",val1);
 				else
-					sprintf(part4,"3\n%s\n\"%s\"\n%s\n",val1,op,val2);
+					sprintf(part4,"1\n%s\n",val1);
 				strcat(part3,part4);
+				// Add operator
+				sprintf(part4,"0\n%d\n",op_id);
+				strcat(part3,part4);
+				// Add value2
+				if(_input_type(val2) == 0)
+					sprintf(part4,"0\n%s\n",_getcontent(val2,line,filename));
+				else if(_input_type(val2) == 1)
+					sprintf(part4,"0\n%s\n",val2);
+				else
+					sprintf(part4,"1\n%s\n",val2);
+				strcat(part3,part4);
+				// Add a NOT gate if there's a negation
+				if(negate)
+					strcat(part3,"5\n0\n0\n0\n6\n0\n\n");
 				in_i2++;
+				// Add a gate if it was specified before
+				if(gate_found)
+				{
+					gate_found=false;
+					sprintf(part4,"5\n0\n-1\n0\n%s\n0\n0\n",gate);
+					strcat(part3,part4);
+				}
 			}
 		}
 		if(part[in_i] != ']')
@@ -270,6 +312,7 @@ char *_process_if(char *raw, int i, int line, int cmd_argc, char *filename)
 		// Read gate
 		if(in_i < strlen(part))
 		{
+			gate_found=true;
 			strcpy(gate,"");
 			while((in_i < strlen(part)) && (part[in_i] != '[') && (part[in_i] != '!'))
 			{
@@ -277,32 +320,25 @@ char *_process_if(char *raw, int i, int line, int cmd_argc, char *filename)
 				in_i++;
 			}
 			if(strcmp(gate,"and") == 0)
-				strcpy(gate,"&&");
+				strcpy(gate,"0");
 			else if(strcmp(gate,"nand") == 0)
-				strcpy(gate,"!&");
+				strcpy(gate,"1");
 			else if(strcmp(gate,"or") == 0)
-				strcpy(gate,"||");
+				strcpy(gate,"2");
 			else if(strcmp(gate,"nor") == 0)
-				strcpy(gate,"!|");
+				strcpy(gate,"3");
 			else if(strcmp(gate,"xor") == 0)
-				strcpy(gate,"//");
+				strcpy(gate,"4");
 			else if(strcmp(gate,"xnor") == 0)
-				strcpy(gate,"!/");
+				strcpy(gate,"5");
 			else
 			{
 				sprintf(err,"Gate '%s' not found",gate);
 				_error(err,true,line+1,16,filename);
 			}
-			// Compile
-			sprintf(part4,"1\n\"%s\"\n",gate);
-			strcat(part3,part4);
 			in_i2++;
 		}
 	}
-	// Add arg count
-	sprintf(part4,"%d\n",in_i2);
-	strcat(part4,part3);
-	strcpy(part3,part4);
 	// Return output
 	char *str_to_ret = malloc(sizeof(char) * sizeof(part3));
 	strcpy(str_to_ret,part3);
