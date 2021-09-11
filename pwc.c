@@ -899,7 +899,7 @@ int main(int argc, char *argv[])
 		else if(strcmp(cmd,"if") == 0)
 		{
 			// if/![value operator value] gate [value operator value] ...
-			fprintf(ow,"4\n%s",_process_if(raw,i,line,cmd_argc,filename));
+			fprintf(ow,"%s6\n0\n0\n",_process_if(raw,i,line,cmd_argc,filename));
 		}
 		else if(strcmp(cmd,"endif") == 0)
 		{
