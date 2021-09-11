@@ -936,9 +936,12 @@ int main(int argc, char *argv[])
 						strcpy(part3,"");
 						for(in_i2=2; in_i2 < strlen(part); in_i2++)
 							strncat(part3,&part[in_i2],1);
-						// TODO: Add color support
-						//fprintf(ow,"21\n1\n1\n%s\n",part3);
-						printf("%s: %d: warning: colors have not been implemented yet\n",filename,line+1);
+						if(_input_type(part3) == 0)
+							fprintf(ow,"m5\n0\n2\n0\n%s\n",_getcontent(part3,line,filename));
+						else if(_input_type(part3) == 1)
+							fprintf(ow,"m5\n0\n2\n0\n%s\n",part3);
+						else
+							fprintf(ow,"m5\n0\n2\n1\n%s\n",part3);
 						col=1;
 					}
 					else if((part[1] == 'b') || (part[1] == 'i') || (part[1] == 'u'))
@@ -961,9 +964,8 @@ int main(int argc, char *argv[])
 						fprintf(ow,"m1\n1\n%s\n",part);
 				}
 			}
-			// TODO: Add color support
-			//if(col == 1)
-			//	fprintf(ow,"21\n1\n1\n255255255\n");
+			if(col == 1)
+				fprintf(ow,"m5\n0\n2\n0\n255255255\n");
 		}
 		else if(strcmp(cmd,"read") == 0)
 		{
