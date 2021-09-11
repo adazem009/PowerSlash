@@ -1081,8 +1081,10 @@ int main(int argc, char *argv[])
 				fprintf(ow,"0\n%d\n",in_tmp-1);
 				for(in_i2=1;in_i2<in_tmp;in_i2++)
 				{
-					if((_getinput(in_i,in_i2,i,cmd_argc,raw)[0] == '"') || (_getinput(in_i,in_i2,i,cmd_argc,raw)[0] == '\''))
+					if(_input_type(_getinput(in_i,in_i2,i,cmd_argc,raw)) == 0)
 						fprintf(ow,"0\n%s\n",_getcontent(_getinput(in_i,in_i2,i,cmd_argc,raw),line,filename));
+					else if(_input_type(_getinput(in_i,in_i2,i,cmd_argc,raw)) == 1)
+						fprintf(ow,"0\n%s\n",_getinput(in_i,in_i2,i,cmd_argc,raw));
 					else
 						fprintf(ow,"1\n%s\n",_getinput(in_i,in_i2,i,cmd_argc,raw));
 				}
