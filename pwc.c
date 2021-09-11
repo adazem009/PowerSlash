@@ -1029,7 +1029,7 @@ int main(int argc, char *argv[])
 		}
 		else if(strcmp(cmd,"calc") == 0)
 		{
-			// calc/expression
+			// calc/expression/scale
 			if((cmd_argc != 1) && (cmd_argc != 2))
 				_error("Number of arguments must be 1 or 2",true,line+1,12,filename);
 			if(_getinputc(0,i,cmd_argc,raw) != 1)
@@ -1083,7 +1083,20 @@ int main(int argc, char *argv[])
 						else if(part[in_i] == '-')
 							strcpy(op,"2");
 						sprintf(part4,"tmp_calc%d",in_i2);
-						fprintf(ow,"F\n3\n1\n%s\n1\n\"%s\"\n2\n%s\n%s\n",op,part4,val1,val2);
+						fprintf(ow,"11\n0\n%s\n",op);
+						if(_input_type(val1) == 0)
+							fprintf(ow,"0\n%s\n",_getcontent(val1,line,filename));
+						else if(_input_type(val1) == 1)
+							fprintf(ow,"0\n%s\n",val1);
+						else
+							fprintf(ow,"1\n%s\n",val1);
+						if(_input_type(val2) == 0)
+							fprintf(ow,"0\n%s\n",_getcontent(val2,line,filename));
+						else if(_input_type(val2) == 1)
+							fprintf(ow,"0\n%s\n",val2);
+						else
+							fprintf(ow,"1\n%s\n",val2);
+						fprintf(ow,"0\n\n0\n%s\n",part4);
 						in_i2++;
 						strcpy(val1,part4);
 						strcpy(val2,"");
@@ -1105,10 +1118,31 @@ int main(int argc, char *argv[])
 				in_i++;
 			}
 			strcpy(val2,part3);
-			if(cmd_argc == 2)
-				fprintf(ow,"F\n4\n1\n%s\n1\n\"%s\"\n2\n%s\n%s\n1\n%s\n",op,part2,val1,val2,_getinput(1,0,i,cmd_argc,raw));
+			fprintf(ow,"11\n0\n%s\n",op);
+			if(_input_type(val1) == 0)
+				fprintf(ow,"0\n%s\n",_getcontent(val1,line,filename));
+			else if(_input_type(val1) == 1)
+				fprintf(ow,"0\n%s\n",val1);
 			else
-				fprintf(ow,"F\n3\n1\n%s\n1\n\"%s\"\n2\n%s\n%s\n",op,part2,val1,val2);
+				fprintf(ow,"1\n%s\n",val1);
+			if(_input_type(val2) == 0)
+				fprintf(ow,"0\n%s\n",_getcontent(val2,line,filename));
+			else if(_input_type(val2) == 1)
+				fprintf(ow,"0\n%s\n",val2);
+			else
+				fprintf(ow,"1\n%s\n",val2);
+			if(cmd_argc == 2)
+			{
+				if(_input_type(_getinput(1,0,i,cmd_argc,raw)) == 0)
+					fprintf(ow,"0\n%s\n",_getcontent(_getinput(1,0,i,cmd_argc,raw),line,filename));
+				else if(_input_type(_getinput(1,0,i,cmd_argc,raw)) == 1)
+					fprintf(ow,"0\n%s\n",_getinput(1,0,i,cmd_argc,raw));
+				else
+					fprintf(ow,"1\n%s\n",_getinput(1,0,i,cmd_argc,raw));
+			}
+			else
+				fprintf(ow,"0\n\n");
+			fprintf(ow,"0\n%s\n",part2);
 		}
 		else if(strcmp(cmd,"set") == 0)
 		{
