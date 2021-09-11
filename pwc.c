@@ -1000,10 +1000,23 @@ int main(int argc, char *argv[])
 			// keywait/key,wait_for_release_(0_or_1)
 			if(cmd_argc != 1)
 				_error("Number of arguments must be 1",true,line+1,12,filename);
+			if(_input_type(_getinput(0,0,i,cmd_argc,raw)) == 0)
+				fprintf(ow,"m7\n0\n%s\n",_getcontent(_getinput(0,0,i,cmd_argc,raw),line,filename));
+			else if(_input_type(_getinput(0,0,i,cmd_argc,raw)) == 1)
+				fprintf(ow,"m7\n0\n%s\n",_getinput(0,0,i,cmd_argc,raw));
+			else
+				fprintf(ow,"m7\n1\n%s\n",_getinput(0,0,i,cmd_argc,raw));
 			if(_getinputc(0,i,cmd_argc,raw) == 1)
-				fprintf(ow,"C\n1\n1\n%s\n",_getinput(0,0,i,cmd_argc,raw));
+				fprintf(ow,"0\n0\n");
 			else if(_getinputc(0,i,cmd_argc,raw) == 2)
-				fprintf(ow,"C\n1\n2\n%s\n%s\n",_getinput(0,0,i,cmd_argc,raw),_getinput(0,1,i,cmd_argc,raw));
+			{
+				if(_input_type(_getinput(0,1,i,cmd_argc,raw)) == 0)
+					fprintf(ow,"0\n%s\n",_getcontent(_getinput(0,1,i,cmd_argc,raw),line,filename));
+				else if(_input_type(_getinput(0,1,i,cmd_argc,raw)) == 1)
+					fprintf(ow,"0\n%s\n",_getinput(0,1,i,cmd_argc,raw));
+				else
+					fprintf(ow,"1\n%s\n",_getinput(0,1,i,cmd_argc,raw));
+			}
 			else
 				_error("Number of inputs in the first argument must be 1 or 2",true,line+1,13,filename);
 		}
