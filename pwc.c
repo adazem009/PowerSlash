@@ -1487,7 +1487,7 @@ int main(int argc, char *argv[])
 			// endwarp
 			if(cmd_argc > 0)
 				_error("Number of arguments must be 0",true,line+1,12,filename);
-			fprintf(ow,"1F\n0\n");
+			fprintf(ow,"23\n");
 		}
 		else if(strcmp(cmd,"wait") == 0)
 		{
