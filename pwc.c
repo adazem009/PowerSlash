@@ -1199,8 +1199,7 @@ int main(int argc, char *argv[])
 				// Add the items to the list
 				if(cmd_argc == 2)
 				{
-					in_tmp=_getinputc(1,i,cmd_argc,raw);
-					for(in_i=0;in_i<in_tmp;in_i++)
+					for(in_i=0;in_i<_getinputc(1,i,cmd_argc,raw);in_i++)
 					{
 						fprintf(ow,"15\n");
 						// item
