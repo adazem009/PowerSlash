@@ -1462,7 +1462,8 @@ int main(int argc, char *argv[])
 				_error("Number of arguments must be 1",true,line+1,12,filename);
 			if(_getinputc(0,i,cmd_argc,raw) != 1)
 				_error("Number of inputs in the first argument must be 1",true,line+1,13,filename);
-			fprintf(ow,"1C\n1\n1\n%s\n",_getinput(0,0,i,cmd_argc,raw));
+			fprintf(ow,"m8\n");
+			_add_input(_getinput(0,0,i,cmd_argc,raw),ow,line,filename);
 		}
 		else if(strcmp(cmd,"bgcolor") == 0)
 		{
