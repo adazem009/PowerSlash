@@ -1480,7 +1480,7 @@ int main(int argc, char *argv[])
 			// warp
 			if(cmd_argc > 0)
 				_error("Number of arguments must be 0",true,line+1,12,filename);
-			fprintf(ow,"1E\n0\n");
+			fprintf(ow,"22\n");
 		}
 		else if(strcmp(cmd,"endwarp") == 0)
 		{
