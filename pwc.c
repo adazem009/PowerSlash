@@ -425,6 +425,15 @@ int _input_type(char *input)
 			return 2;
 	}
 }
+void _add_input(char *input, FILE *ow, int line, char *filename)
+{
+	if(_input_type(input) == 0)
+		fprintf(ow,"0\n%s\n",_getcontent(input,line,filename));
+	else if(_input_type(input) == 1)
+		fprintf(ow,"0\n%s\n",input);
+	else
+		fprintf(ow,"1\n%s\n",input);
+}
 void endstrconv(char *infn, char *outfn, char *mode)
 {
 	int line_alloc=64;
@@ -879,15 +888,7 @@ int main(int argc, char *argv[])
 				_error("Number of arguments must be 1",true,line+1,12,filename);
 			if(_getinputc(0,i,cmd_argc,raw) != 1)
 				_error("Number of inputs in the first argument must be 1",true,line+1,13,filename);
-			if(_input_type(_getinput(0,0,i,cmd_argc,raw)) == 0)
-			{
-				printf("%s: %d: warning: expected integer without quotes\n",filename,line+1);
-				fprintf(ow,"1\n0\n%s\n",_getcontent(_getinput(0,0,i,cmd_argc,raw),line,filename));
-			}
-			else if(_input_type(_getinput(0,0,i,cmd_argc,raw)) == 1)
-				fprintf(ow,"1\n0\n%s\n",_getinput(0,0,i,cmd_argc,raw));
-			else
-				fprintf(ow,"1\n1\n%s\n",_getinput(0,0,i,cmd_argc,raw));
+			_add_input(_getinput(0,0,i,cmd_argc,raw),ow,line,filename);
 		}
 		else if(strcmp(cmd,"endloop") == 0)
 		{
@@ -936,12 +937,8 @@ int main(int argc, char *argv[])
 						strcpy(part3,"");
 						for(in_i2=2; in_i2 < strlen(part); in_i2++)
 							strncat(part3,&part[in_i2],1);
-						if(_input_type(part3) == 0)
-							fprintf(ow,"m5\n0\n2\n0\n%s\n",_getcontent(part3,line,filename));
-						else if(_input_type(part3) == 1)
-							fprintf(ow,"m5\n0\n2\n0\n%s\n",part3);
-						else
-							fprintf(ow,"m5\n0\n2\n1\n%s\n",part3);
+						fprintf(ow,"m5\n0\n2\n");
+						_add_input(part3,ow,line,filename);
 						col=1;
 					}
 					else if((part[1] == 'b') || (part[1] == 'i') || (part[1] == 'u'))
@@ -956,12 +953,8 @@ int main(int argc, char *argv[])
 				}
 				else
 				{
-					if(_input_type(part) == 0)
-						fprintf(ow,"m1\n0\n%s\n",_getcontent(part,line,filename));
-					else if(_input_type(part) == 1)
-						fprintf(ow,"m1\n0\n%s\n",part);
-					else
-						fprintf(ow,"m1\n1\n%s\n",part);
+					fprintf(ow,"m1\n");
+					_add_input(part,ow,line,filename);
 				}
 			}
 			if(col == 1)
@@ -981,18 +974,8 @@ int main(int argc, char *argv[])
 					_error(err,true,line+1,13,filename);
 				}
 				fprintf(ow,"m6\n");
-				if(_input_type(_getinput(in_i,0,i,cmd_argc,raw)) == 0)
-					fprintf(ow,"0\n%s\n",_getcontent(_getinput(in_i,0,i,cmd_argc,raw),line,filename));
-				else if(_input_type(_getinput(in_i,0,i,cmd_argc,raw)) == 1)
-					fprintf(ow,"0\n%s\n",_getinput(in_i,0,i,cmd_argc,raw));
-				else
-					fprintf(ow,"1\n%s\n",_getinput(in_i,0,i,cmd_argc,raw));
-				if(_input_type(_getinput(in_i,1,i,cmd_argc,raw)) == 0)
-					fprintf(ow,"0\n%s\n",_getcontent(_getinput(in_i,1,i,cmd_argc,raw),line,filename));
-				else if(_input_type(_getinput(in_i,1,i,cmd_argc,raw)) == 1)
-					fprintf(ow,"0\n%s\n",_getinput(in_i,1,i,cmd_argc,raw));
-				else
-					fprintf(ow,"1\n%s\n",_getinput(in_i,1,i,cmd_argc,raw));
+				_add_input(_getinput(in_i,0,i,cmd_argc,raw),ow,line,filename);
+				_add_input(_getinput(in_i,1,i,cmd_argc,raw),ow,line,filename);
 			}
 		}
 		else if(strcmp(cmd,"keywait") == 0)
@@ -1000,22 +983,13 @@ int main(int argc, char *argv[])
 			// keywait/key,wait_for_release_(0_or_1)
 			if(cmd_argc != 1)
 				_error("Number of arguments must be 1",true,line+1,12,filename);
-			if(_input_type(_getinput(0,0,i,cmd_argc,raw)) == 0)
-				fprintf(ow,"m7\n0\n%s\n",_getcontent(_getinput(0,0,i,cmd_argc,raw),line,filename));
-			else if(_input_type(_getinput(0,0,i,cmd_argc,raw)) == 1)
-				fprintf(ow,"m7\n0\n%s\n",_getinput(0,0,i,cmd_argc,raw));
-			else
-				fprintf(ow,"m7\n1\n%s\n",_getinput(0,0,i,cmd_argc,raw));
+			fprintf(ow,"m7\n");
+			_add_input(_getinput(0,0,i,cmd_argc,raw),ow,line,filename);
 			if(_getinputc(0,i,cmd_argc,raw) == 1)
-				fprintf(ow,"0\n0\n");
+				_add_input("0",ow,line,filename);
 			else if(_getinputc(0,i,cmd_argc,raw) == 2)
 			{
-				if(_input_type(_getinput(0,1,i,cmd_argc,raw)) == 0)
-					fprintf(ow,"0\n%s\n",_getcontent(_getinput(0,1,i,cmd_argc,raw),line,filename));
-				else if(_input_type(_getinput(0,1,i,cmd_argc,raw)) == 1)
-					fprintf(ow,"0\n%s\n",_getinput(0,1,i,cmd_argc,raw));
-				else
-					fprintf(ow,"1\n%s\n",_getinput(0,1,i,cmd_argc,raw));
+				_add_input(_getinput(0,1,i,cmd_argc,raw),ow,line,filename);
 			}
 			else
 				_error("Number of inputs in the first argument must be 1 or 2",true,line+1,13,filename);
@@ -1084,18 +1058,8 @@ int main(int argc, char *argv[])
 							strcpy(op,"2");
 						sprintf(part4,"tmp_calc%d",in_i2);
 						fprintf(ow,"11\n0\n%s\n",op);
-						if(_input_type(val1) == 0)
-							fprintf(ow,"0\n%s\n",_getcontent(val1,line,filename));
-						else if(_input_type(val1) == 1)
-							fprintf(ow,"0\n%s\n",val1);
-						else
-							fprintf(ow,"1\n%s\n",val1);
-						if(_input_type(val2) == 0)
-							fprintf(ow,"0\n%s\n",_getcontent(val2,line,filename));
-						else if(_input_type(val2) == 1)
-							fprintf(ow,"0\n%s\n",val2);
-						else
-							fprintf(ow,"1\n%s\n",val2);
+						_add_input(val1,ow,line,filename);
+						_add_input(val2,ow,line,filename);
 						fprintf(ow,"0\n\n0\n%s\n",part4);
 						in_i2++;
 						strcpy(val1,part4);
@@ -1119,26 +1083,11 @@ int main(int argc, char *argv[])
 			}
 			strcpy(val2,part3);
 			fprintf(ow,"11\n0\n%s\n",op);
-			if(_input_type(val1) == 0)
-				fprintf(ow,"0\n%s\n",_getcontent(val1,line,filename));
-			else if(_input_type(val1) == 1)
-				fprintf(ow,"0\n%s\n",val1);
-			else
-				fprintf(ow,"1\n%s\n",val1);
-			if(_input_type(val2) == 0)
-				fprintf(ow,"0\n%s\n",_getcontent(val2,line,filename));
-			else if(_input_type(val2) == 1)
-				fprintf(ow,"0\n%s\n",val2);
-			else
-				fprintf(ow,"1\n%s\n",val2);
+			_add_input(val1,ow,line,filename);
+			_add_input(val2,ow,line,filename);
 			if(cmd_argc == 2)
 			{
-				if(_input_type(_getinput(1,0,i,cmd_argc,raw)) == 0)
-					fprintf(ow,"0\n%s\n",_getcontent(_getinput(1,0,i,cmd_argc,raw),line,filename));
-				else if(_input_type(_getinput(1,0,i,cmd_argc,raw)) == 1)
-					fprintf(ow,"0\n%s\n",_getinput(1,0,i,cmd_argc,raw));
-				else
-					fprintf(ow,"1\n%s\n",_getinput(1,0,i,cmd_argc,raw));
+				_add_input(_getinput(1,0,i,cmd_argc,raw),ow,line,filename);
 			}
 			else
 				fprintf(ow,"0\n\n");
@@ -1157,21 +1106,12 @@ int main(int argc, char *argv[])
 					sprintf(err,"Number of inputs in argument n. %d must be at least 2",in_i+1);
 					_error(err,true,line+1,13,filename);
 				}
-				if(_input_type(_getinput(in_i,0,i,cmd_argc,raw)) == 0)
-					fprintf(ow,"4\n0\n%s\n",_getcontent(_getinput(in_i,0,i,cmd_argc,raw),line,filename));
-				else if(_input_type(_getinput(in_i,0,i,cmd_argc,raw)) == 1)
-					fprintf(ow,"4\n0\n%s\n",_getinput(in_i,0,i,cmd_argc,raw));
-				else
-					fprintf(ow,"4\n1\n%s\n",_getinput(in_i,0,i,cmd_argc,raw));
+				fprintf(ow,"4\n");
+				_add_input(_getinput(in_i,0,i,cmd_argc,raw),ow,line,filename);
 				fprintf(ow,"0\n%d\n",in_tmp-1);
 				for(in_i2=1;in_i2<in_tmp;in_i2++)
 				{
-					if(_input_type(_getinput(in_i,in_i2,i,cmd_argc,raw)) == 0)
-						fprintf(ow,"0\n%s\n",_getcontent(_getinput(in_i,in_i2,i,cmd_argc,raw),line,filename));
-					else if(_input_type(_getinput(in_i,in_i2,i,cmd_argc,raw)) == 1)
-						fprintf(ow,"0\n%s\n",_getinput(in_i,in_i2,i,cmd_argc,raw));
-					else
-						fprintf(ow,"1\n%s\n",_getinput(in_i,in_i2,i,cmd_argc,raw));
+					_add_input(_getinput(in_i,in_i2,i,cmd_argc,raw),ow,line,filename);
 				}
 			}
 		}
@@ -1189,28 +1129,13 @@ int main(int argc, char *argv[])
 			{
 				fprintf(ow,"11\n0\n1\n");
 				// val1
-				if(_input_type(_getinput(0,0,i,cmd_argc,raw)) == 0)
-					fprintf(ow,"0\n%s\n",_getcontent(_getinput(0,0,i,cmd_argc,raw),line,filename));
-				else if(_input_type(_getinput(0,0,i,cmd_argc,raw)) == 1)
-					fprintf(ow,"0\n%s\n",_getinput(0,0,i,cmd_argc,raw));
-				else
-					fprintf(ow,"1\n%s\n",_getinput(0,0,i,cmd_argc,raw));
+				_add_input(_getinput(0,0,i,cmd_argc,raw),ow,line,filename);
 				// val2
-				fprintf(ow,"0\n0\n");
+				_add_input("0",ow,line,filename);
 				// scale
-				if(_input_type(_getinput(0,1,i,cmd_argc,raw)) == 0)
-					fprintf(ow,"0\n%s\n",_getcontent(_getinput(0,1,i,cmd_argc,raw),line,filename));
-				else if(_input_type(_getinput(0,1,i,cmd_argc,raw)) == 1)
-					fprintf(ow,"0\n%s\n",_getinput(0,1,i,cmd_argc,raw));
-				else
-					fprintf(ow,"1\n%s\n",_getinput(0,1,i,cmd_argc,raw));
+				_add_input(_getinput(0,1,i,cmd_argc,raw),ow,line,filename);
 				// output var
-				if(_input_type(_getinput(1,in_i2,i,cmd_argc,raw)) == 0)
-					fprintf(ow,"0\n%s\n",_getcontent(_getinput(1,in_i2,i,cmd_argc,raw),line,filename));
-				else if(_input_type(_getinput(1,in_i2,i,cmd_argc,raw)) == 1)
-					fprintf(ow,"0\n%s\n",_getinput(1,in_i2,i,cmd_argc,raw));
-				else
-					fprintf(ow,"1\n%s\n",_getinput(1,in_i2,i,cmd_argc,raw));
+				_add_input(_getinput(1,in_i2,i,cmd_argc,raw),ow,line,filename);
 			}
 		}
 		else if(strcmp(cmd,"while") == 0)
@@ -1232,26 +1157,11 @@ int main(int argc, char *argv[])
 			{
 				fprintf(ow,"12\n");
 				// string
-				if(_input_type(_getinput(0,0,i,cmd_argc,raw)) == 0)
-					fprintf(ow,"0\n%s\n",_getcontent(_getinput(0,0,i,cmd_argc,raw),line,filename));
-				else if(_input_type(_getinput(0,0,i,cmd_argc,raw)) == 1)
-					fprintf(ow,"0\n%s\n",_getinput(0,0,i,cmd_argc,raw));
-				else
-					fprintf(ow,"1\n%s\n",_getinput(0,0,i,cmd_argc,raw));
+				_add_input(_getinput(0,0,i,cmd_argc,raw),ow,line,filename);
 				// letter
-				if(_input_type(_getinput(0,1,i,cmd_argc,raw)) == 0)
-					fprintf(ow,"0\n%s\n",_getcontent(_getinput(0,1,i,cmd_argc,raw),line,filename));
-				else if(_input_type(_getinput(0,1,i,cmd_argc,raw)) == 1)
-					fprintf(ow,"0\n%s\n",_getinput(0,1,i,cmd_argc,raw));
-				else
-					fprintf(ow,"1\n%s\n",_getinput(0,1,i,cmd_argc,raw));
+				_add_input(_getinput(0,1,i,cmd_argc,raw),ow,line,filename);
 				// output var
-				if(_input_type(_getinput(1,in_i2,i,cmd_argc,raw)) == 0)
-					fprintf(ow,"0\n%s\n",_getcontent(_getinput(1,in_i2,i,cmd_argc,raw),line,filename));
-				else if(_input_type(_getinput(1,in_i2,i,cmd_argc,raw)) == 1)
-					fprintf(ow,"0\n%s\n",_getinput(1,in_i2,i,cmd_argc,raw));
-				else
-					fprintf(ow,"1\n%s\n",_getinput(1,in_i2,i,cmd_argc,raw));
+				_add_input(_getinput(1,in_i2,i,cmd_argc,raw),ow,line,filename);
 			}
 		}
 		else if(strcmp(cmd,"getlength") == 0)
@@ -1268,19 +1178,9 @@ int main(int argc, char *argv[])
 			{
 				fprintf(ow,"13\n");
 				// string
-				if(_input_type(_getinput(0,0,i,cmd_argc,raw)) == 0)
-					fprintf(ow,"0\n%s\n",_getcontent(_getinput(0,0,i,cmd_argc,raw),line,filename));
-				else if(_input_type(_getinput(0,0,i,cmd_argc,raw)) == 1)
-					fprintf(ow,"0\n%s\n",_getinput(0,0,i,cmd_argc,raw));
-				else
-					fprintf(ow,"1\n%s\n",_getinput(0,0,i,cmd_argc,raw));
+				_add_input(_getinput(0,0,i,cmd_argc,raw),ow,line,filename);
 				// output var
-				if(_input_type(_getinput(1,in_i2,i,cmd_argc,raw)) == 0)
-					fprintf(ow,"0\n%s\n",_getcontent(_getinput(1,in_i2,i,cmd_argc,raw),line,filename));
-				else if(_input_type(_getinput(1,in_i2,i,cmd_argc,raw)) == 1)
-					fprintf(ow,"0\n%s\n",_getinput(1,in_i2,i,cmd_argc,raw));
-				else
-					fprintf(ow,"1\n%s\n",_getinput(1,in_i2,i,cmd_argc,raw));
+				_add_input(_getinput(1,in_i2,i,cmd_argc,raw),ow,line,filename);
 			}
 		}
 		else if(strcmp(cmd,"setlist") == 0)
@@ -1295,12 +1195,7 @@ int main(int argc, char *argv[])
 				// Clear the list
 				fprintf(ow,"14\n");
 				// list name
-				if(_input_type(_getinput(0,in_i2,i,cmd_argc,raw)) == 0)
-					fprintf(ow,"0\n%s\n",_getcontent(_getinput(0,in_i2,i,cmd_argc,raw),line,filename));
-				else if(_input_type(_getinput(0,in_i2,i,cmd_argc,raw)) == 1)
-					fprintf(ow,"0\n%s\n",_getinput(0,in_i2,i,cmd_argc,raw));
-				else
-					fprintf(ow,"1\n%s\n",_getinput(0,in_i2,i,cmd_argc,raw));
+				_add_input(_getinput(0,in_i2,i,cmd_argc,raw),ow,line,filename);
 				// Add the items to the list
 				if(cmd_argc == 2)
 				{
@@ -1309,19 +1204,9 @@ int main(int argc, char *argv[])
 					{
 						fprintf(ow,"15\n");
 						// item
-						if(_input_type(_getinput(1,in_i,i,cmd_argc,raw)) == 0)
-							fprintf(ow,"0\n%s\n",_getcontent(_getinput(1,in_i,i,cmd_argc,raw),line,filename));
-						else if(_input_type(_getinput(1,in_i,i,cmd_argc,raw)) == 1)
-							fprintf(ow,"0\n%s\n",_getinput(1,in_i,i,cmd_argc,raw));
-						else
-							fprintf(ow,"1\n%s\n",_getinput(1,in_i,i,cmd_argc,raw));
+						_add_input(_getinput(1,in_i,i,cmd_argc,raw),ow,line,filename);
 						// list name
-						if(_input_type(_getinput(0,in_i2,i,cmd_argc,raw)) == 0)
-							fprintf(ow,"0\n%s\n",_getcontent(_getinput(0,in_i2,i,cmd_argc,raw),line,filename));
-						else if(_input_type(_getinput(0,in_i2,i,cmd_argc,raw)) == 1)
-							fprintf(ow,"0\n%s\n",_getinput(0,in_i2,i,cmd_argc,raw));
-						else
-							fprintf(ow,"1\n%s\n",_getinput(0,in_i2,i,cmd_argc,raw));
+						_add_input(_getinput(0,in_i2,i,cmd_argc,raw),ow,line,filename);
 					}
 				}
 				
