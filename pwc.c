@@ -1290,15 +1290,41 @@ int main(int argc, char *argv[])
 			if((cmd_argc != 1) && (cmd_argc != 2))
 				_error("Number of arguments must be 1 or 2",true,line+1,12,filename);
 			in_tmp=_getinputc(0,i,cmd_argc,raw);
-			fprintf(ow,"14\n%d\n%d\n",cmd_argc,in_tmp);
 			for(in_i2=0;in_i2<in_tmp;in_i2++)
-				fprintf(ow,"%s\n",_getinput(0,in_i2,i,cmd_argc,raw));
-			if(cmd_argc == 2)
 			{
-				in_tmp=_getinputc(1,i,cmd_argc,raw);
-				fprintf(ow,"%d\n",in_tmp);
-				for(in_i2=0;in_i2<in_tmp;in_i2++)
-					fprintf(ow,"%s\n",_getinput(1,in_i2,i,cmd_argc,raw));
+				// Clear the list
+				fprintf(ow,"14\n");
+				// list name
+				if(_input_type(_getinput(0,in_i2,i,cmd_argc,raw)) == 0)
+					fprintf(ow,"0\n%s\n",_getcontent(_getinput(0,in_i2,i,cmd_argc,raw),line,filename));
+				else if(_input_type(_getinput(0,in_i2,i,cmd_argc,raw)) == 1)
+					fprintf(ow,"0\n%s\n",_getinput(0,in_i2,i,cmd_argc,raw));
+				else
+					fprintf(ow,"1\n%s\n",_getinput(0,in_i2,i,cmd_argc,raw));
+				// Add the items to the list
+				if(cmd_argc == 2)
+				{
+					in_tmp=_getinputc(1,i,cmd_argc,raw);
+					for(in_i=0;in_i<in_tmp;in_i++)
+					{
+						fprintf(ow,"15\n");
+						// item
+						if(_input_type(_getinput(1,in_i,i,cmd_argc,raw)) == 0)
+							fprintf(ow,"0\n%s\n",_getcontent(_getinput(1,in_i,i,cmd_argc,raw),line,filename));
+						else if(_input_type(_getinput(1,in_i,i,cmd_argc,raw)) == 1)
+							fprintf(ow,"0\n%s\n",_getinput(1,in_i,i,cmd_argc,raw));
+						else
+							fprintf(ow,"1\n%s\n",_getinput(1,in_i,i,cmd_argc,raw));
+						// list name
+						if(_input_type(_getinput(0,in_i2,i,cmd_argc,raw)) == 0)
+							fprintf(ow,"0\n%s\n",_getcontent(_getinput(0,in_i2,i,cmd_argc,raw),line,filename));
+						else if(_input_type(_getinput(0,in_i2,i,cmd_argc,raw)) == 1)
+							fprintf(ow,"0\n%s\n",_getinput(0,in_i2,i,cmd_argc,raw));
+						else
+							fprintf(ow,"1\n%s\n",_getinput(0,in_i2,i,cmd_argc,raw));
+					}
+				}
+				
 			}
 		}
 		else if(strcmp(cmd,"append") == 0)
