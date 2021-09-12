@@ -851,23 +851,27 @@ int main(int argc, char *argv[])
 					if((c != '\n') && (c != EOF))
 						strncat(part,&c,1);
 				}
-				fprintf(ow,"1B\n%d\n1\n%s\n",cmd_argc+1,part);
+				fprintf(ow,"21\n1\n%s\n0\n\n0\n\n0\n%d\n",part,cmd_argc);
 				for(in_i=0; in_i < cmd_argc; in_i++)
 				{
-					fprintf(ow,"%d\n",_getinputc(in_i,i,cmd_argc,raw));
+					fprintf(ow,"0\n%d\n",_getinputc(in_i,i,cmd_argc,raw));
 					for(in_i2=0; in_i2 < _getinputc(in_i,i,cmd_argc,raw); in_i2++)
-						fprintf(ow,"%s\n",_getinput(in_i,in_i2,i,cmd_argc,raw));
+						_add_input(_getinput(in_i,in_i2,i,cmd_argc,raw),ow,line,filename);
 				}
 			}
 			else
 			{
 				rewind(funcr);
-				fprintf(ow,"10\n1\n2\n\"arg_count\"\n%d\n",cmd_argc);
+				fprintf(ow,"4\n0\narg_count\n0\n1\n0\n%d\n",cmd_argc);
 				for(in_i=0; in_i < cmd_argc; in_i++)
 				{
-					fprintf(ow,"14\n2\n1\n\"arg_%d\"\n%d\n",in_i+1,_getinputc(in_i,i,cmd_argc,raw));
+					fprintf(ow,"14\n0\narg_%d\n",in_i+1);
 					for(in_i2=0; in_i2 < _getinputc(in_i,i,cmd_argc,raw); in_i2++)
-						fprintf(ow,"%s\n",_getinput(in_i,in_i2,i,cmd_argc,raw));
+					{
+						fprintf(ow,"15\n");
+						_add_input(_getinput(in_i,in_i2,i,cmd_argc,raw),ow,line,filename);
+						fprintf(ow,"0\narg_%d\n",in_i+1);
+					}
 				}
 				while((c=getc(funcr)) != EOF)
 					putc(c,ow);
@@ -956,10 +960,10 @@ int main(int argc, char *argv[])
 				sprintf(part,".functions/%s",func_name);
 				sprintf(part3,".functions/%s.tmp",func_name);
 				ow = fopen(outfn,"a");
-				fprintf(ow,">>\n");
+				fprintf(ow,"4\n0\n");
 				if(linkdef_type == 2)
 					putc('$',ow);
-				fprintf(ow,"tmp_lib_%s\n",linkdef_var_name);
+				fprintf(ow,"tmp_lib_%s\n0\n1\n0\n",linkdef_var_name);
 				fclose(ow);
 				endstrconv(part3,outfn,"a");
 				ow = fopen(outfn,"a");
