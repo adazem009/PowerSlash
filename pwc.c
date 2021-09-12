@@ -1399,14 +1399,24 @@ int main(int argc, char *argv[])
 			in_tmp=_getinputc(0,i,cmd_argc,raw);
 			if((in_tmp < 1) || (in_tmp > 4))
 				_error("Number of inputs in the first argument must be 1, 2, 3 or 4",true,line+1,13,filename);
-			fprintf(ow,"1A\n%d\n%d\n",cmd_argc,in_tmp);
-			for(in_i2=0;in_i2<in_tmp;in_i2++)
-				fprintf(ow,"%s\n",_getinput(0,in_i2,i,cmd_argc,raw));
+			fprintf(ow,"20\n");
+			for(in_i2=0;in_i2<4;in_i2++)
+			{
+				if(in_i2 < in_tmp)
+					_add_input(_getinput(0,in_i2,i,cmd_argc,raw),ow,line,filename);
+				else
+					_add_input("''",ow,line,filename);
+			}
+			sprintf(part,"%d",cmd_argc-1);
+			_add_input(part,ow,line,filename);
 			for(in_i2=1;in_i2<cmd_argc;in_i2++)
 			{
-				fprintf(ow,"%d\n",_getinputc(in_i2,i,cmd_argc,raw));
+				sprintf(part,"%d",_getinputc(in_i2,i,cmd_argc,raw));
+				_add_input(part,ow,line,filename);
 				for(in_tmp=0; in_tmp < _getinputc(in_i2,i,cmd_argc,raw); in_tmp++)
-					fprintf(ow,"%s\n",_getinput(in_i2,in_tmp,i,cmd_argc,raw));
+				{
+					_add_input(_getinput(in_i2,in_tmp,i,cmd_argc,raw),ow,line,filename);
+				}
 			}
 		}
 		else if(strcmp(cmd,"source") == 0)
