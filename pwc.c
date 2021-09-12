@@ -874,6 +874,109 @@ int main(int argc, char *argv[])
 				fclose(funcr);
 			}
 		}
+		else if(strcmp(cmd,"define") == 0)
+		{
+			// define/function_name
+			if(_def)
+				_error("Can't define sub-function",true,line+1,14,filename);
+			if(cmd_argc != 1)
+				_error("Number of arguments must be 1",true,line+1,12,filename);
+			if(_getinputc(0,i,cmd_argc,raw) != 1)
+				_error("Number of inputs in the first argument must be 1",true,line+1,13,filename);
+			_def=true;
+			_def_started=false;
+			func_type=1;
+			strcpy(func_name,_getcontent(_getinput(0,0,i,cmd_argc,raw),line,filename));
+		}
+		else if(strcmp(cmd,"linkdef") == 0)
+		{
+			// linkdef/function_name
+			// linkdef/function_name,function_var_name
+			// linkdef/function_name,function_var_name,type
+			// Types: local, global
+			if(_def)
+				_error("Can't define sub-function",true,line+1,14,filename);
+			if(cmd_argc != 1)
+				_error("Number of arguments must be 1",true,line+1,12,filename);
+			if((_getinputc(0,i,cmd_argc,raw) != 1) && (_getinputc(0,i,cmd_argc,raw) != 2) && (_getinputc(0,i,cmd_argc,raw) != 3))
+				_error("Number of inputs in the first argument must be 1, 2 or 3",true,line+1,13,filename);
+			_def=true;
+			_def_started=false;
+			func_type=2;
+			strcpy(func_name,_getcontent(_getinput(0,0,i,cmd_argc,raw),line,filename));
+			if(_getinputc(0,i,cmd_argc,raw) == 1)
+			{
+				strcpy(linkdef_var_name,func_name);
+				linkdef_type=1; // local by default
+			}
+			else
+			{
+				strcpy(linkdef_var_name,_getcontent(_getinput(0,1,i,cmd_argc,raw),line,filename));
+				if(_getinputc(0,i,cmd_argc,raw) == 3)
+				{
+					if(strcmp(_getcontent(_getinput(0,2,i,cmd_argc,raw),line,filename),"local") == 0)
+						linkdef_type=1;
+					else if(strcmp(_getcontent(_getinput(0,2,i,cmd_argc,raw),line,filename),"global") == 0)
+						linkdef_type=2;
+					else
+					{
+						sprintf(err,"Unknown linkdef type: '%s'",_getcontent(_getinput(0,2,i,cmd_argc,raw),line,filename));
+						_error(err,true,line+1,14,filename);
+					}
+				}
+				else
+					linkdef_type=1; // local by default
+			}
+		}
+		else if(strcmp(cmd,"{") == 0)
+		{
+			if((!(_def)) || (_def && _def_started))
+				_error("Unexpected token '{'",true,line+1,14,filename);
+			if(cmd_argc != 0)
+				_error("Number of arguments must be 0",true,line+1,12,filename);
+			fclose(ow);
+			if(func_type == 1)
+				sprintf(part,".functions/%s",func_name);
+			else if(func_type == 2)
+				sprintf(part,".functions/%s.tmp",func_name);
+			ow = fopen(part,"w");
+			_def_started=true;
+		}
+		else if((_def) && (!(_def_started)))
+			_error("Expected token '{' but got a function",true,line+1,14,filename);
+		else if(strcmp(cmd,"}") == 0)
+		{
+			if(!(_def))
+				_error("Unexpected token '}'",true,line+1,14,filename);
+			if(cmd_argc != 0)
+				_error("Number of arguments must be 0",true,line+1,12,filename);
+			fclose(ow);
+			if(func_type == 2)
+			{
+				sprintf(part,".functions/%s",func_name);
+				sprintf(part3,".functions/%s.tmp",func_name);
+				ow = fopen(outfn,"a");
+				fprintf(ow,">>\n");
+				if(linkdef_type == 2)
+					putc('$',ow);
+				fprintf(ow,"tmp_lib_%s\n",linkdef_var_name);
+				fclose(ow);
+				endstrconv(part3,outfn,"a");
+				ow = fopen(outfn,"a");
+				putc('\n',ow);
+				fclose(ow);
+				remove(part3);
+				ow = fopen(part,"w");
+				fprintf(ow,"L\n");
+				if(linkdef_type == 2)
+					putc('$',ow);
+				fprintf(ow,"tmp_lib_%s\n",linkdef_var_name);
+				fclose(ow);
+			}
+			ow = fopen(outfn,"a");
+			_def=false;
+			_def_started=false;
+		}
 		else if(strcmp(cmd,"exit") == 0)
 		{
 			// exit
@@ -1287,109 +1390,6 @@ int main(int argc, char *argv[])
 				_add_input(_getinput(1,in_i2,i,cmd_argc,raw),ow,line,filename);
 				_add_input(_getinput(0,0,i,cmd_argc,raw),ow,line,filename);
 			}
-		}
-		else if(strcmp(cmd,"define") == 0)
-		{
-			// define/function_name
-			if(_def)
-				_error("Can't define sub-function",true,line+1,14,filename);
-			if(cmd_argc != 1)
-				_error("Number of arguments must be 1",true,line+1,12,filename);
-			if(_getinputc(0,i,cmd_argc,raw) != 1)
-				_error("Number of inputs in the first argument must be 1",true,line+1,13,filename);
-			_def=true;
-			_def_started=false;
-			func_type=1;
-			strcpy(func_name,_getcontent(_getinput(0,0,i,cmd_argc,raw),line,filename));
-		}
-		else if(strcmp(cmd,"linkdef") == 0)
-		{
-			// linkdef/function_name
-			// linkdef/function_name,function_var_name
-			// linkdef/function_name,function_var_name,type
-			// Types: local, global
-			if(_def)
-				_error("Can't define sub-function",true,line+1,14,filename);
-			if(cmd_argc != 1)
-				_error("Number of arguments must be 1",true,line+1,12,filename);
-			if((_getinputc(0,i,cmd_argc,raw) != 1) && (_getinputc(0,i,cmd_argc,raw) != 2) && (_getinputc(0,i,cmd_argc,raw) != 3))
-				_error("Number of inputs in the first argument must be 1, 2 or 3",true,line+1,13,filename);
-			_def=true;
-			_def_started=false;
-			func_type=2;
-			strcpy(func_name,_getcontent(_getinput(0,0,i,cmd_argc,raw),line,filename));
-			if(_getinputc(0,i,cmd_argc,raw) == 1)
-			{
-				strcpy(linkdef_var_name,func_name);
-				linkdef_type=1; // local by default
-			}
-			else
-			{
-				strcpy(linkdef_var_name,_getcontent(_getinput(0,1,i,cmd_argc,raw),line,filename));
-				if(_getinputc(0,i,cmd_argc,raw) == 3)
-				{
-					if(strcmp(_getcontent(_getinput(0,2,i,cmd_argc,raw),line,filename),"local") == 0)
-						linkdef_type=1;
-					else if(strcmp(_getcontent(_getinput(0,2,i,cmd_argc,raw),line,filename),"global") == 0)
-						linkdef_type=2;
-					else
-					{
-						sprintf(err,"Unknown linkdef type: '%s'",_getcontent(_getinput(0,2,i,cmd_argc,raw),line,filename));
-						_error(err,true,line+1,14,filename);
-					}
-				}
-				else
-					linkdef_type=1; // local by default
-			}
-		}
-		else if(strcmp(cmd,"{") == 0)
-		{
-			if((!(_def)) || (_def && _def_started))
-				_error("Unexpected token '{'",true,line+1,14,filename);
-			if(cmd_argc != 0)
-				_error("Number of arguments must be 0",true,line+1,12,filename);
-			fclose(ow);
-			if(func_type == 1)
-				sprintf(part,".functions/%s",func_name);
-			else if(func_type == 2)
-				sprintf(part,".functions/%s.tmp",func_name);
-			ow = fopen(part,"w");
-			_def_started=true;
-		}
-		else if((_def) && (!(_def_started)))
-			_error("Expected token '{' but got a function",true,line+1,14,filename);
-		else if(strcmp(cmd,"}") == 0)
-		{
-			if(!(_def))
-				_error("Unexpected token '}'",true,line+1,14,filename);
-			if(cmd_argc != 0)
-				_error("Number of arguments must be 0",true,line+1,12,filename);
-			fclose(ow);
-			if(func_type == 2)
-			{
-				sprintf(part,".functions/%s",func_name);
-				sprintf(part3,".functions/%s.tmp",func_name);
-				ow = fopen(outfn,"a");
-				fprintf(ow,">>\n");
-				if(linkdef_type == 2)
-					putc('$',ow);
-				fprintf(ow,"tmp_lib_%s\n",linkdef_var_name);
-				fclose(ow);
-				endstrconv(part3,outfn,"a");
-				ow = fopen(outfn,"a");
-				putc('\n',ow);
-				fclose(ow);
-				remove(part3);
-				ow = fopen(part,"w");
-				fprintf(ow,"L\n");
-				if(linkdef_type == 2)
-					putc('$',ow);
-				fprintf(ow,"tmp_lib_%s\n",linkdef_var_name);
-				fclose(ow);
-			}
-			ow = fopen(outfn,"a");
-			_def=false;
-			_def_started=false;
 		}
 		else if(strcmp(cmd,"run") == 0)
 		{
