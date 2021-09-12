@@ -1421,20 +1421,38 @@ int main(int argc, char *argv[])
 		}
 		else if(strcmp(cmd,"source") == 0)
 		{
-			// source/executable_code,wait_or_bg/[arg1]/[arg2]/...
+			// source/executable_code,wait_or_bg_(deprecated),start_byte,size/[arg1]/[arg2]/...
 			if(cmd_argc == 0)
 				_error("Number of arguments must be at least 1",true,line+1,12,filename);
 			in_tmp=_getinputc(0,i,cmd_argc,raw);
-			if((in_tmp != 1) && (in_tmp != 2))
-				_error("Number of inputs in the first argument must be 1 or 2",true,line+1,13,filename);
-			fprintf(ow,"1B\n%d\n%d\n",cmd_argc,in_tmp);
-			for(in_i2=0;in_i2<in_tmp;in_i2++)
-				fprintf(ow,"%s\n",_getinput(0,in_i2,i,cmd_argc,raw));
+			if((in_tmp < 1) || (in_tmp > 4))
+				_error("Number of inputs in the first argument must be 1, 2, 3 or 4",true,line+1,13,filename);
+			fprintf(ow,"21\n");
+			for(in_i2=0;in_i2<4;in_i2++)
+			{
+				if(in_i2 < in_tmp)
+				{
+					if(in_i2 == 1)
+					{
+						if(strcmp(_getcontent(_getinput(0,in_i2,i,cmd_argc,raw),line,filename),"") != 0)
+							printf("%s: %d: warning: ignoring exec mode\n",filename,line+1);
+					}
+					else
+						_add_input(_getinput(0,in_i2,i,cmd_argc,raw),ow,line,filename);
+				}
+				else
+					_add_input("''",ow,line,filename);
+			}
+			sprintf(part,"%d",cmd_argc-1);
+			_add_input(part,ow,line,filename);
 			for(in_i2=1;in_i2<cmd_argc;in_i2++)
 			{
-				fprintf(ow,"%d\n",_getinputc(in_i2,i,cmd_argc,raw));
+				sprintf(part,"%d",_getinputc(in_i2,i,cmd_argc,raw));
+				_add_input(part,ow,line,filename);
 				for(in_tmp=0; in_tmp < _getinputc(in_i2,i,cmd_argc,raw); in_tmp++)
-					fprintf(ow,"%s\n",_getinput(in_i2,in_tmp,i,cmd_argc,raw));
+				{
+					_add_input(_getinput(in_i2,in_tmp,i,cmd_argc,raw),ow,line,filename);
+				}
 			}
 		}
 		else if(strcmp(cmd,"getkey") == 0)
