@@ -1264,9 +1264,24 @@ int main(int argc, char *argv[])
 			in_tmp=_getinputc(1,i,cmd_argc,raw);
 			if(in_tmp == 0)
 				_error("Number of inputs in the second argument must be at least 1",true,line+1,13,filename);
-			fprintf(ow,"13\n2\n1\n%s\n%d\n",_getinput(0,0,i,cmd_argc,raw),in_tmp);
 			for(in_i2=0;in_i2<in_tmp;in_i2++)
-				fprintf(ow,"%s\n",_getinput(1,in_i2,i,cmd_argc,raw));
+			{
+				fprintf(ow,"13\n");
+				// string
+				if(_input_type(_getinput(0,0,i,cmd_argc,raw)) == 0)
+					fprintf(ow,"0\n%s\n",_getcontent(_getinput(0,0,i,cmd_argc,raw),line,filename));
+				else if(_input_type(_getinput(0,0,i,cmd_argc,raw)) == 1)
+					fprintf(ow,"0\n%s\n",_getinput(0,0,i,cmd_argc,raw));
+				else
+					fprintf(ow,"1\n%s\n",_getinput(0,0,i,cmd_argc,raw));
+				// output var
+				if(_input_type(_getinput(1,in_i2,i,cmd_argc,raw)) == 0)
+					fprintf(ow,"0\n%s\n",_getcontent(_getinput(1,in_i2,i,cmd_argc,raw),line,filename));
+				else if(_input_type(_getinput(1,in_i2,i,cmd_argc,raw)) == 1)
+					fprintf(ow,"0\n%s\n",_getinput(1,in_i2,i,cmd_argc,raw));
+				else
+					fprintf(ow,"1\n%s\n",_getinput(1,in_i2,i,cmd_argc,raw));
+			}
 		}
 		else if(strcmp(cmd,"setlist") == 0)
 		{
