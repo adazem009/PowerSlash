@@ -1623,7 +1623,8 @@ int main(int argc, char *argv[])
 			// reboot
 			if(cmd_argc != 0)
 				_error("Number of arguments must be 0",true,line+1,12,filename);
-			fprintf(ow,"2B\n1\n1\n2\n");
+			fprintf(ow,"m15\n");
+			_add_input("2",ow,line,filename);
 		}
 		else if(strcmp(cmd,"writedisk") == 0)
 		{
